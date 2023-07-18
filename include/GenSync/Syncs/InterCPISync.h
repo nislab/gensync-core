@@ -5,7 +5,7 @@
 #define INCRE_CPI_H
 
 #include <list>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync//Aux/Auxiliary.h>
 #include <GenSync/Communicants/Communicant.h>
 #include <GenSync/Data/DataObject.h>
 #include <GenSync/Syncs/CPISync_ExistingConnection.h>

@@ -10,11 +10,11 @@
 #include <vector>
 #include <getopt.h>
 
-#include <Gensync/Aux/Auxiliary.h>
-#include <Gensync/Aux/SyncMethod.h>
-#include <Gensync/Syncs/GenSync.h>
-#include <Gensync/Syncs/CPISync.h>
-#include <Gensync/Communicants/CommString.h>
+#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Aux/SyncMethod.h>
+#include <GenSync/Syncs/GenSync.h>
+#include <GenSync/Syncs/CPISync.h>
+#include <GenSync/Communicants/CommString.h>
 
 using namespace std;
 
