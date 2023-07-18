@@ -1,6 +1,6 @@
-# Core_GenSync
+# GenSync-core
 
-Core_GenSync only contains the core source-code for gensync project.
+GenSync-core only contains the core source-code of gensync project.
 
 The current version is 2.0.4
 
