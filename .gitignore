@@ -193,6 +193,8 @@ fabric.properties
 # Sonarlint plugin
 .idea/sonarlint
 
+# Mac system file
+.DS_Store
 
 # End of https://www.gitignore.io/api/clion
 
@@ -201,6 +203,3 @@ fabric.properties
 *.mnlog
 /scripts/network_cpu_variations/DATA/
 /scripts/network_cpu_variations/.mypy_cache/
-
-# Mac system file
-.DS_Store
