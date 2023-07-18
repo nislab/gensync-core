@@ -201,3 +201,6 @@ fabric.properties
 *.mnlog
 /scripts/network_cpu_variations/DATA/
 /scripts/network_cpu_variations/.mypy_cache/
+
+# Mac system file
+.DS_Store
