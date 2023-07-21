@@ -1,6 +1,16 @@
 # GenSync-core
 
-GenSync-core only contains the core source-code and tests of gensync project.
+GenSync-core only contains the core source-code and tests of gensync project. Below is an overview of the other repositories of this project:
+
+## All Gensync Repositories
+- [Gensync-Core](https://github.com/nislab/gensync-core)
+    - Gensync-Core contains only the source-code and tests of the gensync project. It is the most basic component of the gensync project, meant to only contain the necessary components to build the gensync library and house the unit tests for all the functions. Examples of this library in use can be found later in this README file.
+- [Gensync-Macports](https://github.com/nislab/gensync-macports)
+    - Gensync-Macports is the version specifically targeted towards macports. This repository has an updated README for more information about packaging use, and the README will also be installed in the /share/doc/gensync directory where macports is installed. 
+- [Gensync-Linux](https://github.com/nislab/gensync-lib-linux/)
+    - GenSync-lib-linux is the extended version of the [Gensync-Core](https://github.com/nislab/gensync-core) for Linux. It provides a library for synchronizing data efficiently across different machines on the Linux OS. It can be used with [mininet](http://mininet.org) to mimic a network for other uses.
+- [Gensync-Benchmarking](https://github.com/nislab/gensync-benchmarking)
+    - GenSync-benchmarking is the extended framework for benchmarking and optimizing reconciliation of data. It can be compiled to a shared library and integrated into other applications, or can be built as a standalone application and used to benchmark the implemented algorithms under a broad range of practical compute and network conditions.
 
 The current version is 2.0.4
 
