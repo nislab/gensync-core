@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.6)
-project(cpisync)
+project(gensync)
 set(CMAKE_CXX_STANDARD 11)
 
 # if compiled with RECORD, GenSync server and client produce extensive log files
 # that can be used to reproduce exact sync behavior afterwards
-add_definitions(-DRECORD=".cpisync")
+add_definitions(-DRECORD=".gensync")
 
 include(CTest)
 include(GNUInstallDirs)
@@ -26,7 +26,7 @@ set(SYNC_DIR ${SRC_DIR}/Syncs)
 set(BENCH_DIR ${SRC_DIR}/Benchmarks)
 set(TOOLS_DIR ${SRC_DIR}/Tools)
 
-set(INCLUDE include/CPISync)
+set(INCLUDE include/GenSync)
 set(AUX_DIR_INC ${INCLUDE}/Aux)
 set(DATA_DIR_INC ${INCLUDE}/Data)
 set(COMM_DIR_INC ${INCLUDE}/Communicants)
@@ -139,15 +139,15 @@ include_directories(${CMAKE_INSTALL_INCLUDEDIR})
 link_directories(${CMAKE_INSTALL_LIBDIR})
 
 # Add libs and executables
-add_library(cpisync STATIC ${SOURCE_FILES} ${HEADERS})
-target_include_directories(cpisync PRIVATE ${CMAKE_SOURCE_DIR}/include)
-TARGET_LINK_LIBRARIES(cpisync ntl cppunit pthread gmp)
+add_library(gensync STATIC ${SOURCE_FILES} ${HEADERS})
+target_include_directories(gensync PRIVATE ${CMAKE_SOURCE_DIR}/include)
+TARGET_LINK_LIBRARIES(gensync ntl cppunit pthread gmp)
 
-install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_INCLUDEDIR}/cpisync)") #Remove the existing CPISync library data and reinstall
-install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_LIBDIR}/libcpisync.a)") #Remove the existing CPISync library data and reinstall
-install(TARGETS cpisync LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/CPISync) #create a new folder for CPISync inside of the system include directory
-install(DIRECTORY ${AUX_DIR_INC} ${DATA_DIR_INC} ${COMM_DIR_INC} ${SYNC_DIR_INC} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/CPISync COMPONENT devel) #copy the contents of the include folder into the system include directory
+install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_INCLUDEDIR}/gensync)") #Remove the existing GenSync library data and reinstall
+install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_LIBDIR}/libgensync.a)") #Remove the existing GenSync library data and reinstall
+install(TARGETS gensync LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(DIRECTORY DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GenSync) #create a new folder for GenSync inside of the system include directory
+install(DIRECTORY ${AUX_DIR_INC} ${DATA_DIR_INC} ${COMM_DIR_INC} ${SYNC_DIR_INC} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GenSync COMPONENT devel) #copy the contents of the include folder into the system include directory
 
 # Define a macro for adding executables testing multiple files
 # @param dir The relative path to the folder containing test files to add
@@ -158,7 +158,7 @@ macro(add_group_test dir name)
 
     FOREACH(test ${testPaths})
         GET_FILENAME_COMPONENT(testName ${test} NAME_WE)
-        TARGET_LINK_LIBRARIES(${name} cpisync ntl cppunit pthread gmp)
+        TARGET_LINK_LIBRARIES(${name} gensync ntl cppunit pthread gmp)
         ADD_TEST(${testName} ${name})
     ENDFOREACH(test)
 endmacro()
@@ -176,7 +176,7 @@ set(CPACK_PACKAGE_VERSION ${VERSION})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A library for remote file synchronization research")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/README.md)
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
-set(CPACK_PACKAGE_NAME "CPISync")
+set(CPACK_PACKAGE_NAME "GenSync")
 set(CPACK_PACKAGE_VERSION_MAJOR "2")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "3")
