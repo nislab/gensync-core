@@ -5,7 +5,7 @@
 
 
 #include <iostream>
-#include <Gensync/Syncs/GenSync.h>
+#include <GenSync/Syncs/GenSync.h>
 
 using std::cout;
 using std::endl;
