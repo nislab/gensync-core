@@ -9,6 +9,10 @@
 #ifndef SKETCHES_H
 #define SKETCHES_H
 
+#ifndef uint
+#define uint unsigned int
+#endif
+
 #include <GenSync/Data/DataObject.h>
 #include "hll.hpp"
 #include "frequent_items_sketch.hpp"
