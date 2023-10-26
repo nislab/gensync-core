@@ -1,4 +1,4 @@
-#include <CPISync/Communicants/CommSocket.h>
+#include <GenSync/Communicants/CommSocket.h>
 #include "CommSocketTest.h"
 #include "TestAuxiliary.h"
 
@@ -55,4 +55,3 @@ void CommSocketTest::SocketSendAndReceiveTest() {
 		//Else test has already completed and the success status has been reported
 	}
 }
-

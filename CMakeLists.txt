@@ -4,21 +4,16 @@ set(CMAKE_CXX_STANDARD 11)
 
 # if compiled with RECORD, GenSync server and client produce extensive log files
 # that can be used to reproduce exact sync behavior afterwards
-add_definitions(-DRECORD=".gensync")
+set(RECORD_DIR ".gensync" CACHE STRING "location of record directory")
+
+set(DEFAULT_LOG_LEVEL "TEST" CACHE STRING "default log level")
 
 include(CTest)
 include(GNUInstallDirs)
 
-# include Apache Data Sketches as a header-only library
-include_directories(incubator-datasketches-cpp/common/include
-        incubator-datasketches-cpp/hll/include
-        incubator-datasketches-cpp/fi/include)
-
-# some flags
-set(CMAKE_CXX_FLAGS "-std=c++11 -DDEFAULT_LOGLEVEL=TEST")
-
 # Set project directory strucuture
 set(SRC_DIR src)
+set(INCLUDE_DIR include)
 set(AUX_DIR ${SRC_DIR}/Aux)
 set(DATA_DIR ${SRC_DIR}/Data)
 set(COMM_DIR ${SRC_DIR}/Communicants)
@@ -72,13 +67,9 @@ set(SOURCE_FILES
         ${SYNC_DIR}/CuckooSync.cpp
         ${SYNC_DIR}/FullSync.cpp
 
-        ${BENCH_DIR}/Runner.cpp
         ${BENCH_DIR}/BenchParams.cpp
         ${BENCH_DIR}/FromFileGen.cpp
-
-        ${TOOLS_DIR}/EncodeJoin.cpp
-
-        ${SRC_DIR}/main.cpp)
+    )
 
 set(HEADERS
 
@@ -127,21 +118,22 @@ set(HEADERS
         ${SYNC_BENCH_INC}/BenchParams.h
         ${SYNC_BENCH_INC}/DataObjectGenerator.h
         ${SYNC_BENCH_INC}/RandGen.h
-        ${SYNC_BENCH_INC}/FromFileGen.h)
+        ${SYNC_BENCH_INC}/FromFileGen.h
+    )
 
-include_directories(include)
-include_directories(tests)
-
-include_directories(/usr/local/include)
-link_directories(/usr/local/lib)
-link_directories(/usr/local/lib64)
-include_directories(${CMAKE_INSTALL_INCLUDEDIR})
-link_directories(${CMAKE_INSTALL_LIBDIR})
-
-# Add libs and executables
+# Add gensync library
 add_library(gensync STATIC ${SOURCE_FILES} ${HEADERS})
-target_include_directories(gensync PRIVATE ${CMAKE_SOURCE_DIR}/include)
-TARGET_LINK_LIBRARIES(gensync ntl cppunit pthread gmp)
+target_include_directories(gensync PUBLIC ${INCLUDE_DIR})
+target_compile_definitions(gensync PUBLIC RECORD="${RECORD_DIR}")
+target_compile_definitions(gensync PUBLIC DEFAULT_LOGLEVEL=${DEFAULT_LOG_LEVEL})
+
+# include Apache Data Sketches as a header-only library
+target_link_libraries(gensync PUBLIC ntl pthread gmp)
+target_include_directories(gensync PUBLIC
+                    incubator-datasketches-cpp/common/include
+                    incubator-datasketches-cpp/hll/include
+                    incubator-datasketches-cpp/fi/include
+    )
 
 install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_INCLUDEDIR}/gensync)") #Remove the existing GenSync library data and reinstall
 install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_LIBDIR}/libgensync.a)") #Remove the existing GenSync library data and reinstall
@@ -149,25 +141,44 @@ install(TARGETS gensync LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DEST
 install(DIRECTORY DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GenSync) #create a new folder for GenSync inside of the system include directory
 install(DIRECTORY ${AUX_DIR_INC} ${DATA_DIR_INC} ${COMM_DIR_INC} ${SYNC_DIR_INC} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GenSync COMPONENT devel) #copy the contents of the include folder into the system include directory
 
+# Add the TryMe executable
+add_executable(TryMe ${SRC_DIR}/TryMe.cpp)
+target_link_libraries(TryMe gensync)
+
+# Benchmarks
+add_executable(Benchmarks ${BENCH_DIR}/Runner.cpp)
+target_link_libraries(Benchmarks gensync)
+
+# Tools
+add_executable(EncodeJoin ${TOOLS_DIR}/EncodeJoin.cpp)
+target_link_libraries(EncodeJoin gensync)
+
 # Define a macro for adding executables testing multiple files
 # @param dir The relative path to the folder containing test files to add
 # @param name The executable name
 macro(add_group_test dir name)
-    FILE(GLOB testPaths ${dir}/*Test.cpp ${dir}/*Tests.cpp)
-    ADD_EXECUTABLE(${name} ${TEST_RUNNER} ${testPaths})
+    file(GLOB testPaths ${dir}/*Test.cpp ${dir}/*Tests.cpp)
 
-    FOREACH(test ${testPaths})
-        GET_FILENAME_COMPONENT(testName ${test} NAME_WE)
-        TARGET_LINK_LIBRARIES(${name} gensync ntl cppunit pthread gmp)
-        ADD_TEST(${testName} ${name})
-    ENDFOREACH(test)
+    # add one executable with all tests
+    add_executable(${name} ${TEST_RUNNER} ${testPaths})
+    target_link_libraries(${name} gensync cppunit)
+    target_include_directories(${name} PRIVATE tests)
+
+    # add an executable for each test file and register it
+    foreach(test ${testPaths})
+        get_filename_component(testName ${test} NAME_WE)
+        add_executable(${testName} ${TEST_RUNNER} ${test})
+        target_link_libraries(${testName} gensync cppunit)
+        target_include_directories(${testName} PRIVATE tests)
+        add_test(${testName} ${testName})
+    endforeach(test)
 endmacro()
 
 # Add test groups (note: executable will throw errors if there are no tests in the respective folder)
 add_group_test(${UNIT_TEST_DIR} UnitTest)
-#add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
+# #add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
 add_group_test(${SYSLONG_TEST_DIR} SystemLongTest)
-#add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
+# #add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
 add_group_test(${BENCHMARK_TEST_DIR} Benchmark)
 
 #Packaging

@@ -7,9 +7,9 @@
 #define CPISYNCLIB_IBLTTEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <CPISync/Syncs/IBLT.h>
-#include <CPISync/Syncs/IBLTMultiset.h>
-#include <CPISync/Aux/Auxiliary.h>
+#include <GenSync/Syncs/IBLT.h>
+#include <GenSync/Syncs/IBLTMultiset.h>
+#include <GenSync/Aux/Auxiliary.h>
 #include <iostream>
 #include <algorithm>
 

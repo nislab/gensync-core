@@ -6,17 +6,17 @@
 #define CPISYNCLIB_BENCHMARKTEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
-#include <CPISync/Syncs/IBLTSync.h>
-#include <CPISync/Syncs/IBLTSync_HalfRound.h>
-#include <CPISync/Syncs/ProbCPISync.h>
-#include <CPISync/Syncs/CPISync_HalfRound.h>
-#include <CPISync/Syncs/InterCPISync.h>
-#include <CPISync/Communicants/CommString.h>
-#include <CPISync/Communicants/CommSocket.h>
-#include <CPISync/Aux/Auxiliary.h>
-#include <CPISync/Syncs/GenSync.h>
-#include <CPISync/Syncs/FullSync.h>
-#include <CPISync/Aux/ForkHandle.h>
+#include <GenSync/Syncs/IBLTSync.h>
+#include <GenSync/Syncs/IBLTSync_HalfRound.h>
+#include <GenSync/Syncs/ProbCPISync.h>
+#include <GenSync/Syncs/CPISync_HalfRound.h>
+#include <GenSync/Syncs/InterCPISync.h>
+#include <GenSync/Communicants/CommString.h>
+#include <GenSync/Communicants/CommSocket.h>
+#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Syncs/GenSync.h>
+#include <GenSync/Syncs/FullSync.h>
+#include <GenSync/Aux/ForkHandle.h>
 #include "TestAuxiliary.h"
 
 class BenchmarkTest : public CPPUNIT_NS::TestFixture
