@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
 project(gensync)
+
+cmake_policy(SET CMP0077 NEW)
+
 set(CMAKE_CXX_STANDARD 11)
 
 # if compiled with RECORD, GenSync server and client produce extensive log files
