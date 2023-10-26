@@ -6,9 +6,13 @@ set(CMAKE_CXX_STANDARD 11)
 # that can be used to reproduce exact sync behavior afterwards
 set(RECORD_DIR ".gensync" CACHE STRING "location of record directory")
 
+option(BUILD_TESTS "build tests" ON)
 set(DEFAULT_LOG_LEVEL "TEST" CACHE STRING "default log level")
 
-include(CTest)
+if(BUILD_TESTS)
+    include(CTest)
+endif()
+
 include(GNUInstallDirs)
 
 # Set project directory strucuture
@@ -174,12 +178,14 @@ macro(add_group_test dir name)
     endforeach(test)
 endmacro()
 
-# Add test groups (note: executable will throw errors if there are no tests in the respective folder)
-add_group_test(${UNIT_TEST_DIR} UnitTest)
-# #add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
-add_group_test(${SYSLONG_TEST_DIR} SystemLongTest)
-# #add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
-add_group_test(${BENCHMARK_TEST_DIR} Benchmark)
+if(BUILD_TESTS)
+    # Add test groups (note: executable will throw errors if there are no tests in the respective folder)
+    add_group_test(${UNIT_TEST_DIR} UnitTest)
+    # #add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
+    add_group_test(${SYSLONG_TEST_DIR} SystemLongTest)
+    # #add_group_test(${SYSSHORT_TEST_DIR} SystemShortTests)
+    add_group_test(${BENCHMARK_TEST_DIR} Benchmark)
+endif()
 
 #Packaging
 set(CPACK_GENERATOR "RPM;DEB")
