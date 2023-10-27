@@ -481,7 +481,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
         Logger::gLog(Logger::COMM,"exit a child process, server, status: " + toStr(serverReport.success) +  ", pid: " + toStr(getpid()));
 
         multiset<string> resultantServer;
-        for (const auto &elem : GenSyncServer.dumpElements()) {
+        for (const auto &elem : GenSyncServer.dumpElements64()) {
             resultantServer.insert(elem);
         }
         bool serverSuccess = checkServerSucceeded(resultantServer, reconciled, setofSets, oneWay, serverReport);
@@ -500,7 +500,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 
         multiset<string> initialClient;
         if(oneWay) {
-            for (const auto& elem : GenSyncClient.dumpElements()) {
+            for (const auto& elem : GenSyncClient.dumpElements64()) {
                 initialClient.insert(elem);
             }
         }
@@ -512,7 +512,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
         waitpid(pID, &child_state, my_opt);
 
         multiset<string> resultantClient;
-        for (const auto& elem : GenSyncClient.dumpElements()) {
+        for (const auto& elem : GenSyncClient.dumpElements64()) {
             resultantClient.insert(elem);
         }
 
