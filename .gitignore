@@ -208,3 +208,5 @@ fabric.properties
 # vscode
 /.cache/
 .vscode
+
+.gensync/
