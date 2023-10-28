@@ -573,7 +573,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 			}
 
 			multiset<string> resClient;
-			for (auto dop : GenSyncClient.dumpElements())
+			for (auto dop : GenSyncClient.dumpElements64())
 				resClient.insert(dop);
 
 			clientReconcileSuccess = clientReport.success;
@@ -595,7 +595,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 		}
 		else{
 			//Checks that the size of the client has not changed if the sync is one way
-			clientReconcileSuccess &= GenSyncClient.dumpElements().size() == SIMILAR + CLIENT_MINUS_SERVER;
+			clientReconcileSuccess &= GenSyncClient.dumpElements64().size() == SIMILAR + CLIENT_MINUS_SERVER;
 		}
 		//chld_state will be nonzero if clientReconcileSuccess is nonzero (nonzero = true, zero = false)
 		exit(clientReconcileSuccess);
@@ -626,7 +626,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 		}*/
 
 		multiset<string> resServer;
-		for (auto dop : GenSyncServer.dumpElements())
+		for (auto dop : GenSyncServer.dumpElements64())
 			resServer.insert(dop);
 
 		if(!syncParamTest){
@@ -1100,7 +1100,7 @@ inline bool longTermSync(GenSync &GenSyncClient,
 			else
 			{
 				//Checks that the size of the client has not changed if the sync is one way
-				clientReconcileSuccess &= (GenSyncClient.dumpElements().size() == SIMILAR + CLIENT_MINUS_SERVER);
+				clientReconcileSuccess &= (GenSyncClient.dumpElements64().size() == SIMILAR + CLIENT_MINUS_SERVER);
 			}
 
 			if (curRound != Rounds - 1)
@@ -1193,7 +1193,7 @@ inline bool longTermSync(GenSync &GenSyncClient,
 			}*/
 
 			multiset<string> resServer;
-			for (auto dop : GenSyncServer.dumpElements())
+			for (auto dop : GenSyncServer.dumpElements64())
 				resServer.insert(dop);
 
 			if (!syncParamTest)
