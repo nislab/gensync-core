@@ -489,6 +489,11 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
                      "server, status: " + toStr(serverReport.success) + ", check success: " + toStr(serverSuccess) +
                      ", pid: " + toStr(getpid()));
 
+        // quick fix to ensure communicants are cleaned in child process since exit() does not call all destructors
+        for(int i = GenSyncServer.numComm(); i > 0; i--) {
+            GenSyncServer.delComm(i - 1);
+        }
+
         exit(serverSuccess);
     } else if (pID < 0) {
         Logger::error_and_quit("Fork error in sync test");
