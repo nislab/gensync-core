@@ -13,9 +13,6 @@
 #include <GenSync/Syncs/CPISync.h>
 #include <GenSync/Syncs/InterCPISync.h>
 
-bool InterCPISync::serverConnectedBefore = false;
-bool InterCPISync::clientConnectedBefore = false;
-
 InterCPISync::InterCPISync(long m_bar, long bits, int epsilon, int partition,bool Hashes /* = false*/)
 : maxDiff(m_bar), bitNum(bits), pFactor(partition), hashes(Hashes),
 	probEps(conv<int>(ceil(-log10((RR_ONE - pow(RR_ONE - pow(RR_TWO,(RR) -epsilon),RR_ONE/ (RR_ONE+ pow(RR_TWO,(RR) bits) *
@@ -42,8 +39,7 @@ InterCPISync::InterCPISync(long m_bar, long bits, int epsilon, int partition,boo
 
 	treeNode = nullptr;
         // TODO: Novak's quick fix.
-        // useExisting=false;
-        useExisting=true;
+        useExisting=false;
         SyncID = SYNC_TYPE::Interactive_CPISync; // the synchronization type
 }
 
@@ -100,13 +96,6 @@ bool InterCPISync::addElem(shared_ptr<DataObject> newDatum) {
 
 bool InterCPISync::SyncClient(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>>& selfMinusOther, list<shared_ptr<DataObject>>& otherMinusSelf) {
     Logger::gLog(Logger::METHOD, "Entering InterCPISync::SyncClient");
-    if (!clientConnectedBefore) {
-        clientConnectedBefore = true;
-
-        mySyncStats.timerStart(SyncStats::IDLE_TIME);
-        commSync->commConnect();
-        mySyncStats.timerEnd(SyncStats::IDLE_TIME);
-    }
 
     // 0. Set up communicants
     if(!useExisting) {
@@ -189,20 +178,10 @@ bool InterCPISync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
 
     bool result = SyncMethod::SyncServer(commSync, selfMinusOther, otherMinusSelf);
 
-    if (!serverConnectedBefore) {
-        mySyncStats.timerStart(SyncStats::IDLE_TIME);
-        commSync->commListen();
-        mySyncStats.timerEnd(SyncStats::IDLE_TIME);
-
-        serverConnectedBefore = true;
-    }
-
     // 0. Set up communicants
-    if(!useExisting) {
-        mySyncStats.timerStart(SyncStats::IDLE_TIME);
-        commSync->commListen();
-        mySyncStats.timerEnd(SyncStats::IDLE_TIME);
-    }
+    mySyncStats.timerStart(SyncStats::IDLE_TIME);
+    commSync->commListen();
+    mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
     mySyncStats.timerStart(SyncStats::COMM_TIME);
     // ... verify sync parameters
