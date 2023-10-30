@@ -131,7 +131,7 @@ void BenchmarkTest::BitThresholdTest()
 
 			CPPUNIT_ASSERT(benchmarkSync(CPISyncClient[ii], CPISyncServer[ii], difs, difs, difs, false, false));
 			syncStatsMax = CPISyncServer[ii].printStats(0);
-			if (CPISyncServer[0].getXmitBytes(0) > MAX_BYTES)
+			if (CPISyncServer[ii].getXmitBytes(0) > MAX_BYTES)
 				break;
 			syncStats = CPISyncServer[ii].printStats(0);
 		}
