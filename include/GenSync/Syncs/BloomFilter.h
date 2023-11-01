@@ -16,9 +16,6 @@ using std::stringstream;
 using std::vector;
 using namespace NTL;
 
-// The number of hashes used per insert
-const long N_HASH = 4;
-
 // Shorthand for the hash type
 typedef unsigned long int hash_t;
 
