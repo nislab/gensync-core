@@ -28,7 +28,7 @@ public:
     // Communicant needs to access the internal representation
     friend class Communicant;
 
-    BloomFilter(size_t expectedNumEntries, size_t _valueSize);
+    BloomFilter(size_t expectedNumEntries);
 
     // default destructor
     ~BloomFilter();
@@ -41,7 +41,7 @@ public:
      * @param elemSize size of element in the set
      * @param expnChldSet expected number of elements in the target set
      */
-    void insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet);
+    void insert(multiset<shared_ptr<DataObject>> tarSet, size_t expnChldSet);
 
     /**
      * Convert BloomFilter to a readable string
@@ -50,7 +50,7 @@ public:
     string toString() const;
 
     /**
-     * @return the number of cells in the BloomFilter. Not necessarily equal to the expected number of entries
+     * @return the number of bits in the BloomFilter. Not necessarily equal to the expected number of entries
      */
     size_t size() const;
 
@@ -59,7 +59,7 @@ public:
      */
     size_t eltSize() const;
 
-    vector<hash_t> hashes; /* vector for all hashes of sets */
+    vector<bool> bits; /* vector for all bits in BloomFilter */
 
 protected:
     // local data
