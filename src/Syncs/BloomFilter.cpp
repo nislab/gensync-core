@@ -15,17 +15,17 @@ BloomFilter::BloomFilter(size_t expectedNumEntries)
 
 void BloomFilter::insert(ZZ value)
 {
-    vector<int> locs = hashes(value);
+    vector<int> locs = {value % this->bits.size(), value%2};
     for (int n : locs)
         this->bits[n] = 1;
 }
 
-size_t BloomFilter::size()
+size_t BloomFilter::size() const
 {
     return this->bits.size();
 }
 
-string BloomFilter::toString()
+string BloomFilter::toString() const
 {
     string str = "";
     for (bool b : this->bits)
