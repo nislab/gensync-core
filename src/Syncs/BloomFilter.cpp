@@ -29,7 +29,7 @@ string BloomFilter::toString() const
 {
     string str = "";
     for (bool b : this->bits)
-        str += b;
+        str += to_string(b);
 
     return str;
 }
