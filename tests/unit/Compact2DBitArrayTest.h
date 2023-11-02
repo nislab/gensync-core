@@ -9,7 +9,7 @@
 #ifndef COMPACT2DBITARRAYTEST_H
 #define COMPACT2DBITARRAYTEST_H
 
-#include <CPISync/Syncs/Compact2DBitArray.h>
+#include <GenSync/Syncs/Compact2DBitArray.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 /**

@@ -8,7 +8,7 @@
  */
 
 #include "FullSyncTest.h"
-#include <CPISync/Syncs/FullSync.h>
+#include <GenSync/Syncs/FullSync.h>
 #include "TestAuxiliary.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(FullSyncTest);
@@ -20,6 +20,7 @@ FullSyncTest::~FullSyncTest() = default;
 void FullSyncTest::setUp() {
     const int SEED = 941;
     srand(SEED);
+    ZZ_p::init(randZZ());
 }
 
 void FullSyncTest::tearDown() {

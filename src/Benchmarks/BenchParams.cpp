@@ -151,7 +151,9 @@ inline shared_ptr<Params> decideBenchParams(GenSync::SyncProtocol syncProtocol, 
         is >> *par;
         return par;
     } else if (syncProtocol == GenSync::SyncProtocol::FullSync) {
-        return nullptr;
+        auto par = make_shared<FullSyncParams>();
+        is >> *par;
+        return par;
     } else {
         stringstream ss;
         ss << "There is no viable sync protocol with ID " << static_cast<size_t>(syncProtocol);

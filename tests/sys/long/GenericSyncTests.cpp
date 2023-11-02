@@ -4,10 +4,10 @@
 // Created by Eliezer Pearl on 7/23/2018.
 //
 
-#include <CPISync/Communicants/CommSocket.h>
-#include <CPISync/Syncs/CPISync.h>
-#include <CPISync/Syncs/InterCPISync.h>
-#include <CPISync/Communicants/CommString.h>
+#include <GenSync/Communicants/CommSocket.h>
+#include <GenSync/Syncs/CPISync.h>
+#include <GenSync/Syncs/InterCPISync.h>
+#include <GenSync/Communicants/CommString.h>
 #include "GenericSyncTests.h"
 #include "TestAuxiliary.h"
 
@@ -59,7 +59,7 @@ void GenSyncTest::testAddRemoveElems() {
 
         // create a multiset containing the string representation of objects stored in GenSync
         multiset<string> res;
-        for (const auto& dop : genSync.dumpElements())
+        for (const auto& dop : genSync.dumpElements64())
             res.insert(dop);
 
         CPPUNIT_ASSERT(multisetDiff(res, objectsStr).empty());
@@ -69,7 +69,7 @@ void GenSyncTest::testAddRemoveElems() {
 
         //Remove the data that was added with the template
         genSync.delElem(newDO);
-        CPPUNIT_ASSERT(genSync.dumpElements().empty());
+        CPPUNIT_ASSERT(genSync.dumpElements64().empty());
     }
 
     //Mem clean-up

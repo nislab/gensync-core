@@ -10,7 +10,7 @@
 #define SKETCHES_H
 
 #ifndef uint
-#define uint unsigned int
+typedef unsigned int uint;
 #endif
 
 #include <GenSync/Data/DataObject.h>

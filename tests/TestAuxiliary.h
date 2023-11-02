@@ -3,17 +3,17 @@
 // Created by eliez on 8/6/2018.
 //
 
-#include <CPISync/Syncs/IBLTSync.h>
-#include <CPISync/Syncs/IBLTSync_HalfRound.h>
-#include <CPISync/Syncs/ProbCPISync.h>
-#include <CPISync/Syncs/CPISync_HalfRound.h>
-#include <CPISync/Syncs/InterCPISync.h>
-#include <CPISync/Communicants/CommString.h>
-#include <CPISync/Communicants/CommSocket.h>
-#include <CPISync/Aux/Auxiliary.h>
-#include <CPISync/Syncs/GenSync.h>
-#include <CPISync/Syncs/FullSync.h>
-#include <CPISync/Aux/ForkHandle.h>
+#include <GenSync/Syncs/IBLTSync.h>
+#include <GenSync/Syncs/IBLTSync_HalfRound.h>
+#include <GenSync/Syncs/ProbCPISync.h>
+#include <GenSync/Syncs/CPISync_HalfRound.h>
+#include <GenSync/Syncs/InterCPISync.h>
+#include <GenSync/Communicants/CommString.h>
+#include <GenSync/Communicants/CommSocket.h>
+#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Syncs/GenSync.h>
+#include <GenSync/Syncs/FullSync.h>
+#include <GenSync/Aux/ForkHandle.h>
 #include <type_traits>
 #include <chrono>
 
@@ -481,13 +481,18 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
         Logger::gLog(Logger::COMM,"exit a child process, server, status: " + toStr(serverReport.success) +  ", pid: " + toStr(getpid()));
 
         multiset<string> resultantServer;
-        for (const auto &elem : GenSyncServer.dumpElements()) {
+        for (const auto &elem : GenSyncServer.dumpElements64()) {
             resultantServer.insert(elem);
         }
         bool serverSuccess = checkServerSucceeded(resultantServer, reconciled, setofSets, oneWay, serverReport);
         Logger::gLog(Logger::COMM,
                      "server, status: " + toStr(serverReport.success) + ", check success: " + toStr(serverSuccess) +
                      ", pid: " + toStr(getpid()));
+
+        // quick fix to ensure communicants are cleaned in child process since exit() does not call all destructors
+        for(int i = GenSyncServer.numComm(); i > 0; i--) {
+            GenSyncServer.delComm(i - 1);
+        }
 
         exit(serverSuccess);
     } else if (pID < 0) {
@@ -500,7 +505,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 
         multiset<string> initialClient;
         if(oneWay) {
-            for (const auto& elem : GenSyncClient.dumpElements()) {
+            for (const auto& elem : GenSyncClient.dumpElements64()) {
                 initialClient.insert(elem);
             }
         }
@@ -512,7 +517,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
         waitpid(pID, &child_state, my_opt);
 
         multiset<string> resultantClient;
-        for (const auto& elem : GenSyncClient.dumpElements()) {
+        for (const auto& elem : GenSyncClient.dumpElements64()) {
             resultantClient.insert(elem);
         }
 
@@ -568,7 +573,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 			}
 
 			multiset<string> resClient;
-			for (auto dop : GenSyncClient.dumpElements())
+			for (auto dop : GenSyncClient.dumpElements64())
 				resClient.insert(dop);
 
 			clientReconcileSuccess = clientReport.success;
@@ -590,7 +595,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 		}
 		else{
 			//Checks that the size of the client has not changed if the sync is one way
-			clientReconcileSuccess &= GenSyncClient.dumpElements().size() == SIMILAR + CLIENT_MINUS_SERVER;
+			clientReconcileSuccess &= GenSyncClient.dumpElements64().size() == SIMILAR + CLIENT_MINUS_SERVER;
 		}
 		//chld_state will be nonzero if clientReconcileSuccess is nonzero (nonzero = true, zero = false)
 		exit(clientReconcileSuccess);
@@ -621,7 +626,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
 		}*/
 
 		multiset<string> resServer;
-		for (auto dop : GenSyncServer.dumpElements())
+		for (auto dop : GenSyncServer.dumpElements64())
 			resServer.insert(dop);
 
 		if(!syncParamTest){
@@ -1095,7 +1100,7 @@ inline bool longTermSync(GenSync &GenSyncClient,
 			else
 			{
 				//Checks that the size of the client has not changed if the sync is one way
-				clientReconcileSuccess &= (GenSyncClient.dumpElements().size() == SIMILAR + CLIENT_MINUS_SERVER);
+				clientReconcileSuccess &= (GenSyncClient.dumpElements64().size() == SIMILAR + CLIENT_MINUS_SERVER);
 			}
 
 			if (curRound != Rounds - 1)
@@ -1188,7 +1193,7 @@ inline bool longTermSync(GenSync &GenSyncClient,
 			}*/
 
 			multiset<string> resServer;
-			for (auto dop : GenSyncServer.dumpElements())
+			for (auto dop : GenSyncServer.dumpElements64())
 				resServer.insert(dop);
 
 			if (!syncParamTest)

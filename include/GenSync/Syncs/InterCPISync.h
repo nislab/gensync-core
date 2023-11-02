@@ -147,10 +147,6 @@ protected:
 private:
     // METHODS
 
-  // TODO: Novak's quick fix. This is the wrong approach.
-  static bool serverConnectedBefore;
-  static bool clientConnectedBefore;
-
     /**
      * Deletes all memory associate with the given tree.
      * @param treeNode A pointer to the root of a tree.
