@@ -30,6 +30,9 @@ public:
     // default destructor
     ~BloomFilter();
 
+    static hash_t _hashK(const ZZ &item, long kk);
+    static hash_t _hash(const hash_t& initial, long kk);
+
     void insert(ZZ value);
 
     /**
@@ -66,6 +69,9 @@ protected:
 
     // the value size, in bits
     size_t valueSize;
+    
+    // size of bloom filter
+    size_t bfSize;
 };
 
 #endif
