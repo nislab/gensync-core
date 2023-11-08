@@ -3,6 +3,7 @@
 
 #include <GenSync/Aux/SyncMethod.h>
 #include <GenSync/Aux/Auxiliary.h>
+#include "BloomFilter.h"
 
 class BloomFilterSync : public SyncMethod {
 public:
@@ -31,13 +32,13 @@ protected:
 private:
 	
 	// Bloom Filter Instance Variable
-	// BloomFilter myBloomFilter;
+	BloomFilter myBloomFilter;
 	
 	// Instance variable for expected number of elements
 	size_t expNumElems;
 
 	// Size of elements from constructor
 	size_t elementSize;
-}
+};
 
 #endif
