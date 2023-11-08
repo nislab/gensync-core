@@ -25,10 +25,19 @@ public:
     // Communicant needs to access the internal representation
     friend class Communicant;
 
-    BloomFilter(size_t expectedNumEntries);
+    // default constructor
+    BloomFilter();
+
+    BloomFilter(size_t size, size_t nHash);
 
     // default destructor
     ~BloomFilter();
+
+    void setSize(size_t size);
+    size_t getSize();
+
+    void setNumHashes(size_t nHash);
+    size_t getNumHashes();
 
     static hash_t _hashK(const ZZ &item, long kk);
     static hash_t _hash(const hash_t& initial, long kk);
@@ -50,28 +59,24 @@ public:
     string toString() const;
 
     /**
-     * @return the number of bits in the BloomFilter. Not necessarily equal to the expected number of entries
-     */
-    size_t size() const;
-
-    /**
      * @return the size of a value stored in the BloomFilter.
      */
-    size_t eltSize() const;
-
-    vector<bool> bits; /* vector for all bits in BloomFilter */
+    size_t eltSize() const; 
 
 protected:
     // local data
 
-    // default constructor - no internal parameters are initialized
-    BloomFilter();
+    // all bits in bloom filter
+    vector<bool> bits;
 
     // the value size, in bits
     size_t valueSize;
     
     // size of bloom filter
     size_t bfSize;
+
+    // number of hash functions
+    size_t numHashes;
 };
 
 #endif

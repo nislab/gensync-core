@@ -4,15 +4,34 @@
 BloomFilter::BloomFilter() = default;
 BloomFilter::~BloomFilter() = default;
 
-BloomFilter::BloomFilter(size_t expectedNumEntries)
+BloomFilter::BloomFilter(size_t size, size_t nHash)
 {
-    // 1.5x expectedNumEntries gives very low probability of decoding failure
-    size_t nSize = expectedNumEntries + expectedNumEntries / 2;
-    this->bfSize = nSize;
+    this->setSize(size);
+    this->setNumHashes(nHash);
+}
 
+void BloomFilter::setSize(size_t size)
+{
+    this->bfSize = size;
     this->bits.clear();
-    for (int i = 0; i < nSize; i++)
+
+    for (int i = 0; i < this->bfSize; i++)
         this->bits.push_back(0);
+}
+
+size_t BloomFilter::getSize()
+{
+    return this->bfSize;
+}
+
+void BloomFilter::setNumHashes(size_t nHash)
+{
+    this->numHashes = nHash;
+}
+
+size_t BloomFilter::getNumHashes()
+{
+    return this->numHashes;
 }
 
 hash_t BloomFilter::_hash(const hash_t& initial, long kk)
@@ -30,19 +49,19 @@ hash_t BloomFilter::_hashK(const ZZ &item, long kk)
 
 void BloomFilter::insert(ZZ value)
 {
-    int hashFuncs = 3;
     vector<int> locs;
 
-    for(int i = 0; i < hashFuncs; i++)
+    for(int i = 0; i < this->numHashes; i++)
 	locs.push_back(_hashK(value, i) % this->bfSize);
 
     for (int n : locs)
         this->bits[n] = 1;
 }
 
-size_t BloomFilter::size() const
+void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet, size_t expnChldSet)
 {
-    return this->bits.size();
+    for(auto& val: tarSet)
+	this->insert(val->to_ZZ());
 }
 
 string BloomFilter::toString() const
