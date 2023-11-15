@@ -7,7 +7,7 @@
  */
 
 #include "CommStringTest.h"
-#include <CPISync/Communicants/CommString.h>
+#include <GenSync/Communicants/CommString.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommStringTest);
 

@@ -9,7 +9,7 @@
 #ifndef CPISYNCLIB_CUCKOOTEST_H
 #define CPISYNCLIB_CUCKOOTEST_H
 
-#include <CPISync/Syncs/Cuckoo.h>
+#include <GenSync/Syncs/Cuckoo.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 class CuckooTest : public CPPUNIT_NS::TestFixture {

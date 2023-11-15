@@ -4,8 +4,8 @@
 //
 
 #include "IBLTSetOfSetsTest.h"
-#include <CPISync/Syncs/GenSync.h>
-#include <CPISync/Syncs/IBLTSetOfSets.h>
+#include <GenSync/Syncs/GenSync.h>
+#include <GenSync/Syncs/IBLTSetOfSets.h>
 #include "TestAuxiliary.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IBLTSetOfSetsTest);
