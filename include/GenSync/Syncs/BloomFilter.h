@@ -44,6 +44,8 @@ public:
 
     void insert(ZZ value);
 
+    bool exist(ZZ value);
+
     /**
      * Insert a set of elements into BloomFilter
      * @param tarSet target set to be added to BloomFilter

@@ -58,6 +58,24 @@ void BloomFilter::insert(ZZ value)
         this->bits[n] = 1;
 }
 
+bool BloomFilter::exist(ZZ value)
+{
+    vector<int> locs;
+
+    for(int i = 0; i < this->numHashes; i++)
+        locs.push_back(_hashK(value, i) % this->bfSize);
+
+    for (int n : locs)
+    {
+	if(this->bits[n] == 0)
+	{
+		return false;
+	}		
+    }
+
+    return true;
+}
+
 void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet, size_t expnChldSet)
 {
     for(auto& val: tarSet)
