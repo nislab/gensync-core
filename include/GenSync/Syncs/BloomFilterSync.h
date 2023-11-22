@@ -3,7 +3,7 @@
 
 #include <GenSync/Aux/SyncMethod.h>
 #include <GenSync/Aux/Auxiliary.h>
-#include "BloomFilter.h"
+#include <GenSync/Syncs/BloomFilter.h>
 
 class BloomFilterSync : public SyncMethod {
 public:

@@ -1,5 +1,4 @@
-//#include <GenSync/Syncs/BloomFilter.h>
-#include "../../include/GenSync/Syncs/BloomFilter.h"
+#include <GenSync/Syncs/BloomFilter.h>
 
 BloomFilter::BloomFilter() = default;
 BloomFilter::~BloomFilter() = default;

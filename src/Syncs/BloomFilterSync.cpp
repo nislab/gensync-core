@@ -1,5 +1,5 @@
 #include <GenSync/Aux/Exceptions.h>
-#include "../../include/GenSync/Syncs/BloomFilterSync.h"
+#include <GenSync/Syncs/BloomFilterSync.h>
 
 BloomFilterSync::BloomFilterSync(size_t expected, size_t eltSize)
 {
