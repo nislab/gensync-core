@@ -71,6 +71,8 @@ set(SOURCE_FILES
         ${SYNC_DIR}/Cuckoo.cpp
         ${SYNC_DIR}/CuckooSync.cpp
         ${SYNC_DIR}/FullSync.cpp
+	${SYNC_DIR}/BloomFilterSync.cpp
+	${SYNC_DIR}/BloomFilter.cpp
 
         ${BENCH_DIR}/Runner.cpp
         ${BENCH_DIR}/BenchParams.cpp
@@ -122,6 +124,8 @@ set(HEADERS
         ${SYNC_DIR_INC}/InterCPISync.h
         ${SYNC_DIR_INC}/PrioCPISync.h
         ${SYNC_DIR_INC}/ProbCPISync.h
+	${SYNC_DIR_INC}/BloomFilterSync.h
+	${SYNC_DIR_INC}/BloomFilter.h
 
         ${SYNC_BENCH_INC}/BenchObserv.h
         ${SYNC_BENCH_INC}/BenchParams.h
