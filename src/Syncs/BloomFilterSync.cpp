@@ -55,8 +55,43 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
 
 bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf)
 {
+        Logger::gLog(Logger::METHOD, "Entering BloomFilterSync::SyncServer");
 
-	return false;
+        bool success = true;
+
+        // call parent method for bookkeeping
+        SyncMethod::SyncServer(commSync, selfMinusOther, otherMinusSelf);
+
+        // listen for client
+        mySyncStats.timerStart(SyncStats::IDLE_TIME);
+        commSync->commListen();
+        mySyncStats.timerEnd(SyncStats::IDLE_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        // communication of bloom filters
+        string theirBF = commSync->commRecv_string();
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        // Implementation of sync algorithm
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        commSync->commSend(selfMinusOther);
+        commSync->commSend(otherMinusSelf);
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        stringstream msg;
+        msg << "BloomFilterSync " << (success ? "succeeded" : "may not have completely succeeded") << endl;
+        msg << "self - other = " << printListOfSharedPtrs(selfMinusOther) << endl;
+        msg << "other - self = " << printListOfSharedPtrs(otherMinusSelf) << endl;
+        Logger::gLog(Logger::METHOD, msg.str());
+
+	//Record Stats
+        mySyncStats.increment(SyncStats::XMIT,commSync->getXmitBytes());
+        mySyncStats.increment(SyncStats::RECV,commSync->getRecvBytes());
+
+        return success;
 }
 
 bool BloomFilterSync::addElem(shared_ptr<DataObject> datum)
