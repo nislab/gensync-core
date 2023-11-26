@@ -46,6 +46,8 @@ public:
 
     bool exist(ZZ value);
 
+    bool exist(ZZ value, string bitString);
+
     /**
      * Insert a set of elements into BloomFilter
      * @param tarSet target set to be added to BloomFilter
@@ -69,7 +71,7 @@ protected:
     // local data
 
     // all bits in bloom filter
-    vector<bool> bits;
+    string bits;
 
     // the value size, in bits
     size_t valueSize;

@@ -12,10 +12,10 @@ BloomFilter::BloomFilter(size_t size, size_t nHash)
 void BloomFilter::setSize(size_t size)
 {
     this->bfSize = size;
-    this->bits.clear();
+    this->bits = "";
 
     for (int i = 0; i < this->bfSize; i++)
-        this->bits.push_back(0);
+        this->bits += '0';
 }
 
 size_t BloomFilter::getSize()
@@ -54,7 +54,7 @@ void BloomFilter::insert(ZZ value)
 	locs.push_back(_hashK(value, i) % this->bfSize);
 
     for (int n : locs)
-        this->bits[n] = 1;
+        this->bits[n] = '1';
 }
 
 bool BloomFilter::exist(ZZ value)
@@ -66,10 +66,31 @@ bool BloomFilter::exist(ZZ value)
 
     for (int n : locs)
     {
-	if(this->bits[n] == 0)
+	if(this->bits[n] == '0')
 	{
 		return false;
 	}		
+    }
+
+    return true;
+}
+
+bool BloomFilter::exist(ZZ value, string bitString)
+{
+    vector<int> locs;
+
+    if(bitString.length() != this->bfSize)
+	    return false;
+
+    for(int i = 0; i < this->numHashes; i++)
+        locs.push_back(_hashK(value, i) % this->bfSize);
+
+    for (int n : locs)
+    {
+        if(bitString[n] == '0')
+        {
+                return false;
+        }
     }
 
     return true;
@@ -83,9 +104,5 @@ void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet, size_t expnChl
 
 string BloomFilter::toString() const
 {
-    string str = "";
-    for (bool b : this->bits)
-        str += to_string(b);
-
-    return str;
+    return this->bits;
 }

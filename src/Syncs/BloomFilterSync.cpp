@@ -1,12 +1,12 @@
 #include <GenSync/Aux/Exceptions.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
+#include <iostream>
 
 BloomFilterSync::BloomFilterSync(size_t expected, size_t eltSize)
 {
-	myBloomFilter = BloomFilter(5,3);
-	
 	expNumElems = expected;
 	elementSize = eltSize;
+	myBloomFilter = BloomFilter(expNumElems*4, 3);
 }
 
 BloomFilterSync::~BloomFilterSync() = default;
@@ -67,13 +67,19 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
         commSync->commListen();
         mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
+	// receive client's bloomFilter string
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        // communication of bloom filters
-        string theirBF = commSync->commRecv_string();
+        string theirBF = commSync->commRecv_string();	
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         // Implementation of sync algorithm
+	std::cout << theirBF << std::endl; // print for testing
+	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
+	{
+		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
+			std::cout << (**iter).to_string() << std::endl;
+	}
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
