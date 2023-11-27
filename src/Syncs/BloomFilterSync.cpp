@@ -78,7 +78,10 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
+                {
 			std::cout << (**iter).to_string() << std::endl;
+                        selfMinusOther.push_back(make_shared<DataObject>(**iter));
+                }
 	}
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
