@@ -25,6 +25,7 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
         commSync->commConnect();
         mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
+        // send server client's bloomFilter
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
 	commSync->commSend(myBloomFilter.toString());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
@@ -32,13 +33,33 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
 	// Computation
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
         list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
-        list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
-        selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
+        // receive server's bloomFilter server
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        string theirBF = commSync->commRecv_string();	
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        // Implementation of sync algorithm
+	std::cout << theirBF << std::endl; // print for testing
+	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
+	{
+		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
+                {
+			std::cout << (**iter).to_string() << std::endl;
+                        selfMinusOther.push_back(make_shared<DataObject>(**iter));
+                }
+	}
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        commSync->commSend(selfMinusOther);
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         stringstream msg;
         msg << "BloomFilterSync succeeded." << endl;
@@ -87,8 +108,21 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(selfMinusOther);
-        commSync->commSend(otherMinusSelf);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        // Send client server's bloomFilter
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+	commSync->commSend(myBloomFilter.toString());
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        // Computation
+	mySyncStats.timerStart(SyncStats::COMM_TIME);
+        list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         stringstream msg;
         msg << "BloomFilterSync " << (success ? "succeeded" : "may not have completely succeeded") << endl;
