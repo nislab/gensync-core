@@ -62,6 +62,10 @@ public:
      */
     string toString() const;
 
+    ZZ toZZ(string bitString);
+
+    string ZZtoBitString(ZZ val);
+
     /**
      * @return the size of a value stored in the BloomFilter.
      */

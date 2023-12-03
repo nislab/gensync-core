@@ -59,20 +59,7 @@ void BloomFilter::insert(ZZ value)
 
 bool BloomFilter::exist(ZZ value)
 {
-    vector<int> locs;
-
-    for(int i = 0; i < this->numHashes; i++)
-        locs.push_back(_hashK(value, i) % this->bfSize);
-
-    for (int n : locs)
-    {
-	if(this->bits[n] == '0')
-	{
-		return false;
-	}		
-    }
-
-    return true;
+    return exist(value, this->bits);
 }
 
 bool BloomFilter::exist(ZZ value, string bitString)
@@ -105,4 +92,41 @@ void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet, size_t expnChl
 string BloomFilter::toString() const
 {
     return this->bits;
+}
+
+ZZ BloomFilter::toZZ(string bitString)
+{
+    ZZ res;
+    size_t sz = this->getSize();
+
+    for(int i = 0; i < sz; i++)
+    {
+        if(this->bits[sz - i - 1] == '1')
+        {
+            res += pow(2, i);
+        }
+    }
+
+    return res;
+}
+
+string BloomFilter::ZZtoBitString(ZZ val)
+{
+    string res = "";
+    size_t sz = this->getSize();
+
+    for(int i = 0; i < sz; i++)
+    {
+        if(pow(2, sz-i-1) <= val)
+        {
+            res += '1';
+            val -= pow(2,sz-i-1);
+        }
+        else
+        {
+            res += '0';
+        }
+    }
+
+    return res;
 }
