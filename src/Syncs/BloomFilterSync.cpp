@@ -25,9 +25,9 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
         commSync->commConnect();
         mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
-        // send server client's bloomFilter
+        // send client's bloomFilter to server
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
-	commSync->commSend(myBloomFilter.toString());
+	commSync->commSend(myBloomFilter.toZZ(myBloomFilter.toString()));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
 	// Computation
@@ -39,14 +39,16 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
         otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-        // receive server's bloomFilter server
+        // receive server's bloomFilter
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        string theirBF = commSync->commRecv_string();	
+        ZZ theirBFZZ = commSync->commRecv_ZZ();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
+        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         // Implementation of sync algorithm
-	std::cout << theirBF << std::endl; // print for testing
+	std::cout << myBloomFilter.toString() << std::endl; // print for testing	
+        std::cout << theirBF << std::endl; // print for testing
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
@@ -88,13 +90,15 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
         commSync->commListen();
         mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
-	// receive client's bloomFilter string
+	// receive client's bloomFilter
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        string theirBF = commSync->commRecv_string();	
+        ZZ theirBFZZ = commSync->commRecv_ZZ();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
+        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         // Implementation of sync algorithm
+	std::cout << myBloomFilter.toString() << std::endl; // print for testing
 	std::cout << theirBF << std::endl; // print for testing
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
@@ -110,9 +114,9 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
         commSync->commSend(selfMinusOther);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-        // Send client server's bloomFilter
+        // Send server's bloomFilter to client
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-	commSync->commSend(myBloomFilter.toString());
+	commSync->commSend(myBloomFilter.toZZ(myBloomFilter.toString()));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         // Computation
