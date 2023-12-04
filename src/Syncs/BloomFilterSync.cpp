@@ -33,6 +33,27 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
         commSync->commConnect();
         mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
+        // Verify server and client Bloom Filters have matching size and numHashes otherwise fail
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+
+        int clientBFsize = myBloomFilter.getSize();
+        int clientNumHashes = myBloomFilter.getNumHashes();
+
+        int serverBFsize = commSync->commRecv_int();
+        int serverNumHashes = commSync->commRecv_int();
+
+        commSync->commSend(clientBFsize);
+        commSync->commSend(clientNumHashes);
+
+        if((clientBFsize != serverBFsize) || (clientNumHashes != serverNumHashes)) {
+            Logger::gLog(Logger::METHOD_DETAILS, "BloomFilter parameters do not match up between client and server!");
+            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+            mySyncStats.increment(SyncStats::XMIT,commSync->getXmitBytes());
+            mySyncStats.increment(SyncStats::RECV,commSync->getRecvBytes());
+            return false;
+        }
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
         // send client's bloomFilter to server
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
 	commSync->commSend(myBloomFilter.toZZ(myBloomFilter.toString()));
@@ -95,6 +116,27 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
         mySyncStats.timerStart(SyncStats::IDLE_TIME);
         commSync->commListen();
         mySyncStats.timerEnd(SyncStats::IDLE_TIME);
+
+        // Verify server and client Bloom Filters have matching size and numHashes otherwise fail
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+
+        int serverBFsize = myBloomFilter.getSize();
+        int serverNumHashes = myBloomFilter.getNumHashes();
+        
+        commSync->commSend(serverBFsize);
+        commSync->commSend(serverNumHashes);
+
+        int clientBFsize = commSync->commRecv_int();
+        int clientNumHashes = commSync->commRecv_int();
+
+        if((clientBFsize != serverBFsize) || (clientNumHashes != serverNumHashes)) {
+            Logger::gLog(Logger::METHOD_DETAILS, "BloomFilter parameters do not match up between client and server!");
+            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+            mySyncStats.increment(SyncStats::XMIT,commSync->getXmitBytes());
+            mySyncStats.increment(SyncStats::RECV,commSync->getRecvBytes());
+            return false;
+        }
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
 	// receive client's bloomFilter
         mySyncStats.timerStart(SyncStats::COMM_TIME);
