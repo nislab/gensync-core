@@ -1,3 +1,9 @@
+/* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
+
+//
+// Created by Anish Sinha on 12/4/23.
+//
+
 #include <GenSync/Syncs/BloomFilter.h>
 
 BloomFilter::BloomFilter() = default;

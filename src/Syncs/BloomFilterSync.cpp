@@ -1,3 +1,9 @@
+/* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
+
+//
+// Created by Anish Sinha on 12/4/2023.
+//
+
 #include <GenSync/Aux/Exceptions.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <iostream>
@@ -32,7 +38,7 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
 	commSync->commSend(myBloomFilter.toZZ(myBloomFilter.toString()));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-	// Computation
+	// Recieve OMS list from server's computation
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
         list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
@@ -47,20 +53,18 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
         string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 
+        // Determine SMO list from server's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        // Implementation of sync algorithm
-	std::cout << myBloomFilter.toString() << std::endl; // print for testing	
-        std::cout << theirBF << std::endl; // print for testing
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
                 {
-			std::cout << (**iter).to_string() << std::endl;
                         selfMinusOther.push_back(make_shared<DataObject>(**iter));
                 }
 	}
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
+        // Send SMO list to server
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(selfMinusOther);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
@@ -98,20 +102,18 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
         string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 
+        // Determine SMO list from client's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        // Implementation of sync algorithm
-	std::cout << myBloomFilter.toString() << std::endl; // print for testing
-	std::cout << theirBF << std::endl; // print for testing
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
                 {
-			std::cout << (**iter).to_string() << std::endl;
                         selfMinusOther.push_back(make_shared<DataObject>(**iter));
                 }
 	}
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
+        // Send SMO list to client
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(selfMinusOther);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
@@ -121,7 +123,7 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
 	commSync->commSend(myBloomFilter.toZZ(myBloomFilter.toString()));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-        // Computation
+        // Recieve OMS list from client's computation
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
         list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
