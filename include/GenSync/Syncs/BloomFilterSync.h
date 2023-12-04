@@ -12,14 +12,13 @@ public:
      	 * @param expected The expected number of elements being stored
      	 * @param eltSize The size of elements being stored
      	 */
-	BloomFilterSync(size_t expected, size_t eltSize);
+	BloomFilterSync(size_t expected, size_t eltSize, int szMult=4, int nHash=3);
 	~BloomFilterSync() override;
 
 	// Parent Class Methods
 	bool SyncClient(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf) override;
 	bool SyncServer(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf) override;
 	bool addElem(shared_ptr<DataObject> datum) override;
-	bool delElem(shared_ptr<DataObject> datum) override;
 
 	string getName() override;
 
@@ -39,6 +38,10 @@ private:
 
 	// Size of elements from constructor
 	size_t elementSize;
+
+	int sizeMultiplier;
+
+	int numHashes;
 };
 
 #endif

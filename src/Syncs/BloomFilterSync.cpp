@@ -2,11 +2,13 @@
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <iostream>
 
-BloomFilterSync::BloomFilterSync(size_t expected, size_t eltSize)
+BloomFilterSync::BloomFilterSync(size_t expected, size_t eltSize, int szMult, int nHash)
 {
 	expNumElems = expected;
 	elementSize = eltSize;
-	myBloomFilter = BloomFilter(expNumElems*4, 3);
+        sizeMultiplier = szMult;
+        numHashes = nHash;
+	myBloomFilter = BloomFilter(expNumElems*sizeMultiplier, numHashes);
 }
 
 BloomFilterSync::~BloomFilterSync() = default;
@@ -145,13 +147,6 @@ bool BloomFilterSync::addElem(shared_ptr<DataObject> datum)
 {
 	SyncMethod::addElem(datum);
 	myBloomFilter.insert(datum->to_ZZ());
-	return true;
-}
-
-bool BloomFilterSync::delElem(shared_ptr<DataObject> datum)
-{
-	SyncMethod::delElem(datum);
-	// cannot erase from bloom filter
 	return true;
 }
 
