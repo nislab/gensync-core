@@ -121,11 +121,6 @@ public:
      */
     string ZZtoBitString(ZZ val);
 
-    /**
-     * @return the size of a value stored in the BloomFilter.
-     */
-    size_t eltSize() const; 
-
 protected:
     // local data
 
@@ -135,9 +130,6 @@ protected:
 
     // all bits in bloom filter
     string bits;
-
-    // the value size, in bits
-    size_t valueSize;
     
     // size of bloom filter
     size_t bfSize;
