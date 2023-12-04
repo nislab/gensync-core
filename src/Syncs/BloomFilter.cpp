@@ -75,15 +75,13 @@ bool BloomFilter::exist(ZZ value, string bitString)
     for (int n : locs)
     {
         if(bitString[n] == '0')
-        {
                 return false;
-        }
     }
 
     return true;
 }
 
-void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet, size_t expnChldSet)
+void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet)
 {
     for(auto& val: tarSet)
 	this->insert(val->to_ZZ());
@@ -102,9 +100,7 @@ ZZ BloomFilter::toZZ(string bitString)
     for(int i = 0; i < sz; i++)
     {
         if(this->bits[sz - i - 1] == '1')
-        {
             res += pow(2, i);
-        }
     }
 
     return res;
