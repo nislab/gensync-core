@@ -13,10 +13,10 @@ class BloomFilterSyncTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST_SUITE(BloomFilterSyncTest);
 	
 	CPPUNIT_TEST(BloomFilterSyncSetReconcileTest);
-		CPPUNIT_TEST(BloomFilterSyncLargeSetReconcileTest);
-		CPPUNIT_TEST(testAddElem);
+	CPPUNIT_TEST(BloomFilterSyncLargeSetReconcileTest);
+	CPPUNIT_TEST(testAddElem);
 	CPPUNIT_TEST(testGetStrings);
-		CPPUNIT_TEST(testBloomFilterParamMismatch);
+	CPPUNIT_TEST(testBloomFilterParamMismatch);
 	
 	CPPUNIT_TEST_SUITE_END();
 public:
