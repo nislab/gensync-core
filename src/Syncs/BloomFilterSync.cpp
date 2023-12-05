@@ -55,8 +55,11 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         // send client's bloomFilter to server
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        ZZ myBFZZ = myBloomFilter.toZZ(myBloomFilter.toString());
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
-	commSync->commSend(myBloomFilter.toZZ(myBloomFilter.toString()));
+	commSync->commSend(myBFZZ);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
 	// Recieve OMS list from server's computation
@@ -72,10 +75,10 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         ZZ theirBFZZ = commSync->commRecv_ZZ();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
-        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 
         // Determine SMO list from server's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
+        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
@@ -142,10 +145,10 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         ZZ theirBFZZ = commSync->commRecv_ZZ();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
-        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 
         // Determine SMO list from client's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
+        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
@@ -161,8 +164,11 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         // Send server's bloomFilter to client
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        ZZ myBFZZ = myBloomFilter.toZZ(myBloomFilter.toString());
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-	commSync->commSend(myBloomFilter.toZZ(myBloomFilter.toString()));
+	commSync->commSend(myBFZZ);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         // Recieve OMS list from client's computation
