@@ -106,7 +106,11 @@ ZZ BloomFilter::toZZ(string bitString)
     for(int i = 0; i < sz; i++)
     {
         if(this->bits[sz - i - 1] == '1')
-            res += pow(2, i);
+        {
+            ZZ p2;
+            power(p2, 2, i);
+            res += p2;
+        }
     }
 
     return res;
@@ -119,10 +123,12 @@ string BloomFilter::ZZtoBitString(ZZ val)
 
     for(int i = 0; i < sz; i++)
     {
-        if(pow(2, sz-i-1) <= val)
+        ZZ p2;
+        power(p2, 2, sz-i-1);
+        if(p2 <= val)
         {
             res += '1';
-            val -= pow(2,sz-i-1);
+            val -= p2;
         }
         else
         {
