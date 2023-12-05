@@ -34,6 +34,8 @@ int main(int argc, char *argv[]) {
         prot = GenSync::SyncProtocol::IBLTSync;
     } else if (type == "OneWayIBLTSync") {
         prot = GenSync::SyncProtocol::OneWayIBLTSync;
+    } else if (type == "BloomFilterSync") {
+        prot = GenSync::SyncProtocol::BloomFilterSync;
     } else {
         cout << "invalid sync type!" << endl;
         exit(1);
