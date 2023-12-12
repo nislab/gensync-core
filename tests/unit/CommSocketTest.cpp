@@ -1,4 +1,4 @@
-#include <CPISync/Communicants/CommSocket.h>
+#include <GenSync/Communicants/CommSocket.h>
 #include "CommSocketTest.h"
 #include "TestAuxiliary.h"
 

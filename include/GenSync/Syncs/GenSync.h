@@ -327,6 +327,7 @@ public:
         IBLTSetOfSets,
         IBLTSync_Multiset,
         CuckooSync,
+        BloomFilterSync,
         END     // one after the end of iterable options
     };
 
