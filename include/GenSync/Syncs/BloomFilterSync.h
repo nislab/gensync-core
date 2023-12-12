@@ -24,11 +24,11 @@ class BloomFilterSync : public SyncMethod {
 public:
 	/**
 	 * Constructor.
-     * @param expected The expected number of elements being stored
+  	 * @param expected The expected number of elements being stored
 	 * @param eltSize The size of elements being stored
 	 * @param szMult The size multipier or the size of the Bloom Filter based on number of expected elements
 	 * @param nHash The number of hash functions used by the Bloom Filter for each element insertion
-     */
+    	 */
 	BloomFilterSync(size_t expSize, size_t eltSize, int szMult=4, int nHash=3);
 	~BloomFilterSync() override;
 
