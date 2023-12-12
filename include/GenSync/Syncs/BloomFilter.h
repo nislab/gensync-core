@@ -1,8 +1,12 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
 
-//
-// Created by Anish Sinha on 12/4/23.
-//
+/*
+ * A Bloom filter is a space-efficient probabilistic data structure which tests
+ * whether an element is a member of a set. False positives are possible, but
+ * not false negatives. This data structure was developed by Burton Howard Bloom in 1970.
+ *
+ * Created by Anish Sinha on 12/4/23.
+ */
 
 #ifndef GENSYNCLIB_BLOOMFILTER_H
 #define GENSYNCLIB_BLOOMFILTER_H
@@ -25,11 +29,6 @@ using namespace NTL;
 // Shorthand for the hash type
 typedef unsigned long int hash_t;
 
-/*
- * A Bloom filter is a space-efficient probabilistic data structure which tests
- * whether an element is a member of a set. False positives are possible, but
- * not false negatives. This data structure was developed by Burton Howard Bloom in 1970.
- */
 class BloomFilter
 {
 public:

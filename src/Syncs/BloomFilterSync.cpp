@@ -8,9 +8,9 @@
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <iostream>
 
-BloomFilterSync::BloomFilterSync(size_t expected, size_t eltSize, int szMult, int nHash)
+BloomFilterSync::BloomFilterSync(size_t expSize, size_t eltSize, int szMult, int nHash)
 {
-	expNumElems = expected;
+	expNumElems = expSize;
 	elementSize = eltSize;
         sizeMultiplier = szMult;
         numHashes = nHash;

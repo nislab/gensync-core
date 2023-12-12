@@ -94,7 +94,7 @@ void BloomFilterTest::testBFBitsZZConv(){
     {
         bf.insert(val);
 
-        ulong longVal = stoul(bf.toString(), nullptr, 2);
+        long longVal = stoul(bf.toString(), nullptr, 2);
         ZZ ZZVal = bf.toZZ(bf.toString());
         CPPUNIT_ASSERT(longVal == ZZVal);
 
