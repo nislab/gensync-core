@@ -18,10 +18,7 @@ BloomFilter::BloomFilter(size_t size, size_t nHash)
 void BloomFilter::setSize(size_t size)
 {
     this->bfSize = size;
-    this->bits = "";
-
-    for (int i = 0; i < this->bfSize; i++)
-        this->bits += '0';
+    this->bits.resize(size, 0);
 }
 
 size_t BloomFilter::getSize()
@@ -60,7 +57,7 @@ void BloomFilter::insert(ZZ value)
 	locs.push_back(_hashK(value, i) % this->bfSize);
 
     for (int n : locs)
-        this->bits[n] = '1';
+        this->bits[n] = 1;
 }
 
 bool BloomFilter::exist(ZZ value)
@@ -68,11 +65,11 @@ bool BloomFilter::exist(ZZ value)
     return exist(value, this->bits);
 }
 
-bool BloomFilter::exist(ZZ value, string bitString)
+bool BloomFilter::exist(ZZ value, vector<bool> bitString)
 {
     vector<int> locs;
 
-    if(bitString.length() != this->bfSize)
+    if(bitString.size() != this->bfSize)
 	    return false;
 
     for(int i = 0; i < this->numHashes; i++)
@@ -80,7 +77,7 @@ bool BloomFilter::exist(ZZ value, string bitString)
 
     for (int n : locs)
     {
-        if(bitString[n] == '0')
+        if(bitString[n] == 0)
                 return false;
     }
 
@@ -95,17 +92,18 @@ void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet)
 
 string BloomFilter::toString() const
 {
-    return this->bits;
+    string res(this->bits.begin(), this->bits.end());
+    return res;
 }
 
-ZZ BloomFilter::toZZ(string bitString)
+ZZ BloomFilter::toZZ()
 {
     ZZ res;
     size_t sz = this->getSize();
 
     for(int i = 0; i < sz; i++)
     {
-        if(this->bits[sz - i - 1] == '1')
+        if(this->bits[sz - i - 1] == 1)
         {
             ZZ p2;
             power(p2, 2, i);
@@ -116,9 +114,9 @@ ZZ BloomFilter::toZZ(string bitString)
     return res;
 }
 
-string BloomFilter::ZZtoBitString(ZZ val)
+vector<bool> BloomFilter::ZZtoBitString(ZZ val)
 {
-    string res = "";
+    vector<bool> res;
     size_t sz = this->getSize();
 
     for(int i = 0; i < sz; i++)
@@ -127,12 +125,12 @@ string BloomFilter::ZZtoBitString(ZZ val)
         power(p2, 2, sz-i-1);
         if(p2 <= val)
         {
-            res += '1';
+            res.push_back(1);
             val -= p2;
         }
         else
         {
-            res += '0';
+            res.push_back(0);
         }
     }
 

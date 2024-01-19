@@ -56,7 +56,7 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
 
         // send client's bloomFilter to server
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        ZZ myBFZZ = myBloomFilter.toZZ(myBloomFilter.toString());
+        ZZ myBFZZ = myBloomFilter.toZZ();
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 	mySyncStats.timerStart(SyncStats::COMM_TIME);
 	commSync->commSend(myBFZZ);
@@ -78,7 +78,7 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
 
         // Determine SMO list from server's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
+        vector<bool> theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
@@ -148,7 +148,7 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
 
         // Determine SMO list from client's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        string theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
+        vector<bool> theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
 		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
@@ -165,7 +165,7 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
 
         // Send server's bloomFilter to client
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        ZZ myBFZZ = myBloomFilter.toZZ(myBloomFilter.toString());
+        ZZ myBFZZ = myBloomFilter.toZZ();
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
         mySyncStats.timerStart(SyncStats::COMM_TIME);
 	commSync->commSend(myBFZZ);

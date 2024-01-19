@@ -95,10 +95,11 @@ void BloomFilterTest::testBFBitsZZConv(){
         bf.insert(val);
 
         long longVal = stoul(bf.toString(), nullptr, 2);
-        ZZ ZZVal = bf.toZZ(bf.toString());
+        ZZ ZZVal = bf.toZZ();
         CPPUNIT_ASSERT(longVal == ZZVal);
 
-        string newBitString = bf.ZZtoBitString(ZZVal);
-        CPPUNIT_ASSERT(newBitString == bf.toString());
+        vector<bool> newBitString = bf.ZZtoBitString(ZZVal);
+        string strTest(newBitString.begin(), newBitString.end());
+        CPPUNIT_ASSERT(strTest == bf.toString());
     }
 }

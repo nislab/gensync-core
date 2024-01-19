@@ -92,7 +92,7 @@ public:
      * @param bitString The bit string to be checked
      * @return true iff element is in bit string
      */
-    bool exist(ZZ value, string bitString);
+    bool exist(ZZ value, vector<bool> bitString);
 
     /**
      * Insert a set of elements into Bloom Filter.
@@ -108,17 +108,16 @@ public:
 
     /**
      * Convert Bloom Filter bit string to a ZZ.
-     * @param bitString The bit string to be converted
      * @return ZZ
      */
-    ZZ toZZ(string bitString);
+    ZZ toZZ();
 
     /**
      * Convert ZZ to bit string.
      * @param ZZ The ZZ to be converted
      * @return string
      */
-    string ZZtoBitString(ZZ val);
+    vector<bool> ZZtoBitString(ZZ val);
 
 protected:
     // local data
@@ -128,7 +127,7 @@ protected:
     static hash_t _hash(const hash_t& initial, long kk);
 
     // all bits in bloom filter
-    string bits;
+    vector<bool> bits;
     
     // size of bloom filter
     size_t bfSize;
