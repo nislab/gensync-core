@@ -32,8 +32,6 @@ typedef unsigned long int hash_t;
 class BloomFilter
 {
 public:
-    // Communicant needs to access the internal representation
-    friend class Communicant;
 
     // default constructor
     BloomFilter();
