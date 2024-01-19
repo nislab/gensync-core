@@ -78,10 +78,10 @@ bool BloomFilterSync::SyncClient(const shared_ptr<Communicant>& commSync, list<s
 
         // Determine SMO list from server's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        vector<bool> theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
+        BloomFilter theirBF = myBloomFilter.ZZtoBF(theirBFZZ);
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
-		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
+		if(!theirBF.exist((**iter).to_ZZ()))
                 {
                         selfMinusOther.push_back(make_shared<DataObject>(**iter));
                 }
@@ -148,10 +148,10 @@ bool BloomFilterSync::SyncServer(const shared_ptr<Communicant>& commSync, list<s
 
         // Determine SMO list from client's bloom filter
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        vector<bool> theirBF = myBloomFilter.ZZtoBitString(theirBFZZ);
+        BloomFilter theirBF = myBloomFilter.ZZtoBF(theirBFZZ);
 	for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
 	{
-		if(!myBloomFilter.exist((**iter).to_ZZ(), theirBF))
+		if(!theirBF.exist((**iter).to_ZZ()))
                 {
                         selfMinusOther.push_back(make_shared<DataObject>(**iter));
                 }

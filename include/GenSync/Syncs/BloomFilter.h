@@ -48,7 +48,6 @@ public:
 
     /**
      * Setter for size of Bloom Filter's bit string.
-     * This operation always succeeds.
      * @param size The new size of bit string
      */
     void setSize(size_t size);
@@ -70,6 +69,12 @@ public:
      * @return size_t The number of hash functions used by Bloom Filter per element
      */
     size_t getNumHashes();
+
+    /**
+     * Getter for Bloom Filter's bits in form of vector<bool>.
+     * @return vector<bool> The bit string
+     */
+    vector<bool> getBits();
 
     /**
      * Insert an element into Bloom Filter.
@@ -105,7 +110,7 @@ public:
     string toString() const;
 
     /**
-     * Convert Bloom Filter bit string to a ZZ.
+     * Convert Bloom Filter to a ZZ.
      * @return ZZ
      */
     ZZ toZZ();
@@ -113,12 +118,18 @@ public:
     /**
      * Convert ZZ to bit string.
      * @param ZZ The ZZ to be converted
-     * @return string
+     * @return vector<bool>
      */
-    vector<bool> ZZtoBitString(ZZ val);
+    BloomFilter ZZtoBF(ZZ val);
 
 protected:
     // local data
+
+    /**
+     * Setter for Bloom Filter's bit string.
+     * @param bitString The new bit string
+     */
+    void setBits(vector<bool> bitString);
 
     // Returns the kk-th unique hash of the zz. From IBLT.h.
     static hash_t _hashK(const ZZ &item, long kk);

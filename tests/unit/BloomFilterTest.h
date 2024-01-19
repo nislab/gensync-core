@@ -42,7 +42,7 @@ public:
     static void testBFExist();
 
     /**
-     * Test BloomFilter conversions between bit string and ZZ
+     * Test conversions between BloomFilter and ZZ
      */
     static void testBFBitsZZConv();
 

@@ -36,6 +36,17 @@ size_t BloomFilter::getNumHashes()
     return this->numHashes;
 }
 
+vector<bool> BloomFilter::getBits()
+{
+    return this->bits;
+}
+
+void BloomFilter::setBits(vector<bool> bitString)
+{
+    if(this->getSize() == bitString.size())
+        this->bits = bitString;
+}
+
 hash_t BloomFilter::_hash(const hash_t& initial, long kk)
 {
 	if(kk == -1) return initial;
@@ -114,9 +125,9 @@ ZZ BloomFilter::toZZ()
     return res;
 }
 
-vector<bool> BloomFilter::ZZtoBitString(ZZ val)
+BloomFilter BloomFilter::ZZtoBF(ZZ val)
 {
-    vector<bool> res;
+    vector<bool> resBits;
     size_t sz = this->getSize();
 
     for(int i = 0; i < sz; i++)
@@ -125,14 +136,17 @@ vector<bool> BloomFilter::ZZtoBitString(ZZ val)
         power(p2, 2, sz-i-1);
         if(p2 <= val)
         {
-            res.push_back(1);
+            resBits.push_back(1);
             val -= p2;
         }
         else
         {
-            res.push_back(0);
+            resBits.push_back(0);
         }
     }
+
+    BloomFilter res(sz, this->getNumHashes());
+    res.setBits(resBits);
 
     return res;
 }
