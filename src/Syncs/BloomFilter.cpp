@@ -11,24 +11,26 @@ BloomFilter::~BloomFilter() = default;
 
 BloomFilter::BloomFilter(size_t size, size_t nHash)
 {
-    this->setSize(size);
-    this->setNumHashes(nHash);
-}
-
-void BloomFilter::setSize(size_t size)
-{
     this->bfSize = size;
     this->bits.resize(size, 0);
+    this->numHashes = nHash;
+}
+
+BloomFilter::BloomFilter(size_t numExpElems, float falsePosProb, bool use)
+{
+    if(falsePosProb < 0 || falsePosProb > 1)
+    {
+        falsePosProb = 0.05;
+    }
+    
+    this->bfSize = round(-2.08 * log(falsePosProb) * numExpElems);
+    this->bits.resize(this->bfSize, 0);
+    this->numHashes = round(-2.08 * log(falsePosProb) * log(2));
 }
 
 size_t BloomFilter::getSize()
 {
     return this->bfSize;
-}
-
-void BloomFilter::setNumHashes(size_t nHash)
-{
-    this->numHashes = nHash;
 }
 
 size_t BloomFilter::getNumHashes()
@@ -39,6 +41,12 @@ size_t BloomFilter::getNumHashes()
 vector<bool> BloomFilter::getBits()
 {
     return this->bits;
+}
+
+float BloomFilter::getFalsePosProb(size_t numExpElems)
+{
+    float exp = ((float)bfSize/numExpElems) * log(2);
+    return pow(0.5, exp);
 }
 
 void BloomFilter::setBits(vector<bool> bitString)
@@ -103,7 +111,11 @@ void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet)
 
 string BloomFilter::toString() const
 {
-    string res(this->bits.begin(), this->bits.end());
+    string res = "";
+
+    for(auto v: this->bits)
+        res += to_string(v);
+
     return res;
 }
 

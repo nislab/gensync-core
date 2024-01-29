@@ -8,13 +8,18 @@
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <iostream>
 
-BloomFilterSync::BloomFilterSync(size_t expSize, size_t eltSize, int szMult, int nHash)
+BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, int szMult, int nHash)
 {
-	expNumElems = expSize;
+	this->expNumElems = expNumElems;
 	elementSize = eltSize;
-        sizeMultiplier = szMult;
-        numHashes = nHash;
-	myBloomFilter = BloomFilter(expNumElems*sizeMultiplier, numHashes);
+	myBloomFilter = BloomFilter(expNumElems*szMult, nHash);
+}
+
+BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, float falsePosProb)
+{
+        this->expNumElems = expNumElems;
+        elementSize = eltSize;
+        myBloomFilter = BloomFilter(expNumElems, falsePosProb, 1);
 }
 
 BloomFilterSync::~BloomFilterSync() = default;

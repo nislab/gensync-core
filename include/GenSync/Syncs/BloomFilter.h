@@ -33,6 +33,33 @@ class BloomFilter
 {
 public:
 
+    class Builder
+    {
+    public:
+        Builder(){}
+        
+        Builder& setSize(size_t size)
+        {
+            bfSize = size;
+            return *this;
+        }
+
+        Builder& setNumHashes(size_t nHash)
+        {
+            numHashes = nHash;
+            return *this;
+        }
+
+        BloomFilter build()
+        {
+            return BloomFilter(bfSize, numHashes);
+        }
+        
+    private:
+        size_t bfSize;
+        size_t numHashes;
+    };
+    
     // default constructor
     BloomFilter();
 
@@ -43,26 +70,16 @@ public:
      */
     BloomFilter(size_t size, size_t nHash);
 
+    BloomFilter(size_t numExpElems, float falsePosProb, bool use);
+
     // default destructor
     ~BloomFilter();
-
-    /**
-     * Setter for size of Bloom Filter's bit string.
-     * @param size The new size of bit string
-     */
-    void setSize(size_t size);
 
     /**
      * Getter for size of Bloom Filter's bit string.
      * @return size_t The size of bit string
      */
     size_t getSize();
-
-    /**
-     * Setter for number of hash functions used by Bloom Filter.
-     * @param nHash The new number of hash functions per element
-     */
-    void setNumHashes(size_t nHash);
 
     /**
      * Getter for number of hash functions used by Bloom Filter.
@@ -75,6 +92,8 @@ public:
      * @return vector<bool> The bit string
      */
     vector<bool> getBits();
+
+    float getFalsePosProb(size_t numExpElems);
 
     /**
      * Insert an element into Bloom Filter.
