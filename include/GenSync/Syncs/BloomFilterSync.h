@@ -23,14 +23,20 @@
 class BloomFilterSync : public SyncMethod {
 public:
 	/**
-	 * Constructor.
+	 * Constructor with specified size multiplier and number of hashes.
   	 * @param expNumElems The expected number of elements being stored
 	 * @param eltSize The size of elements being stored
-	 * @param szMult The size multipier or the size of the Bloom Filter based on number of expected elements
-	 * @param nHash The number of hash functions used by the Bloom Filter for each element insertion
+	 * @param szMult The size multipier or the size of the BloomFilter based on number of expected elements
+	 * @param nHash The number of hash functions used by the BloomFilter for each element insertion
     	 */
 	BloomFilterSync(size_t expNumElems, size_t eltSize, int szMult, int nHash);
 	
+	/**
+	 * Constructor with false positive rate as input.
+  	 * @param expNumElems The expected number of elements being stored
+	 * @param eltSize The size of elements being stored
+	 * @param falsePosProb The rate of false positives
+    	 */
 	BloomFilterSync(size_t expNumElems, size_t eltSize, float falsePosProb);
 
 	~BloomFilterSync() override;
@@ -50,7 +56,7 @@ protected:
 
 private:
 	
-	// Bloom Filter Instance Variable
+	// BloomFilter Instance Variable
 	BloomFilter myBloomFilter;
 	
 	// Instance variable to store expected number of elements
