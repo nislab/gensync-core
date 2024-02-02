@@ -121,44 +121,57 @@ string BloomFilter::toString() const
 
 ZZ BloomFilter::toZZ()
 {
-    ZZ res;
-    size_t sz = this->getSize();
+    size_t numBytes;
+    numBytes = bits.size()/8;
+    if(bits.size()%8 != 0)
+        numBytes++;
 
-    for(int i = 0; i < sz; i++)
+    unsigned char* pp = new unsigned char[numBytes];
+    int index = 0;
+    vector<bool> tempBits = bits;
+    reverse(tempBits.begin(), tempBits.end());
+
+    for(size_t i = 0; i < tempBits.size(); i += 8)
     {
-        if(this->bits[sz - i - 1] == 1)
+        unsigned char byte = 0;
+        for(size_t j = 0; j < 8 && i + j < tempBits.size(); ++j)
         {
-            ZZ p2;
-            power(p2, 2, i);
-            res += p2;
+            byte |= (tempBits[i+j] ? 1 : 0) << j;
         }
+        pp[index] = byte;
+        index++;
     }
+
+    ZZ res = NTL::ZZFromBytes(pp, numBytes);
+
+    delete[] pp;
 
     return res;
 }
 
 BloomFilter BloomFilter::ZZtoBF(ZZ val)
-{
-    vector<bool> resBits;
+{   
     size_t sz = this->getSize();
+    vector<bool> resBits(sz, 0);
+    
+    size_t numBytes = NTL::NumBytes(val);
+    unsigned char* pp = new unsigned char[numBytes];
+    NTL::BytesFromZZ(pp, val, NTL::NumBytes(val));
 
-    for(int i = 0; i < sz; i++)
+    for(size_t i = 0; i < numBytes; ++i)
     {
-        ZZ p2;
-        power(p2, 2, sz-i-1);
-        if(p2 <= val)
+        unsigned char byte = pp[i];
+        for(int j = 7; j >= 0; --j)
         {
-            resBits.push_back(1);
-            val -= p2;
-        }
-        else
-        {
-            resBits.push_back(0);
+            resBits[(8*i + j)] = (byte >> j) & 1;
         }
     }
 
     BloomFilter res(sz, this->getNumHashes());
+    reverse(resBits.begin(), resBits.end());
     res.setBits(resBits);
+
+    delete[] pp;
 
     return res;
 }
