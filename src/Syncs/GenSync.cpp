@@ -521,7 +521,7 @@ GenSync GenSync::Builder::build() {
             myMeth = make_shared<IBLTSync_Multiset>(numExpElem, bits);
             break;
 	case SyncProtocol::BloomFilterSync:
-            myMeth = make_shared<BloomFilterSync>(numExpElem, bits, 0.05);
+            myMeth = make_shared<BloomFilterSync>(numExpElem, bits, pow(2, -errorProb));
             break;
         default:
             throw invalid_argument("I don't know how to synchronize with this protocol.");
