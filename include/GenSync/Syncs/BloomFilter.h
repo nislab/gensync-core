@@ -182,7 +182,12 @@ protected:
      */
     void setBits(vector<bool> bitString);
 
-    // Returns the kk-th hash of the ZZ. From IBLT.h.
+    /** 
+     * Returns the kk-th hash of the ZZ value.
+     * @param value The value being hashed
+     * @param kk The current iteration of hash(value)
+     * @return hash(hash(value) + hash(kk))
+     */
     static hash_t _hash(const ZZ& value, long kk);
 
     // all bits in BloomFilter
