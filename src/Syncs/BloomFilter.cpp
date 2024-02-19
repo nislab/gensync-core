@@ -55,17 +55,14 @@ void BloomFilter::setBits(vector<bool> bitString)
         this->bits = bitString;
 }
 
-hash_t BloomFilter::_hash(const hash_t& initial, long kk)
+hash_t BloomFilter::_hash(const ZZ& value, long kk)
 {
-	if(kk == -1) return initial;
-	std::hash<std::string> shash;
-	return _hash(shash(toStr(initial)), kk-1);
-}
+	hash<string> shash;
 
-hash_t BloomFilter::_hashK(const ZZ &item, long kk)
-{
-	std::hash<std::string> shash;
-	return _hash(shash(toStr(item)), kk-1);
+    hash_t hash_val = shash(toStr(value));
+    hash_t hash_kk = shash(to_string(kk));
+
+    return shash( to_string(hash_val) + to_string(hash_kk) );
 }
 
 void BloomFilter::insert(ZZ value)
@@ -73,7 +70,7 @@ void BloomFilter::insert(ZZ value)
     vector<int> locs;
 
     for(int i = 0; i < this->numHashes; i++)
-	locs.push_back(_hashK(value, i) % this->bfSize);
+	    locs.push_back(_hash(value, i) % this->bfSize);
 
     for (int n : locs)
         this->bits[n] = 1;
@@ -92,7 +89,7 @@ bool BloomFilter::exist(ZZ value, vector<bool> bitString)
 	    return false;
 
     for(int i = 0; i < this->numHashes; i++)
-        locs.push_back(_hashK(value, i) % this->bfSize);
+        locs.push_back(_hash(value, i) % this->bfSize);
 
     for (int n : locs)
     {
