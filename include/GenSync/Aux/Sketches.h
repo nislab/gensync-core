@@ -9,9 +9,7 @@
 #ifndef SKETCHES_H
 #define SKETCHES_H
 
-#ifndef uint
-#define uint unsigned int
-#endif
+using uint = unsigned int;
 
 #include <GenSync/Data/DataObject.h>
 #include "hll.hpp"
