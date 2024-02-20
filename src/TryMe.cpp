@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
 			setBits((prot == GenSync::SyncProtocol::IBLTSync || prot == GenSync::SyncProtocol::OneWayIBLTSync ? BITS : BITS * CHAR_BIT)).
 			setNumPartitions(PARTS).
 			setExpNumElems(EXP_ELTS).
+            setFalsePosRate(0.05).
             build();
 
     genSync.addElem(make_shared<DataObject>('a'));
