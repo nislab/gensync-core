@@ -519,10 +519,10 @@ public:
     /**
      * Bloom Filter synchronization specific setter.
      * Sets probability of false positives of Bloom Filter.
-     * @param rate The probability of false positives.
+     * @param prob The probability of false positives.
      */
-    Builder& setFalsePosRate(float rate) {
-        this->falsePosRate = rate;
+    Builder& setFalsePosProb(float prob) {
+        this->falsePosProb = prob;
         return *this;
     }
 
@@ -576,7 +576,7 @@ private:
     Nullable<size_t> bucketSize;
     Nullable<size_t> filterSize;
     Nullable<size_t> maxKicks;
-    Nullable<float> falsePosRate;
+    Nullable<float> falsePosProb;
 
 
     // ... bookkeeping variables

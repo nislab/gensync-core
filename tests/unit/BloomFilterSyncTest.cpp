@@ -29,7 +29,7 @@ void BloomFilterSyncTest::BloomFilterSyncSetReconcileTest() {
 			setComm(GenSync::SyncComm::socket).
 			setBits(BITS).
 			setExpNumElems(numExpElem).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	
 	GenSync GenSyncClient = GenSync::Builder().
@@ -37,7 +37,7 @@ void BloomFilterSyncTest::BloomFilterSyncSetReconcileTest() {
 			setComm(GenSync::SyncComm::socket).
 			setBits(BITS).
 			setExpNumElems(numExpElem).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	
 	//(oneWay = false, probSync = true, syncParamTest = false, Multiset = false, largeSync = false)
@@ -52,7 +52,7 @@ void BloomFilterSyncTest::BloomFilterSyncLargeSetReconcileTest(){
 			setComm(GenSync::SyncComm::socket).
 			setBits(BITS).
 			setExpNumElems(largeNumExpElems).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	
 	GenSync GenSyncClient = GenSync::Builder().
@@ -60,7 +60,7 @@ void BloomFilterSyncTest::BloomFilterSyncLargeSetReconcileTest(){
 			setComm(GenSync::SyncComm::socket).
 			setBits(BITS).
 			setExpNumElems(largeNumExpElems).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	
 	//(oneWay = false, probSync = true, syncParamTest = false, Multiset = false, largeSync = true)
@@ -75,7 +75,7 @@ void BloomFilterSyncTest::testAddElem(){
 			setComm(GenSync::SyncComm::socket).
 			setBits(4).
 			setExpNumElems(numExpElem).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	multiset<shared_ptr<DataObject>, cmp<shared_ptr<DataObject>>> elts;
 	
@@ -96,7 +96,7 @@ void BloomFilterSyncTest::testGetStrings(){
 			setComm(GenSync::SyncComm::socket).
 			setBits(4).
 			setExpNumElems(numExpElem).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	
 	CPPUNIT_ASSERT(!bfSync.getName().empty());
@@ -111,7 +111,7 @@ void BloomFilterSyncTest::testBloomFilterParamMismatch(){
 			setBits(BITS).
 			//Different number of expectedElements to ensure that mismatches cause failure properly
 			setExpNumElems(numExpElem + 100).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	
 	GenSync GenSyncClient = GenSync::Builder().
@@ -119,7 +119,7 @@ void BloomFilterSyncTest::testBloomFilterParamMismatch(){
 			setComm(GenSync::SyncComm::socket).
 			setBits(BITS).
 			setExpNumElems(numExpElem).
-			setFalsePosRate(0.001).
+			setFalsePosProb(0.001).
 			build();
 	
 	//(oneWay = false, probSync = true, syncParamTest = true, Multiset = false, largeSync = false)
