@@ -12,14 +12,20 @@ BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, int szMult,
 {
 	this->expNumElems = expNumElems;
 	elementSize = eltSize;
-	myBloomFilter = BloomFilter(expNumElems*szMult, nHash);
+        myBloomFilter = BloomFilter::Builder().
+                        setSize(expNumElems*szMult).
+                        setNumHashes(nHash).
+                        build();
 }
 
 BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, float falsePosProb)
 {
         this->expNumElems = expNumElems;
         elementSize = eltSize;
-        myBloomFilter = BloomFilter(expNumElems, falsePosProb, 1);
+        myBloomFilter = BloomFilter::Builder().
+                        setNumExpElems(expNumElems).
+                        setFalsePosProb(falsePosProb).
+                        build();
 }
 
 BloomFilterSync::~BloomFilterSync() = default;

@@ -39,21 +39,36 @@ public:
     class Builder
     {
     public:
-
         /** Constructor for builder pattern */
-        Builder(){}
+        Builder(){
+            bfSize = 0;
+            numHashes = 0;
+            numExpElems = 0;
+            falsePosProb = 0;
+        }
 
         /**
          * Builds a BloomFilter object.
+         * setSize and setNumHashes are meant to be used together.
+         * setNumExpElems and setFalsePosProb are meant to be used together.
+         * If there is a mismatched use of setters, output error message and quit, returnng empty BloomFilter.
          * @return a BloomFilter object from the build parts that have been set.
          */    
         BloomFilter build()
         {
-            return BloomFilter(bfSize, numHashes);
+            if(bfSize != 0 && numHashes != 0)
+                return BloomFilter(bfSize, numHashes);
+            
+            if(numExpElems != 0 && falsePosProb != 0)
+                return BloomFilter(numExpElems, falsePosProb);
+            
+            Logger::error_and_quit("ERROR: Mismatched combination of setters used in BloomFilter construction!");
+            return BloomFilter();
         }        
 
         /**
          * Sets the size of the BloomFilter, specifically its length in bits.
+         * Meant to be used with setNumHashes setter. Cannot be used with other setters.
          * Discards all elements inserted before the resize.
          */
         Builder& setSize(size_t size)
@@ -64,40 +79,53 @@ public:
 
         /**
          * Sets the number of hash functions used by the BloomFilter for each element insertion
+         * Meant to be used with setSize setter. Cannot be used with other setters.
          * Discards all elements inserted before the hashes reset.
          */
-        Builder& setNumHashes(size_t nHash)
+        Builder& setNumHashes(int nHash)
         {
             numHashes = nHash;
             return *this;
         }
+
+        /**
+         * Sets the number of expected elements in the BloomFilter.
+         * Meant to be used with setFalsePosProb setter. Cannot be used with other setters.
+         * Discards all elements inserted before the resize.
+         */
+        Builder& setNumExpElems(size_t numElems)
+        {
+            numExpElems = numElems;
+            return *this;
+        }
+
+        /**
+         * Sets the probability of false positives in the BloomFilter
+         * Meant to be used with setNumExpElems setter. Cannot be used with other setters.
+         * Discards all elements inserted before reset.
+         */
+        Builder& setFalsePosProb(float prob)
+        {
+            falsePosProb = prob;
+            return *this;
+        }
         
     private:
-
         // Length of the BloomFilter in bits
         size_t bfSize;
 
         // Number of hash functions used by the BloomFilter
-        size_t numHashes;
+        int numHashes;
+
+        // Number of expected elements in BloomFilter
+        size_t numExpElems;
+
+        // The probability/rate of false positives
+        float falsePosProb;
     };
-    
+
     // default constructor
     BloomFilter();
-
-    /**
-     * Constructs a BloomFilter object with bit string's size equal to size.
-     * @param size The size of BloomFilter, specifically its length in bits
-     * @param nHash The number of hash functions BloomFilter will use for each element insertion
-     */
-    BloomFilter(size_t size, size_t nHash);
-
-    /**
-     * Constructs a BloomFilter object from false positive rate as input.
-     * @param numExpElems The expected number of elements in the BloomFilter
-     * @param falsePosProb The rate of false positives
-     * @param use Additional parameter meant to differentiate the two constructors, not used in the function
-     */
-    BloomFilter(size_t numExpElems, float falsePosProb, bool use);
 
     // default destructor
     ~BloomFilter();
@@ -110,9 +138,9 @@ public:
 
     /**
      * Getter for number of hash functions used by BloomFilter.
-     * @return size_t The number of hash functions used by BloomFilter per element
+     * @return int The number of hash functions used by BloomFilter per element
      */
-    size_t getNumHashes();
+    int getNumHashes();
 
     /**
      * Getter for BloomFilter's bits in form of vector<bool>.
@@ -174,7 +202,21 @@ public:
     BloomFilter ZZtoBF(ZZ val);
 
 protected:
-    // local data
+    // constructors should not be used, only builder pattern should be accessible
+
+    /**
+     * Constructs a BloomFilter object with bit string's size equal to size.
+     * @param size The size of BloomFilter, specifically its length in bits
+     * @param nHash The number of hash functions BloomFilter will use for each element insertion
+     */
+    BloomFilter(size_t size, int nHash);
+
+    /**
+     * Constructs a BloomFilter object from false positive rate as input.
+     * @param numExpElems The expected number of elements in the BloomFilter
+     * @param falsePosProb The rate of false positives
+     */
+    BloomFilter(size_t numExpElems, float falsePosProb);
 
     /**
      * Setter for BloomFilter's bit string.
@@ -197,7 +239,7 @@ protected:
     size_t bfSize;
 
     // number of hash functions
-    size_t numHashes;
+    int numHashes;
 };
 
 #endif

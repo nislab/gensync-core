@@ -9,14 +9,14 @@
 BloomFilter::BloomFilter() = default;
 BloomFilter::~BloomFilter() = default;
 
-BloomFilter::BloomFilter(size_t size, size_t nHash)
+BloomFilter::BloomFilter(size_t size, int nHash)
 {
     this->bfSize = size;
     this->bits.resize(size, 0);
     this->numHashes = nHash;
 }
 
-BloomFilter::BloomFilter(size_t numExpElems, float falsePosProb, bool use)
+BloomFilter::BloomFilter(size_t numExpElems, float falsePosProb)
 {
     if(falsePosProb < 0 || falsePosProb > 1)
     {
@@ -33,7 +33,7 @@ size_t BloomFilter::getSize()
     return this->bfSize;
 }
 
-size_t BloomFilter::getNumHashes()
+int BloomFilter::getNumHashes()
 {
     return this->numHashes;
 }
