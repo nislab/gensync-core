@@ -49,12 +49,6 @@ float BloomFilter::getFalsePosProb(size_t numExpElems)
     return pow(0.5, exp);
 }
 
-void BloomFilter::setBits(vector<bool> bitString)
-{
-    if(this->getSize() == bitString.size())
-        this->bits = bitString;
-}
-
 hash_t BloomFilter::_hash(const ZZ& value, long kk)
 {
 	hash<string> shash;
@@ -166,7 +160,7 @@ BloomFilter BloomFilter::ZZtoBF(ZZ val)
 
     BloomFilter res(sz, this->getNumHashes());
     reverse(resBits.begin(), resBits.end());
-    res.setBits(resBits);
+    res.bits = resBits;
 
     delete[] pp;
 

@@ -218,12 +218,6 @@ protected:
      */
     BloomFilter(size_t numExpElems, float falsePosProb);
 
-    /**
-     * Setter for BloomFilter's bit string.
-     * @param bitString The new bit string
-     */
-    void setBits(vector<bool> bitString);
-
     /** 
      * Returns the kk-th hash of the ZZ value.
      * @param value The value being hashed

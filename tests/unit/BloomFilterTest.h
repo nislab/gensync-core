@@ -18,6 +18,7 @@ class BloomFilterTest : public CPPUNIT_NS::TestFixture{
     CPPUNIT_TEST(testBFInsert);
     CPPUNIT_TEST(testBFExist);
     CPPUNIT_TEST(testBFBitsZZConv);
+    CPPUNIT_TEST(testFalsePosProb);
 
     CPPUNIT_TEST_SUITE_END();
 public:
@@ -46,6 +47,10 @@ public:
      */
     static void testBFBitsZZConv();
 
+    /**
+     * Test accuracy of false positives probability
+     */
+    static void testFalsePosProb();
 
 };
 

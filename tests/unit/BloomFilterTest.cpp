@@ -25,10 +25,24 @@ void BloomFilterTest::testBFBuild(){
     int size = rand()%10;
     int nHash = 2 + rand()%5;
     
-    BloomFilter bf(size, nHash);
+    BloomFilter bf = BloomFilter::Builder().
+            setSize(size).
+            setNumHashes(nHash).
+            build();
 
     CPPUNIT_ASSERT(size == bf.getSize());
     CPPUNIT_ASSERT(nHash == bf.getNumHashes());
+
+    float falsePosProb = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    size_t numElems = rand()%10;
+    const float maxError = 0.01;
+
+    BloomFilter bf2 = BloomFilter::Builder().
+            setNumExpElems(numElems).
+            setFalsePosProb(falsePosProb).
+            build();
+
+    CPPUNIT_ASSERT(abs(bf2.getFalsePosProb(numElems) - falsePosProb) < 0.01);
 }
 
 void BloomFilterTest::testBFInsert(){
@@ -39,7 +53,10 @@ void BloomFilterTest::testBFInsert(){
     for(int ii = 0; ii < SIZE; ii++)
         items.push_back(randZZ());
 
-    BloomFilter bf(SIZE*4, 3);
+    BloomFilter bf = BloomFilter::Builder().
+            setSize(SIZE*4).
+            setNumHashes(3).
+            build();
     int inserted = 0;
 
     for(auto val: items)
@@ -66,7 +83,10 @@ void BloomFilterTest::testBFExist(){
     for(int ii = 0; ii < SIZE; ii++)
         items.push_back(randZZ());
 
-    BloomFilter bf(SIZE*2, 3);
+    BloomFilter bf = BloomFilter::Builder().
+            setSize(SIZE*2).
+            setNumHashes(3).
+            build();
 
     for(auto val: items)
     {
@@ -88,7 +108,10 @@ void BloomFilterTest::testBFBitsZZConv(){
     for(int ii = 0; ii < SIZE; ii++)
         items.push_back(randZZ());
 
-    BloomFilter bf(SIZE*2, 3);
+    BloomFilter bf = BloomFilter::Builder().
+            setSize(SIZE*2).
+            setNumHashes(3).
+            build();
 
     for(auto val: items)
     {
@@ -99,7 +122,44 @@ void BloomFilterTest::testBFBitsZZConv(){
         CPPUNIT_ASSERT(longVal == ZZVal);
 
         vector<bool> newBitString = bf.ZZtoBF(ZZVal).getBits();
-        string strTest(newBitString.begin(), newBitString.end());
+        
+        string strTest = "";
+        for(auto v: newBitString)
+            strTest += to_string(v);
+
         CPPUNIT_ASSERT(strTest == bf.toString());
     }
+}
+
+void BloomFilterTest::testFalsePosProb(){
+    vector<ZZ> present;
+    vector<ZZ> absent;
+    const int NUM_ELEMS = 10000;
+    const float expFalsePosProb = 0.05;
+    const float maxError = 0.01;
+
+    for(int ii = 0; ii < NUM_ELEMS; ii++)
+        present.push_back(randZZ());
+    
+    while(absent.size() < NUM_ELEMS)
+        absent.push_back(randZZ());
+
+    BloomFilter bf = BloomFilter::Builder().
+            setNumExpElems(NUM_ELEMS).
+            setFalsePosProb(expFalsePosProb).
+            build();
+
+    for(auto val: present)
+        bf.insert(val);
+    
+    int falsePositives = 0;
+    for(auto val: absent)
+    {
+        if(bf.exist(val))
+            falsePositives++;
+    }
+
+    float actualFalsePosProb = (float)falsePositives / NUM_ELEMS;
+
+    CPPUNIT_ASSERT(abs(actualFalsePosProb - expFalsePosProb) < maxError);
 }
