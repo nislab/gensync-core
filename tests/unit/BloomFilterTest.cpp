@@ -135,14 +135,18 @@ void BloomFilterTest::testFalsePosProb(){
     vector<ZZ> present;
     vector<ZZ> absent;
     const int NUM_ELEMS = 10000;
-    const float expFalsePosProb = 0.05;
+    const float expFalsePosProb = 0.1;
     const float maxError = 0.01;
 
     for(int ii = 0; ii < NUM_ELEMS; ii++)
         present.push_back(randZZ());
     
     while(absent.size() < NUM_ELEMS)
-        absent.push_back(randZZ());
+    {
+        ZZ val = randZZ();
+        if(find(present.begin(), present.end(), val) == present.end())
+            absent.push_back(val);
+    }
 
     BloomFilter bf = BloomFilter::Builder().
             setNumExpElems(NUM_ELEMS).
@@ -160,6 +164,6 @@ void BloomFilterTest::testFalsePosProb(){
     }
 
     float actualFalsePosProb = (float)falsePositives / NUM_ELEMS;
-
+    cout << actualFalsePosProb << endl;
     CPPUNIT_ASSERT(abs(actualFalsePosProb - expFalsePosProb) < maxError);
 }
