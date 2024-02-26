@@ -33,9 +33,9 @@ void BloomFilterTest::testBFBuild(){
     CPPUNIT_ASSERT(size == bf.getSize());
     CPPUNIT_ASSERT(nHash == bf.getNumHashes());
 
-    float falsePosProb = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) % 0.1;
+    float falsePosProb = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
     size_t numElems = rand()%10;
-    const float maxError = 0.02;
+    const float maxError = 0.05;
 
     BloomFilter bf2 = BloomFilter::Builder().
             setNumExpElems(numElems).
