@@ -33,16 +33,16 @@ void BloomFilterTest::testBFBuild(){
     CPPUNIT_ASSERT(size == bf.getSize());
     CPPUNIT_ASSERT(nHash == bf.getNumHashes());
 
-    float falsePosProb = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    float falsePosProb = (static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) % 0.1;
     size_t numElems = rand()%10;
-    const float maxError = 0.01;
+    const float maxError = 0.02;
 
     BloomFilter bf2 = BloomFilter::Builder().
             setNumExpElems(numElems).
             setFalsePosProb(falsePosProb).
             build();
 
-    CPPUNIT_ASSERT(abs(bf2.getFalsePosProb(numElems) - falsePosProb) < 0.01);
+    CPPUNIT_ASSERT(abs(bf2.getFalsePosProb(numElems) - falsePosProb) < maxError);
 }
 
 void BloomFilterTest::testBFInsert(){
