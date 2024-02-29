@@ -7,6 +7,9 @@
 #define CPISYNCLIB_IBLTSetOfSetsTEST_H
 
 #include <cppunit/extensions/HelperMacros.h>
+#include <GenSync/Syncs/GenSync.h>
+#include <GenSync/Syncs/IBLTSetOfSets.h>
+#include "../TestAuxiliary.h"
 
 class IBLTSetOfSetsTest : public CPPUNIT_NS::TestFixture
 {

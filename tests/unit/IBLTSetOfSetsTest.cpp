@@ -4,9 +4,6 @@
 //
 
 #include "IBLTSetOfSetsTest.h"
-#include <GenSync/Syncs/GenSync.h>
-#include <GenSync/Syncs/IBLTSetOfSets.h>
-#include "TestAuxiliary.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IBLTSetOfSetsTest);
 
