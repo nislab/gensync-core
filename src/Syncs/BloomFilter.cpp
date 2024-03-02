@@ -72,22 +72,14 @@ void BloomFilter::insert(ZZ value)
 
 bool BloomFilter::exist(ZZ value)
 {
-    return exist(value, this->bits);
-}
-
-bool BloomFilter::exist(ZZ value, vector<bool> bitString)
-{
     vector<int> locs;
-
-    if(bitString.size() != this->bfSize)
-	    return false;
 
     for(int i = 0; i < this->numHashes; i++)
         locs.push_back(_hash(value, i) % this->bfSize);
 
     for (int n : locs)
     {
-        if(bitString[n] == 0)
+        if(this->bits[n] == 0)
                 return false;
     }
 

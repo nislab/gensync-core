@@ -170,17 +170,9 @@ public:
     /**
      * Probabilistically determine whether an element is in BloomFilter's bit string.
      * @param value The element to be determined if in BloomFilter
-     * @return true iff element is probably in BloomFilter
+     * @return true iff element is probably in BloomFilter, false if definitely not.
      */
     bool exist(ZZ value);
-
-    /**
-     * Probabilistically determine whether an element is in a BloomFilter bit string.
-     * @param value The element to be determined if in BloomFilter
-     * @param bitString The bit string to be checked
-     * @return true iff element is probably in bit string
-     */
-    bool exist(ZZ value, vector<bool> bitString);
 
     /**
      * Convert BloomFilter to a readable string.
