@@ -105,7 +105,7 @@ string BloomFilter::toString() const
 ZZ BloomFilter::toZZ()
 {
     size_t numBytes;
-    int byteSize = sizeof(char) * 8;
+    int byteSize = CHAR_BIT;
     numBytes = bits.size()/byteSize;
     if(bits.size()%byteSize != 0)
         numBytes++;
@@ -137,7 +137,7 @@ BloomFilter BloomFilter::ZZtoBF(ZZ val)
 {   
     size_t sz = this->getSize();
     vector<bool> resBits(sz, 0);
-    int byteSize = sizeof(char) * 8;
+    int byteSize = CHAR_BIT;
     
     size_t numBytes = NTL::NumBytes(val);
     unsigned char* pp = new unsigned char[numBytes];
@@ -146,7 +146,7 @@ BloomFilter BloomFilter::ZZtoBF(ZZ val)
     for(size_t i = 0; i < numBytes; ++i)
     {
         unsigned char byte = pp[i];
-        for(int j = 7; j >= 0; --j)
+        for(int j = byteSize-1; j >= 0; --j)
         {
             resBits[(byteSize*i + j)] = (byte >> j) & 1;
         }
