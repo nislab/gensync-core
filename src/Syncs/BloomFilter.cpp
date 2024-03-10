@@ -11,26 +11,25 @@ BloomFilter::~BloomFilter() = default;
 
 BloomFilter::BloomFilter(size_t size, int nHash)
 {
-    this->bfSize = size;
     this->bits.resize(size, 0);
     this->numHashes = nHash;
 }
 
 BloomFilter::BloomFilter(size_t numExpElems, float falsePosProb)
 {
-    if(falsePosProb < 0 || falsePosProb > 1)
+    if(falsePosProb <= 0 || falsePosProb >= 1)
     {
-        falsePosProb = 0.05;
+        Logger::error_and_quit("ERROR: False positive probability must be set between 0 and 1 exclusive!");
     }
     
-    this->bfSize = round(-2.08 * log(falsePosProb) * numExpElems);
-    this->bits.resize(this->bfSize, 0);
-    this->numHashes = round(-2.08 * log(falsePosProb) * log(2));
+    size_t bfSize = round(-2.08 * log(falsePosProb) * numExpElems); // From "Michael Mitzenmacher. 2001. Compressed bloom filters."
+    this->bits.resize(bfSize, 0);
+    this->numHashes = round(-2.08 * log(falsePosProb) * log(2)); // From "Michael Mitzenmacher. 2001. Compressed bloom filters."
 }
 
 size_t BloomFilter::getSize()
 {
-    return this->bfSize;
+    return this->bits.size();
 }
 
 int BloomFilter::getNumHashes()
@@ -45,7 +44,8 @@ vector<bool> BloomFilter::getBits()
 
 float BloomFilter::getFalsePosProb(size_t numExpElems)
 {
-    float exp = ((float)bfSize/numExpElems) * log(2);
+    size_t bfSize = this->bits.size();
+    float exp = ((float)bfSize/numExpElems) * log(2); // From "Michael Mitzenmacher. 2001. Compressed bloom filters."
     return pow(0.5, exp);
 }
 
@@ -62,25 +62,25 @@ hash_t BloomFilter::_hash(const ZZ& value, long kk)
 void BloomFilter::insert(ZZ value)
 {
     vector<int> locs;
+    size_t bfSize = this->bits.size();
 
     for(int i = 0; i < this->numHashes; i++)
-	    locs.push_back(_hash(value, i) % this->bfSize);
-
-    for (int n : locs)
-        this->bits[n] = 1;
+    {
+        size_t loc = _hash(value, i) % bfSize;
+        this->bits[loc] = 1;
+    }
 }
 
 bool BloomFilter::exist(ZZ value)
 {
     vector<int> locs;
+    size_t bfSize = this->bits.size();
 
     for(int i = 0; i < this->numHashes; i++)
-        locs.push_back(_hash(value, i) % this->bfSize);
-
-    for (int n : locs)
     {
-        if(this->bits[n] == 0)
-                return false;
+        size_t loc = _hash(value, i) % bfSize;
+        if(this->bits[loc] == 0)
+            return false;
     }
 
     return true;
@@ -105,8 +105,9 @@ string BloomFilter::toString() const
 ZZ BloomFilter::toZZ()
 {
     size_t numBytes;
-    numBytes = bits.size()/8;
-    if(bits.size()%8 != 0)
+    int byteSize = sizeof(char) * 8;
+    numBytes = bits.size()/byteSize;
+    if(bits.size()%byteSize != 0)
         numBytes++;
 
     unsigned char* pp = new unsigned char[numBytes];
@@ -114,10 +115,10 @@ ZZ BloomFilter::toZZ()
     vector<bool> tempBits = bits;
     reverse(tempBits.begin(), tempBits.end());
 
-    for(size_t i = 0; i < tempBits.size(); i += 8)
+    for(size_t i = 0; i < tempBits.size(); i += byteSize)
     {
         unsigned char byte = 0;
-        for(size_t j = 0; j < 8 && i + j < tempBits.size(); ++j)
+        for(size_t j = 0; j < byteSize && i + j < tempBits.size(); ++j)
         {
             byte |= (tempBits[i+j] ? 1 : 0) << j;
         }
@@ -136,6 +137,7 @@ BloomFilter BloomFilter::ZZtoBF(ZZ val)
 {   
     size_t sz = this->getSize();
     vector<bool> resBits(sz, 0);
+    int byteSize = sizeof(char) * 8;
     
     size_t numBytes = NTL::NumBytes(val);
     unsigned char* pp = new unsigned char[numBytes];
@@ -146,7 +148,7 @@ BloomFilter BloomFilter::ZZtoBF(ZZ val)
         unsigned char byte = pp[i];
         for(int j = 7; j >= 0; --j)
         {
-            resBits[(8*i + j)] = (byte >> j) & 1;
+            resBits[(byteSize*i + j)] = (byte >> j) & 1;
         }
     }
 
