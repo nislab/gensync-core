@@ -327,6 +327,7 @@ public:
         IBLTSetOfSets,
         IBLTSync_Multiset,
         CuckooSync,
+        BloomFilterSync,
         END     // one after the end of iterable options
     };
 
@@ -516,6 +517,16 @@ public:
     }
 
     /**
+     * Bloom Filter synchronization specific setter.
+     * Sets probability of false positives of Bloom Filter.
+     * @param prob The probability of false positives.
+     */
+    Builder& setFalsePosProb(float prob) {
+        this->falsePosProb = prob;
+        return *this;
+    }
+
+    /**
      * @param theFileName A file name from which data is to be drawn for the initial population of the sync object.
      */
     Builder& setDataFile(string theFileName) {
@@ -565,6 +576,7 @@ private:
     Nullable<size_t> bucketSize;
     Nullable<size_t> filterSize;
     Nullable<size_t> maxKicks;
+    Nullable<float> falsePosProb;
 
 
     // ... bookkeeping variables

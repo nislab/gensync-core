@@ -18,6 +18,7 @@
 #include <GenSync/Syncs/CPISync_HalfRound.h>
 #include <GenSync/Syncs/IBLTSetOfSets.h>
 #include <GenSync/Syncs/CuckooSync.h>
+#include <GenSync/Syncs/BloomFilterSync.h>
 
 const char BenchParams::KEYVAL_SEP = ':';
 const string BenchParams::FILEPATH_SEP = "/"; // TODO: we currently don't compile for _WIN32!
@@ -309,6 +310,13 @@ BenchParams::BenchParams(SyncMethod& meth) :
     if (ibltMulti) {
         syncProtocol = GenSync::SyncProtocol::IBLTSync_Multiset;
         syncParams = make_shared<IBLTParams>(ibltMulti->getExpNumElems(), ibltMulti->getElementSize());
+        return;
+    }
+
+    auto bfilter = dynamic_cast<BloomFilterSync*>(&meth);
+    if (bfilter) {
+        syncProtocol = GenSync::SyncProtocol::BloomFilterSync;
+        syncParams = make_shared<IBLTParams>(bfilter->getExpNumElems(), bfilter->getElementSize());
         return;
     }
 

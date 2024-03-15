@@ -5,7 +5,7 @@
 
 
 #include <iostream>
-#include <Gensync/Syncs/GenSync.h>
+#include <GenSync/Syncs/GenSync.h>
 
 using std::cout;
 using std::endl;
@@ -34,6 +34,8 @@ int main(int argc, char *argv[]) {
         prot = GenSync::SyncProtocol::IBLTSync;
     } else if (type == "OneWayIBLTSync") {
         prot = GenSync::SyncProtocol::OneWayIBLTSync;
+    } else if (type == "BloomFilterSync") {
+        prot = GenSync::SyncProtocol::BloomFilterSync;
     } else {
         cout << "invalid sync type!" << endl;
         exit(1);
@@ -55,6 +57,7 @@ int main(int argc, char *argv[]) {
 			setBits((prot == GenSync::SyncProtocol::IBLTSync || prot == GenSync::SyncProtocol::OneWayIBLTSync ? BITS : BITS * CHAR_BIT)).
 			setNumPartitions(PARTS).
 			setExpNumElems(EXP_ELTS).
+            setFalsePosProb(0.05).
             build();
 
     genSync.addElem(make_shared<DataObject>('a'));
