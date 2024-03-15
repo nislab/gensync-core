@@ -17,6 +17,9 @@ BloomFilterTest::~BloomFilterTest() {
 void BloomFilterTest::setUp() {
     const int SEED = 617;
     srand(SEED);
+
+    ZZ NTL_SEED = ZZ(617);
+    SetSeed(NTL_SEED);
 }
 
 void BloomFilterTest::tearDown() {}

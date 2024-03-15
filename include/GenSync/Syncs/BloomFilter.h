@@ -35,7 +35,7 @@ using std::vector;
 using namespace NTL;
 
 // Shorthand for the hash type
-typedef unsigned long int hash_t;
+typedef uint64_t hash_t;
 
 class BloomFilter
 {

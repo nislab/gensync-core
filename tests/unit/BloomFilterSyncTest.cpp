@@ -16,6 +16,9 @@ BloomFilterSyncTest::~BloomFilterSyncTest() = default;
 void BloomFilterSyncTest::setUp() {
 	const int SEED = 93;
 	srand(SEED);
+
+	ZZ NTL_SEED = ZZ(93);
+    SetSeed(NTL_SEED);
 }
 
 void BloomFilterSyncTest::tearDown() {
