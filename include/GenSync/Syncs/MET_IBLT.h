@@ -1,138 +1,83 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
 
 /*
- * MET IBLT Description
+ * Multi-Edge-Type Invertible Bloom Filter
  *
- * Created by Anish Sinha on 2/19/23.
+ * Created by Anish Sinha on 2/19/24.
  */
 
 #ifndef GENSYNCLIB_METIBLT_H
 #define GENSYNCLIB_METIBLT_H
 
 #include <vector>
-#include <utility>
 #include <string>
 #include <functional>
 #include <NTL/ZZ.h>
-#include <sstream>
-#include <GenSync/Aux/Auxiliary.h>
-#include <GenSync/Data/DataObject.h>
 #include <GenSync/Syncs/IBLT.h>
 
-using std::hash;
-using std::pair;
 using std::string;
-using std::stringstream;
 using std::vector;
 using namespace NTL;
-
-// Shorthand for the hash type
-typedef unsigned long int hash_t;
 
 class MET_IBLT
 {
 public:
-    MET_IBLT(){};
+    // Default Constructor
+    MET_IBLT();
 
-    MET_IBLT(const std::vector<std::vector<int>>& deg_matrix, 
-             const std::vector<int>& m_cells, 
-             std::function<int(ZZ)> key2type, size_t valueSize)
-    {
-        D = deg_matrix;
-        M = m_cells;
-        this->key2type = key2type;
-        this->valueSize = valueSize;
+    // default destructor
+    ~MET_IBLT();
 
-        for(auto numCells: M)
-        {
-            tables.push_back(IBLT(numCells/1.5, valueSize));
-        }
-    };
+    /**
+     * Constructs a MET IBLT.
+     * @param deg_matrix The degree matrix specifying the number of hashes between each cell and element type.
+     * @param m_cells The list of cell types, each index specifies type and value at index specifies number of cells.
+     * @param key2type Function which returns element type given an element (key).
+     * @param eltSize Size of elements being stored.
+     */
+    MET_IBLT(const vector<vector<int>>& deg_matrix, 
+             const vector<int>& m_cells, 
+             function<int(ZZ)> key2type, size_t eltSize);
 
-    void insert(ZZ value)
-    {
-        for(auto& ibf: tables)
-        {
-            ibf.insert(value, value);
-        }
-    };
+    /**
+     * Insert an element into MET IBLT.
+     * @param value The element to be added to MET IBLT.
+     */
+    void insert(ZZ value);
 
-    void erase(ZZ value)
-    {
-        for(auto& ibf: tables)
-        {
-            ibf.erase(value, value);
-        }
-    };
+    /**
+     * Erases an element from the MET IBLT.
+     * This operation always succeeds.
+     * @param value The value to be removed.
+     */
+    void erase(ZZ value);
 
-    std::set<ZZ> peelOnce()
-    {
-        std::vector<std::set<ZZ>> removedPerTable;
-        std::set<ZZ> removedTotal;
+    /**
+     * TODO: DOCUMENTATION NEEDED
+     * @param result The resulting list of elements peeled.
+     * @return true iff all elements successfully peeled.
+     */
+    bool peelOnce(std::set<ZZ> &result);
 
-        for (auto& table : tables)
-        {
-            vector<pair<ZZ, ZZ>> pos, neg;
-            table.listEntries(pos, neg);
+    /**
+     * TODO: DOCUMENTATION NEEDED
+     * @param result The resulting list of elements peeled.
+     * @return true iff all elements successfully peeled.
+     */
+    bool peelAll(std::set<ZZ> &result);
 
-            std::set<ZZ> toBeRemoved;
-
-            for(const auto& pair: neg)
-                toBeRemoved.insert(pair.first);
-
-            for(const auto& pair: pos)
-                toBeRemoved.insert(pair.first);
-
-            removedPerTable.push_back(toBeRemoved);
-            removedTotal.insert(toBeRemoved.begin(), toBeRemoved.end());
-        }
-
-        for (size_t i = 0; i < tables.size(); ++i) 
-        {
-            for (auto& x : removedTotal) 
-            {
-                if (removedPerTable[i].find(x) == removedPerTable[i].end()) 
-                    tables[i].erase(ZZ(x), ZZ(x));
-            }
-        }
-
-        return removedTotal;
-    };
-
-    std::set<ZZ> peelAll()
-    {
-        std::set<ZZ> res;
-        std::set<ZZ> peels;
-
-        while(!(peels = peelOnce()).empty())
-        {
-            for(auto& val: peels)
-                res.insert(val);
-        }
-
-        return res;
-    };
-
-    string toString()
-    {
-        string outStr = "";
-        
-        for(auto& ibf: tables)
-        {
-            outStr += ibf.toString();
-            outStr += '\n';
-            outStr += '\n';
-        }
-        
-        return outStr;
-    };
+    /**
+     * Convert MET IBLT to a readable string.
+     * @return A human-readable string describing the contents of the MET IBLT.
+     */
+    string toString();
 
 private:
     // Degree matrix. Cell Types X Elem Types
-    vector<std::vector<int>> D;
+    vector<vector<int>> deg_matrix;
 
     // Cells, index is cell type, value is number of cells
-    vector<int> M;
+    vector<int> m_cells;
 
     // Returns Element's Type given Element
     function<int(ZZ)> key2type;
@@ -141,7 +86,7 @@ private:
     vector<IBLT> tables;
 
     // Size of elements being stored
-    size_t valueSize;
+    size_t eltSize;
 };
 
 #endif
