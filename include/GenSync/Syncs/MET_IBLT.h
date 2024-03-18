@@ -22,6 +22,8 @@ using namespace NTL;
 class MET_IBLT
 {
 public:
+    friend class MET_IBLTSync;
+
     // Default Constructor
     MET_IBLT();
 
@@ -73,6 +75,20 @@ public:
     string toString();
 
 private:
+    /**
+     * Insert an element into MET IBLT to a specific cell type.
+     * @param value The element to be added to MET IBLT.
+     * @param cellType The cell type the element will be added to.
+     */
+    void insert(ZZ value, int mIndex);
+
+    /**
+     * Add cell type to MET IBLT.
+     * @param size Number of cells in cell type.
+     * @param elemHashes Vector specifying element type hashes. To be added to degree matrix.
+     */
+    void addCellType(int size, vector<int> elemHashes);
+
     // Degree matrix. Cell Types X Elem Types
     vector<vector<int>> deg_matrix;
 
