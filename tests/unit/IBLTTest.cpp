@@ -29,7 +29,7 @@ void IBLTTest::testAll() {
     for(int ii = 0; ii < SIZE; ii++)
         items.push_back({randZZ(), randZZ()});
 
-    IBLT iblt(SIZE * 2, ITEM_SIZE);
+    IBLT iblt(4, 11, SIZE * 2, ITEM_SIZE);
     for(unsigned int ii=0; ii < SIZE/2; ii++)
         iblt.insert(items.at(ii).first, items.at(ii).second);
 
@@ -54,14 +54,14 @@ void IBLTTest::SerializeTest()
     vector<pair<ZZ, ZZ>> pos, neg, ref, neg1, pos1;
     const int SIZE = 10;
     const size_t ITEM_SIZE = sizeof(ZZ(0));
-    IBLT iblt(SIZE, ITEM_SIZE);
+    IBLT iblt(4, 11, SIZE, ITEM_SIZE);
     for (int ii = 1; ii < SIZE; ii++)
     {
         iblt.insert(ZZ(ii), ZZ(ii));
         ref.push_back({ZZ(ii), ZZ(ii)});
     }
     string str = iblt.toString();
-    IBLT reconstructedIBLT(SIZE, ITEM_SIZE);
+    IBLT reconstructedIBLT(4, 11, SIZE, ITEM_SIZE);
     reconstructedIBLT.reBuild(str);
     // Make sure everything's same between original IBLT and reconstructed IBLT
     CPPUNIT_ASSERT_EQUAL(str, reconstructedIBLT.toString());
@@ -76,7 +76,7 @@ void IBLTTest::IBLTNestedInsertRetrieveTest()
     const int expEntries = 20;
     const int BYTE = 8;
 
-    IBLT InsideIBLT(expEntries, BYTE);
+    IBLT InsideIBLT(4, 11, expEntries, BYTE);
 
     //Add data to interior IBLT
     for (int ii = 0; ii < expEntries; ii++)
@@ -96,7 +96,7 @@ void IBLTTest::IBLTNestedInsertRetrieveTest()
     }
 
 
-    IBLT OutsideIBLT(expEntries, BYTE);
+    IBLT OutsideIBLT(4, 11, expEntries, BYTE);
 
     //Insert the inside IBLT into the outside IBLT
     OutsideIBLT.insert(result, BYTE, expEntries);

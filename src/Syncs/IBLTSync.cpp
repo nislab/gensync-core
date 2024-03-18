@@ -7,7 +7,7 @@
 #include <GenSync/Aux/Exceptions.h>
 #include <GenSync/Syncs/IBLTSync.h>
 
-IBLTSync::IBLTSync(size_t expected, size_t eltSize) : myIBLT(expected, eltSize) {
+IBLTSync::IBLTSync(size_t expected, size_t eltSize) : myIBLT(4, 11, expected, eltSize) {
     expNumElems = expected;
     oneWay = false;
     elementSize = eltSize;
