@@ -64,16 +64,21 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
         }
     }
 
-    /** TODO: Receive differences from server */
+    list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
+    list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
+
+    otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
+    selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
     
-    return false;
+    return true;
 }
 
 bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf)
 {
     MET_IBLT diffMET;
     int mIndex = 0;
-    std::set<ZZ> diffs;
+    vector<ZZ> diffsPos;
+    vector<ZZ> diffsNeg;
 
     while(true)
     {
@@ -81,7 +86,7 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
         IBLT diffIBLT = myMET.tables[0] - clientIBLT;
         
         diffMET.tables.push_back(diffIBLT);
-        bool peelSuccess = diffMET.peelAll(diffs);
+        bool peelSuccess = diffMET.peelAll(diffsPos, diffsNeg);
         commSync->commSend(peelSuccess);
 
         if(peelSuccess)
@@ -96,9 +101,18 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
         }
     }
 
-    /** TODO: Resolve differences and send to client */
-    
-    return false;
+    for(const auto& val : diffsPos) {
+        otherMinusSelf.push_back(make_shared<DataObject>(val));
+    }
+
+    for(const auto& val : diffsNeg) {
+        selfMinusOther.push_back(make_shared<DataObject>(val));
+    }
+
+    commSync->commSend(selfMinusOther);
+    commSync->commSend(otherMinusSelf);
+
+    return true;
 }
 
 bool MET_IBLTSync::addElem(shared_ptr<DataObject> datum)
