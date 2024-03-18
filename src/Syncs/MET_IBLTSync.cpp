@@ -13,8 +13,8 @@ MET_IBLTSync::MET_IBLTSync(size_t expNumElems, size_t eltSize)
     this->expNumElems = expNumElems;
     elementSize = eltSize;
 
-    vector<vector<int>> degMatrix = {{3,4,2}};
-    vector<int> cells = {1};
+    vector<vector<int>> deg_matrix = {{3,4,2}};
+    vector<int> m_cells = {1};
 
     function<int(ZZ)> key2type = [](ZZ key) {
         vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
@@ -38,18 +38,66 @@ MET_IBLTSync::MET_IBLTSync(size_t expNumElems, size_t eltSize)
         }
     };
 
-    myMET = MET_IBLT(degMatrix, cells, key2type, eltSize);
+    myMET = MET_IBLT(deg_matrix, m_cells, key2type, eltSize);
 }
 
 MET_IBLTSync::~MET_IBLTSync() = default;
 
 bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf)
 {
+    int mIndex = 0;
+
+    while(true)
+    {
+        commSync->commSend(myMET.tables[mIndex]);
+        bool peelSuccess = commSync->commRecv_int();
+        
+        if(peelSuccess)
+            break;
+        
+        mIndex++;
+        myMET.addCellType(pow(2, mIndex), {1,4,1});
+        
+        for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
+        {
+            myMET.insert((**iter).to_ZZ(), mIndex);
+        }
+    }
+
+    /** TODO: Receive differences from server */
+    
     return false;
 }
 
 bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf)
 {
+    MET_IBLT diffMET;
+    int mIndex = 0;
+    std::set<ZZ> diffs;
+
+    while(true)
+    {
+        IBLT clientIBLT = commSync->commRecv_IBLT(myMET.m_cells[mIndex], elementSize);
+        IBLT diffIBLT = myMET.tables[0] - clientIBLT;
+        
+        diffMET.tables.push_back(diffIBLT);
+        bool peelSuccess = diffMET.peelAll(diffs);
+        commSync->commSend(peelSuccess);
+
+        if(peelSuccess)
+            break;
+
+        mIndex++;
+        myMET.addCellType(pow(2, mIndex), {1,4,1});
+
+        for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
+        {
+            myMET.insert((**iter).to_ZZ(), mIndex);
+        }
+    }
+
+    /** TODO: Resolve differences and send to client */
+    
     return false;
 }
 
