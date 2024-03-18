@@ -74,8 +74,11 @@ void MET_IBLT::addCellType(int size, vector<int> elemHashes)
     // tables.push_back(IBLT(size, eltSize, deg_matrix, key2type)); // no size mult needed
 }
 
-bool MET_IBLT::peelOnce(std::set<ZZ> &result)
+bool MET_IBLT::peelOnce(std::set<ZZ> &positive, std::set<ZZ> &negative)
 {
+    positive = {};
+    negative = {};
+    
     vector<std::set<ZZ>> removedPerTable;
     std::set<ZZ> removedTotal;
     bool success = true;
@@ -91,10 +94,16 @@ bool MET_IBLT::peelOnce(std::set<ZZ> &result)
         std::set<ZZ> toBeRemoved;
 
         for(const auto& pair: neg)
+        {
             toBeRemoved.insert(pair.first);
+            negative.insert(pair.first);
+        }
 
         for(const auto& pair: pos)
+        {
             toBeRemoved.insert(pair.first);
+            positive.insert(pair.first);
+        }
 
         removedPerTable.push_back(toBeRemoved);
         removedTotal.insert(toBeRemoved.begin(), toBeRemoved.end());
@@ -109,24 +118,30 @@ bool MET_IBLT::peelOnce(std::set<ZZ> &result)
         }
     }
 
-    result = removedTotal;
     return success;
 }
 
-bool MET_IBLT::peelAll(std::set<ZZ> &result)
+bool MET_IBLT::peelAll(vector<ZZ> &positive, vector<ZZ> &negative)
 {
-    std::set<ZZ> res;
+    positive = {};
+    negative = {};
+    
     std::set<ZZ> peels;
+    std::set<ZZ> pos;
+    std::set<ZZ> neg;
     bool success;
 
-    success = peelOnce(peels);
-    while(!peels.empty())
+    success = peelOnce(pos, neg);
+    while(!pos.empty() || !neg.empty())
     {
-        for(auto& val: peels)
-            result.insert(val);
+        for(auto& val: pos)
+            positive.push_back(val);
+
+        for(auto& val: neg)
+            negative.push_back(val);
         
         // return success result of final iteration
-        success = peelOnce(peels);
+        success = peelOnce(pos, neg);
     }
 
     return success;
