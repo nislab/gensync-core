@@ -18,7 +18,7 @@
  * @param innerSize size of a inner element in a child set
  * */
 
-IBLTSetOfSets::IBLTSetOfSets(size_t expected, size_t chldSize, size_t innerSize) : myIBLT(expected, sizeof(ZZ))
+IBLTSetOfSets::IBLTSetOfSets(size_t expected, size_t chldSize, size_t innerSize) : myIBLT(4, 11, expected, sizeof(ZZ))
 {
     Logger::gLog(Logger::METHOD, "Entering IBLTSetOfSets::IBLTSetOfSets");
     expNumElems = expected;
@@ -314,7 +314,7 @@ pair<list<shared_ptr<DataObject>>,list<shared_ptr<DataObject>>> IBLTSetOfSets::_
         size_t MIN = SIZE_MAX;
         // rebuild Ta in Ea/Eb from string
         string info = zzToString(itr.first);
-        IBLT II(childSize, elemSize);
+        IBLT II(4, 11, childSize, elemSize);
         II.reBuild(info);
 
         // for storing missing elements in the child set
@@ -330,7 +330,7 @@ pair<list<shared_ptr<DataObject>>,list<shared_ptr<DataObject>>> IBLTSetOfSets::_
         {
             // rebuild Tb in Eb/Ea from string
             string infoJ = zzToString(itrJ.first);
-            IBLT JJ(childSize, elemSize);
+            IBLT JJ(4, 11, childSize, elemSize);
             JJ.reBuild(infoJ);
 
             vector<pair<ZZ, ZZ>> curPos, curNeg;
