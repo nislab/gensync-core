@@ -23,12 +23,6 @@ using std::stringstream;
 using std::pair;
 using namespace NTL;
 
-// The number of hashes used per insert
-const long N_HASH = 4;
-
-// The number hash used to create the hash-check for each entry
-const long N_HASHCHECK = 11;
-
 // Shorthand for the hash type
 typedef unsigned long int hash_t;
 
@@ -50,7 +44,7 @@ public:
      * @param expectedNumEntries The expected amount of entries to be placed into the IBLT
      * @param _valueSize The size of the values being added, in bits
      */
-    IBLT(size_t expectedNumEntries, size_t _valueSize);
+    IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t _valueSize);
     
     // default destructor
     ~IBLT();
@@ -184,12 +178,18 @@ protected:
         // The bitwise xor-sum of all values mapped to this cell
         ZZ valueSum;
 
-        // Returns whether the entry contains just one insertion or deletion
-        bool isPure() const;
+        // Returns whether the {numHashCheck} entry contains just one insertion or deletion
+        bool isPure(long numHashCheck) const;
 
         // Returns whether the entry is empty
         bool empty() const;
     };
+
+    // The number of hashes used per insert
+    long numHashes;
+
+    // The number hash used to create the hash-check for each entry
+    long numHashCheck;
 
     // vector of all entries
     vector<HashTableEntry> hashTable;

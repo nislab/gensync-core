@@ -12,13 +12,13 @@
 IBLT::IBLT() = default;
 IBLT::~IBLT() = default;
 
-IBLT::IBLT(size_t expectedNumEntries, size_t _valueSize)
-: valueSize(_valueSize)
+IBLT::IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize)
+: numHashes(numHashes), numHashCheck(numHashCheck), valueSize(valueSize)
 {
     // 1.5x expectedNumEntries gives very low probability of decoding failure
     size_t nEntries = expectedNumEntries + expectedNumEntries/2;
-    // ... make nEntries exactly divisible by N_HASH
-    while (N_HASH * (nEntries/N_HASH) != nEntries) ++nEntries;
+    // ... make nEntries exactly divisible by numHashes
+    while (numHashes * (nEntries/numHashes) != nEntries) ++nEntries;
     hashTable.resize(nEntries);
 }
 
@@ -44,21 +44,21 @@ hash_t IBLT::_setHash(multiset<shared_ptr<DataObject>> &tarSet)
 }
 
 void IBLT::_insert(long plusOrMinus, ZZ key, ZZ value) {
-    long bucketsPerHash = hashTable.size() / N_HASH;
+    long bucketsPerHash = hashTable.size() / numHashes;
 
     if(sizeof(value) != valueSize) {
         Logger::error_and_quit("The value being inserted is different than the IBLT value size! value size: "
                                + toStr(sizeof(value)) + ". IBLT value size: " + toStr(valueSize));
     }
 
-    for(int ii=0; ii < N_HASH; ii++){
+    for(int ii=0; ii < numHashes; ii++){
         hash_t hk = _hashK(key, ii);
         long startEntry = ii * bucketsPerHash;
         IBLT::HashTableEntry& entry = hashTable.at(startEntry + (hk%bucketsPerHash));
 
         entry.count += plusOrMinus;
         entry.keySum ^= key;
-        entry.keyCheck ^= _hashK(key, N_HASHCHECK);
+        entry.keyCheck ^= _hashK(key, numHashCheck);
         if (entry.empty()) {
             entry.valueSum.kill();
         }
@@ -79,8 +79,8 @@ void IBLT::erase(ZZ key, ZZ value)
 }
 
 bool IBLT::get(ZZ key, ZZ& result){
-    long bucketsPerHash = hashTable.size()/N_HASH;
-    for (long ii = 0; ii < N_HASH; ii++) {
+    long bucketsPerHash = hashTable.size()/numHashes;
+    for (long ii = 0; ii < numHashes; ii++) {
         long startEntry = ii*bucketsPerHash;
         unsigned long hk = _hashK(key, ii);
         const IBLT::HashTableEntry& entry = hashTable[startEntry + (hk%bucketsPerHash)];
@@ -91,7 +91,7 @@ bool IBLT::get(ZZ key, ZZ& result){
 
             return true;
         }
-        else if (entry.isPure()) {
+        else if (entry.isPure(numHashCheck)) {
             if (entry.keySum == key) {
                 // Found!
                 result = entry.valueSum;
@@ -110,7 +110,7 @@ bool IBLT::get(ZZ key, ZZ& result){
     do {
         nErased = 0;
         for (IBLT::HashTableEntry &entry : this->hashTable) {
-            if (entry.isPure()) {
+            if (entry.isPure(numHashCheck)) {
                 if (entry.keySum == key) {
                     string s = toStr(entry.valueSum);
                     result = entry.valueSum;
@@ -124,10 +124,10 @@ bool IBLT::get(ZZ key, ZZ& result){
     return false;
 }
 
-bool IBLT::HashTableEntry::isPure() const
+bool IBLT::HashTableEntry::isPure(long numHashCheck) const
 {
     if (count == 1 || count == -1) {
-        hash_t check = _hashK(keySum, N_HASHCHECK);
+        hash_t check = _hashK(keySum, numHashCheck);
         return (keyCheck == check);
     }
     return false;
@@ -143,7 +143,7 @@ bool IBLT::listEntries(vector<pair<ZZ, ZZ>> &positive, vector<pair<ZZ, ZZ>> &neg
     do {
         nErased = 0;
         for(IBLT::HashTableEntry& entry : this->hashTable) {
-            if (entry.isPure()) {
+            if (entry.isPure(numHashCheck)) {
                 if (entry.count == 1) {
                     positive.emplace_back(std::make_pair(entry.keySum, entry.valueSum));
                 }
@@ -263,7 +263,7 @@ void IBLT::insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size
     
     hashes.push_back(setHash);
     // Put chld set into a chld IBLT
-    IBLT chldIBLT(expnChldSet, elemSize);
+    IBLT chldIBLT(4, 11, expnChldSet, elemSize);
     for (auto itr : tarSet)
     {
         chldIBLT.insert(itr->to_ZZ(), itr->to_ZZ());
@@ -306,7 +306,7 @@ void IBLT::erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_
     }
 
 
-    IBLT chldIBLT(expnChldSet, elemSize);
+    IBLT chldIBLT(4, 11, expnChldSet, elemSize);
     for (auto itr : tarSet)
     {
         chldIBLT.insert(itr->to_ZZ(), itr->to_ZZ());
