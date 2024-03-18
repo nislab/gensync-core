@@ -56,17 +56,19 @@ public:
 
     /**
      * TODO: DOCUMENTATION NEEDED
-     * @param result The resulting list of elements peeled.
+     * @param positive The resulting list of elements peeled with positive count in MET IBLT.
+     * @param negative The resulting list of elements peeled with negative count in MET IBLT.
      * @return true iff all elements successfully peeled.
      */
-    bool peelOnce(std::set<ZZ> &result);
+    bool peelOnce(std::set<ZZ> &positive, std::set<ZZ> &negative);
 
     /**
      * TODO: DOCUMENTATION NEEDED
-     * @param result The resulting list of elements peeled.
+     * @param positive The resulting list of elements peeled with positive count in MET IBLT.
+     * @param negative The resulting list of elements peeled with negative count in MET IBLT.
      * @return true iff all elements successfully peeled.
      */
-    bool peelAll(std::set<ZZ> &result);
+    bool peelAll(vector<ZZ> &positive, vector<ZZ> &negative);
 
     /**
      * Convert MET IBLT to a readable string.
