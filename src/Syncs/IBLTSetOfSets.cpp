@@ -18,13 +18,20 @@
  * @param innerSize size of a inner element in a child set
  * */
 
-IBLTSetOfSets::IBLTSetOfSets(size_t expected, size_t chldSize, size_t innerSize) : myIBLT(4, 11, expected, sizeof(ZZ))
+IBLTSetOfSets::IBLTSetOfSets(size_t expected, size_t chldSize, size_t innerSize)
 {
     Logger::gLog(Logger::METHOD, "Entering IBLTSetOfSets::IBLTSetOfSets");
     expNumElems = expected;
     oneWay = false; // TODO: add one way sync to this function
     childSize = chldSize;
     elemSize = innerSize;
+
+    myIBLT = IBLT::Builder().
+                setNumHashes(4).
+                setNumHashCheck(11).
+                setExpectedNumEntries(expected).
+                setValueSize(sizeof(ZZ)).
+                build();
 }
 
 IBLTSetOfSets::~IBLTSetOfSets() = default;
@@ -314,7 +321,12 @@ pair<list<shared_ptr<DataObject>>,list<shared_ptr<DataObject>>> IBLTSetOfSets::_
         size_t MIN = SIZE_MAX;
         // rebuild Ta in Ea/Eb from string
         string info = zzToString(itr.first);
-        IBLT II(4, 11, childSize, elemSize);
+        IBLT II = IBLT::Builder().
+                    setNumHashes(4).
+                    setNumHashCheck(11).
+                    setExpectedNumEntries(childSize).
+                    setValueSize(elemSize).
+                    build();
         II.reBuild(info);
 
         // for storing missing elements in the child set
@@ -330,7 +342,12 @@ pair<list<shared_ptr<DataObject>>,list<shared_ptr<DataObject>>> IBLTSetOfSets::_
         {
             // rebuild Tb in Eb/Ea from string
             string infoJ = zzToString(itrJ.first);
-            IBLT JJ(4, 11, childSize, elemSize);
+            IBLT JJ = IBLT::Builder().
+                        setNumHashes(4).
+                        setNumHashCheck(11).
+                        setExpectedNumEntries(childSize).
+                        setValueSize(elemSize).
+                        build();
             JJ.reBuild(infoJ);
 
             vector<pair<ZZ, ZZ>> curPos, curNeg;
