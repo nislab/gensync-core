@@ -130,16 +130,12 @@ public:
     // Communicant needs to access the internal representation of an IBLT to send and receive it
     friend class Communicant;
 
-    /**
-     * Constructs an IBLT object with size relative to expectedNumEntries.
-     * @param expectedNumEntries The expected amount of entries to be placed into the IBLT
-     * @param valueSize The size of the values being added, in bits
-     */
-    IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize);
-    
+    // default constructor
+    IBLT();
+
     // default destructor
     ~IBLT();
-    
+
     /**
      * Inserts a key-value pair to the IBLT.
      * This operation always succeeds.
@@ -228,10 +224,14 @@ public:
     vector<hash_t> hashes; /* vector for all hashes of sets */
 
 protected:
-    // local data
+    // constructors should not be used, only builder pattern should be accessible
 
-    // default constructor - no internal parameters are initialized
-    IBLT();
+    /**
+     * Constructs an IBLT object with size relative to expectedNumEntries.
+     * @param expectedNumEntries The expected amount of entries to be placed into the IBLT
+     * @param valueSize The size of the values being added, in bits
+     */
+    IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize);
 
     // Helper function for insert and erase
     void _insert(long plusOrMinus, ZZ key, ZZ value);
