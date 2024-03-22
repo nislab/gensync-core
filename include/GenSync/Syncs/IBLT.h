@@ -34,17 +34,108 @@ typedef unsigned long int hash_t;
  * Goodrich, Michael T., and Michael Mitzenmacher. "Invertible bloom lookup tables." 
  * arXiv preprint arXiv:1101.2245 (2011).
  */
-class IBLT {
+class IBLT
+{
 public:
+
+    /**
+     * Builder pattern for creating IBLT objects
+     */
+    class Builder
+    {
+    public:
+        /** Constructor for builder pattern */
+        Builder()
+        {
+            numHashes = 0;
+            numHashCheck = 0;
+            expectedNumEntries = 0;
+            valueSize = 0;
+        }
+
+        /**
+         * Builds an IBLT object.
+         * If there is an invalid field for IBLT construction, output error message and quit.
+         * @return an IBLT object from the build parts that have been set.
+         */
+        IBLT build()
+        {
+            if (numHashes <= 0) {
+                Logger::error_and_quit("ERROR: numHashes for IBLT construction must be > 0!");
+            } else if (numHashCheck <= 0) {
+                Logger::error_and_quit("ERROR: numHashCheck for IBLT construction must be > 0!");
+            } else if (expectedNumEntries <= 0) {
+                Logger::error_and_quit("ERROR: expectedNumEntries for IBLT construction must be > 0!");
+            } else if (valueSize <= 0) {
+                Logger::error_and_quit("ERROR: valueSize for IBLT construction must be > 0!");
+            }
+
+            return IBLT(numHashes, numHashCheck, expectedNumEntries, valueSize);
+        }
+
+        /**
+         * Sets the numHashes for the IBLT to be built.
+         * @return the updated Builder which includes the numHashes specification
+         */
+        Builder& setNumHashes(long numHashes)
+        {
+            this->numHashes = numHashes;
+            return *this;
+        }
+
+        /**
+         * Sets the numHashCheck for the IBLT to be built.
+         * @return the updated Builder which includes the numHashCheck specification.
+         */
+        Builder& setNumHashCheck(long numHashCheck)
+        {
+            this->numHashCheck = numHashCheck;
+            return *this;
+        }
+
+        /**
+         * Sets the expectedNumEntries for the IBLT to be built.
+         * @return the updated Builder which includes the expectedNumEntries specification.
+         */
+        Builder& setExpectedNumEntries(size_t expectedNumEntries)
+        {
+            this->expectedNumEntries = expectedNumEntries;
+            return *this;
+        }
+
+        /**
+         * Sets the valueSize for the IBLT to be built.
+         * @return the updated Builder which includes the valueSize specification.
+         */
+        Builder& setValueSize(size_t valueSize)
+        {
+            this->valueSize = valueSize;
+            return *this;
+        }
+
+    private:
+        // The number of hashes used per insert
+        long numHashes;
+
+        // The number hash used to create hash-check for each entry
+        long numHashCheck;
+
+        // The expected amount of entries to be placed into the IBLT
+        size_t expectedNumEntries;
+
+        // The size of the values being added, in bits
+        size_t valueSize;
+    };
+
     // Communicant needs to access the internal representation of an IBLT to send and receive it
     friend class Communicant;
 
     /**
      * Constructs an IBLT object with size relative to expectedNumEntries.
      * @param expectedNumEntries The expected amount of entries to be placed into the IBLT
-     * @param _valueSize The size of the values being added, in bits
+     * @param valueSize The size of the values being added, in bits
      */
-    IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t _valueSize);
+    IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize);
     
     // default destructor
     ~IBLT();
@@ -194,7 +285,7 @@ protected:
     // vector of all entries
     vector<HashTableEntry> hashTable;
 
-    // the value size, in bits
+    // The size of the values being added, in bits
     size_t valueSize;
 };
 
