@@ -15,10 +15,9 @@ MET_IBLTSync::MET_IBLTSync(size_t expNumElems, size_t eltSize)
 
     vector<vector<int>> deg_matrix = {{3,4,2}};
     vector<int> m_cells = {1};
+    vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
 
-    function<int(ZZ)> key2type = [](ZZ key) {
-        vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
-        
+    function<int(ZZ)> key2type = [probMatrix](ZZ key) {
         std::hash<string> shash;
         uint hashedVal = shash(to_string(to_int(key)));
         

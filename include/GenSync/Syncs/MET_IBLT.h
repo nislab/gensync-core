@@ -91,6 +91,13 @@ private:
      */
     void addCellType(int size, vector<int> elemHashes);
 
+    /**
+     * Creates hasher function for an IBLT in tables.
+     * @param cellType Index of IBLT in tables or cell type.
+     * @return A hasher function or which returns number of hashes for an element according to type and degree matrix.
+     */
+    function<int(ZZ)> createHasher(int cellType);
+
     // Degree matrix. Cell Types X Elem Types
     vector<vector<int>> deg_matrix;
 
