@@ -21,7 +21,7 @@ void IBLTSetOfSetsTest::tearDown(){}
 
 void IBLTSetOfSetsTest::TestIBLTGetName()
 {
-    IBLTSetOfSets IBLTSetOfSets(0, 0, 0);
+    IBLTSetOfSets IBLTSetOfSets(1, 1, 1);
     CPPUNIT_ASSERT(!IBLTSetOfSets.getName().empty());
 }
 
