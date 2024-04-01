@@ -49,12 +49,12 @@ float BloomFilter::getFalsePosProb(size_t numExpElems)
     return pow(0.5, exp);
 }
 
-hash_type BloomFilter::_hash(const ZZ& value, long kk)
+bf_hash_t BloomFilter::_hash(const ZZ& value, long kk)
 {
 	hash<string> shash;
 
-    hash_type hash_val = shash(toStr(value));
-    hash_type hash_kk = shash(to_string(kk));
+    bf_hash_t hash_val = shash(toStr(value));
+    bf_hash_t hash_kk = shash(to_string(kk));
 
     return shash( to_string(hash_val) + to_string(hash_kk) );
 }
