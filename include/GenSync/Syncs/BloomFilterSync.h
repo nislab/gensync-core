@@ -51,6 +51,7 @@ public:
 	/* Getters for parameters of constructor */
 	size_t getExpNumElems() const {return expNumElems;}
 	size_t getElementSize() const {return elementSize;}
+	float getFalsePosProb() const {return falsePosProb;}
 
 protected:
 
@@ -64,6 +65,9 @@ private:
 
 	// Size of elements as set in constructor
 	size_t elementSize;
+
+	// Rate of false positives
+	float falsePosProb;
 };
 
 #endif

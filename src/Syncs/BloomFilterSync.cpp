@@ -21,6 +21,7 @@ BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, int szMult,
 BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, float falsePosProb)
 {
         this->expNumElems = expNumElems;
+        this->falsePosProb = falsePosProb;
         elementSize = eltSize;
         myBloomFilter = BloomFilter::Builder().
                         setNumExpElems(expNumElems).
