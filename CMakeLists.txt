@@ -62,6 +62,7 @@ set(SOURCE_FILES
         ${SYNC_DIR}/InterCPISync.cpp
         ${SYNC_DIR}/probCPISync.cpp
         ${SYNC_DIR}/HashSync.cpp
+        ${SYNC_DIR}/GenIBLT.cpp
         ${SYNC_DIR}/IBLT.cpp
         ${SYNC_DIR}/IBLTMultiset.cpp
         ${SYNC_DIR}/IBLTSync.cpp
@@ -114,6 +115,7 @@ set(HEADERS
         ${SYNC_DIR_INC}/FullSync.h
         ${SYNC_DIR_INC}/GenSync.h
         ${SYNC_DIR_INC}/HashSync.h
+        ${SYNC_DIR_INC}/GenIBLT.h
         ${SYNC_DIR_INC}/IBLT.h
         ${SYNC_DIR_INC}/IBLTMultiset.h
         ${SYNC_DIR_INC}/IBLTSync.h
