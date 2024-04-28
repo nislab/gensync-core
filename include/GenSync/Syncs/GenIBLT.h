@@ -12,6 +12,7 @@
 #include <string>
 #include <NTL/ZZ.h>
 #include <sstream>
+#include <functional>
 #include <GenSync/Aux/Auxiliary.h>
 #include <GenSync/Data/DataObject.h>
 
@@ -135,17 +136,19 @@ public:
      * This operation always succeeds.
      * @param key The key to be added
      * @param value The value to be added
+     * @param calcNumHashes The functional to calculate the number of hashes
      * @require The key must be distinct in the IBLT
      */
-    void insert(ZZ key, ZZ value);
+    void insert(ZZ key, ZZ value, function<long(ZZ)> calcNumHashes = NULL);
     
     /**
      * Erases a key-value pair from the IBLT.
      * This operation always succeeds.
      * @param key The key to be removed
      * @param value The value to be removed
+     * @param calcNumHashes The functional to calculate the number of hashes
      */
-    void erase(ZZ key, ZZ value);
+    void erase(ZZ key, ZZ value, function<long(ZZ)> calcNumHashes = NULL);
     
     /**
      * Produces the value s.t. (key, value) is in the IBLT.
@@ -154,10 +157,11 @@ public:
      * entries with only one key-value pair are subtracted from the IBLT until (key, value) is found.
      * @param key The key corresponding to the value returned by this function
      * @param result The resulting value corresponding with the key, if found.
+     * @param calcNumHashes The functional to calculate the number of hashes
      * If not found, result will be set to 0. result is unchanged iff the operation returns false.
      * @return true iff the presence of the key could be determined
      */
-    bool get(ZZ key, ZZ& result);
+    bool get(ZZ key, ZZ& result, function<long(ZZ)> calcNumHashes = NULL);
     
     /**
      * Produces a list of all the key-value pairs in the IBLT.
@@ -166,9 +170,10 @@ public:
      * Will remove all key-value pairs from the IBLT that are listed.
      * @param positive All the elements that could be inserted.
      * @param negative All the elements that were removed without being inserted first.
+     * @param calcNumHashes The functional to calculate the number of hashes
      * @return true iff the operation has successfully recovered the entire list
      */
-    bool listEntries(vector<pair<ZZ, ZZ>>& positive, vector<pair<ZZ, ZZ>>& negative);
+    bool listEntries(vector<pair<ZZ, ZZ>>& positive, vector<pair<ZZ, ZZ>>& negative, function<long(ZZ)> calcNumHashes = NULL);
     
     /**
      * Insert a set of elements into IBLT
@@ -176,7 +181,7 @@ public:
      * @param elemSize size of element in the set
      * @param expnChldSet expected number of elements in the target set
     */
-    void insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet);
+    void insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet, function<long(ZZ)> calcNumHashes = NULL);
 
     /**
      * Delete a set of elements from IBLT
@@ -184,7 +189,7 @@ public:
      * @param elemSize size of element in the chld set
      * @param expnChldSet expected number of elements in the target set
     */
-    void erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet);
+    void erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet, function<long(ZZ)> calcNumHashes = NULL);
 
     /**
      * Convert IBLT to a readable string
@@ -232,7 +237,7 @@ protected:
     GenIBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize);
 
     // Helper function for insert and erase
-    void _insert(long plusOrMinus, ZZ key, ZZ value);
+    void _insert(long plusOrMinus, ZZ key, ZZ value, function<long(ZZ)> calcNumHashes = NULL);
 
     // Returns the kk-th unique hash of the zz that produced initial.
     static hash_t _hashK(const ZZ &item, long kk);
@@ -243,13 +248,13 @@ protected:
     * @param chldIBLT the IBLT to be inserted
     * @param chldHash a value represent in the hash_t type
     * */
-    void insert(GenIBLT &chldIBLT, hash_t &chldHash);
+    void insert(GenIBLT &chldIBLT, hash_t &chldHash, function<long(ZZ)> calcNumHashes = NULL);
 
     /* Erase an IBLT together with a value into a bigger IBLT
     * @param chldIBLT the IBLT to be erased
     * @param chldHash a value represent in the hash_t type
     * */
-    void erase(GenIBLT &chldIBLT, hash_t &chldHash);
+    void erase(GenIBLT &chldIBLT, hash_t &chldHash, function<long(ZZ)> calcNumHashes = NULL);
 
     // Represents each entry in the iblt
     class HashTableEntry
