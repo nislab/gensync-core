@@ -42,8 +42,10 @@ public:
         /** Constructor for builder pattern */
         Builder()
         {
+            calcNumHashes = NULL;
             numHashes = 0;
             numHashCheck = 0;
+            numCells = 0;
             expectedNumEntries = 0;
             valueSize = 0;
         }
@@ -55,22 +57,29 @@ public:
          */
         GenIBLT build()
         {
-            if (numHashes <= 0) {
-                Logger::error_and_quit("ERROR: numHashes for GenIBLT construction must be > 0!");
-            } else if (numHashCheck <= 0) {
-                Logger::error_and_quit("ERROR: numHashCheck for GenIBLT construction must be > 0!");
-            } else if (expectedNumEntries <= 0) {
-                Logger::error_and_quit("ERROR: expectedNumEntries for GenIBLT construction must be > 0!");
-            } else if (valueSize <= 0) {
-                Logger::error_and_quit("ERROR: valueSize for GenIBLT construction must be > 0!");
-            }
+            if (numHashes > 0 && numHashCheck > 0 && expectedNumEntries > 0 && valueSize > 0) {
+                return GenIBLT(numHashes, numHashCheck, expectedNumEntries, valueSize);
+            } else if (numCells > 0 && valueSize > 0 && calcNumHashes != NULL) {
+                return GenIBLT(numCells, valueSize, calcNumHashes);
+            } 
+            
+            Logger::error_and_quit("ERROR: Invalid Combination of Parameters for GenIBLT Construction");
+            return GenIBLT();      
+        }
 
-            return GenIBLT(numHashes, numHashCheck, expectedNumEntries, valueSize);
+        /**
+         * Sets the calcNumHashes functional for the GenIBLT to be built.
+         * @return The updated Builder which includes the calcNumHashes specification
+         */
+        Builder& setCalcNumHashes(function<long(ZZ)> calcNumHashes)
+        {
+            this->calcNumHashes = calcNumHashes;
+            return *this;
         }
 
         /**
          * Sets the numHashes for the GenIBLT to be built.
-         * @return the updated Builder which includes the numHashes specification
+         * @return The updated Builder which includes the numHashes specification
          */
         Builder& setNumHashes(long numHashes)
         {
@@ -79,8 +88,8 @@ public:
         }
 
         /**
-         * Sets the numHashCheck for the IBLT to be built.
-         * @return the updated Builder which includes the numHashCheck specification.
+         * Sets the numHashCheck for the GenIBLT to be built.
+         * @return The updated Builder which includes the numHashCheck specification.
          */
         Builder& setNumHashCheck(long numHashCheck)
         {
@@ -89,8 +98,18 @@ public:
         }
 
         /**
-         * Sets the expectedNumEntries for the IBLT to be built.
-         * @return the updated Builder which includes the expectedNumEntries specification.
+         * Sets the numCells for the GenIBLT to be built.
+         * @return The updated Builder which includes the numCells specification.
+         */
+        Builder& setNumCells(size_t numCells)
+        {
+            this->numCells = numCells;
+            return *this;
+        }
+
+        /**
+         * Sets the expectedNumEntries for the GenIBLT to be built.
+         * @return The updated Builder which includes the expectedNumEntries specification.
          */
         Builder& setExpectedNumEntries(size_t expectedNumEntries)
         {
@@ -99,8 +118,8 @@ public:
         }
 
         /**
-         * Sets the valueSize for the IBLT to be built.
-         * @return the updated Builder which includes the valueSize specification.
+         * Sets the valueSize for the GenIBLT to be built.
+         * @return The updated Builder which includes the valueSize specification.
          */
         Builder& setValueSize(size_t valueSize)
         {
@@ -109,11 +128,17 @@ public:
         }
 
     private:
+        // The functional to calculate the number of hashes
+        function<long(ZZ)> calcNumHashes;
+
         // The number of hashes used per insert
         long numHashes;
 
         // The number hash used to create hash-check for each entry
         long numHashCheck;
+
+        // The exact number of cells for IBLT
+        size_t numCells;
 
         // The expected amount of entries to be placed into the IBLT
         size_t expectedNumEntries;
@@ -136,19 +161,17 @@ public:
      * This operation always succeeds.
      * @param key The key to be added
      * @param value The value to be added
-     * @param calcNumHashes The functional to calculate the number of hashes
      * @require The key must be distinct in the IBLT
      */
-    void insert(ZZ key, ZZ value, function<long(ZZ)> calcNumHashes = NULL);
+    void insert(ZZ key, ZZ value);
     
     /**
      * Erases a key-value pair from the IBLT.
      * This operation always succeeds.
      * @param key The key to be removed
      * @param value The value to be removed
-     * @param calcNumHashes The functional to calculate the number of hashes
      */
-    void erase(ZZ key, ZZ value, function<long(ZZ)> calcNumHashes = NULL);
+    void erase(ZZ key, ZZ value);
     
     /**
      * Produces the value s.t. (key, value) is in the IBLT.
@@ -157,11 +180,10 @@ public:
      * entries with only one key-value pair are subtracted from the IBLT until (key, value) is found.
      * @param key The key corresponding to the value returned by this function
      * @param result The resulting value corresponding with the key, if found.
-     * @param calcNumHashes The functional to calculate the number of hashes
      * If not found, result will be set to 0. result is unchanged iff the operation returns false.
      * @return true iff the presence of the key could be determined
      */
-    bool get(ZZ key, ZZ& result, function<long(ZZ)> calcNumHashes = NULL);
+    bool get(ZZ key, ZZ& result);
     
     /**
      * Produces a list of all the key-value pairs in the IBLT.
@@ -170,10 +192,9 @@ public:
      * Will remove all key-value pairs from the IBLT that are listed.
      * @param positive All the elements that could be inserted.
      * @param negative All the elements that were removed without being inserted first.
-     * @param calcNumHashes The functional to calculate the number of hashes
      * @return true iff the operation has successfully recovered the entire list
      */
-    bool listEntries(vector<pair<ZZ, ZZ>>& positive, vector<pair<ZZ, ZZ>>& negative, function<long(ZZ)> calcNumHashes = NULL);
+    bool listEntries(vector<pair<ZZ, ZZ>>& positive, vector<pair<ZZ, ZZ>>& negative);
     
     /**
      * Insert a set of elements into IBLT
@@ -181,7 +202,7 @@ public:
      * @param elemSize size of element in the set
      * @param expnChldSet expected number of elements in the target set
     */
-    void insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet, function<long(ZZ)> calcNumHashes = NULL);
+    void insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet);
 
     /**
      * Delete a set of elements from IBLT
@@ -189,7 +210,7 @@ public:
      * @param elemSize size of element in the chld set
      * @param expnChldSet expected number of elements in the target set
     */
-    void erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet, function<long(ZZ)> calcNumHashes = NULL);
+    void erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet);
 
     /**
      * Convert IBLT to a readable string
@@ -235,9 +256,17 @@ protected:
      * @param valueSize The size of the values being added, in bits
      */
     GenIBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize);
+    
+    /**
+     * Constructs a GenIBLT object with size numCells
+     * @param numCells The number of cells in the IBLT
+     * @param valueSize The size of the values being added, in bits
+     * @param calcNumHashes The functional to calculate the number of hashes
+     */
+    GenIBLT(size_t numCells, size_t valueSize, function<long(ZZ)> calcNumHashes);
 
     // Helper function for insert and erase
-    void _insert(long plusOrMinus, ZZ key, ZZ value, function<long(ZZ)> calcNumHashes = NULL);
+    void _insert(long plusOrMinus, ZZ key, ZZ value);
 
     // Returns the kk-th unique hash of the zz that produced initial.
     static hash_t _hashK(const ZZ &item, long kk);
@@ -248,13 +277,13 @@ protected:
     * @param chldIBLT the IBLT to be inserted
     * @param chldHash a value represent in the hash_t type
     * */
-    void insert(GenIBLT &chldIBLT, hash_t &chldHash, function<long(ZZ)> calcNumHashes = NULL);
+    void insert(GenIBLT &chldIBLT, hash_t &chldHash);
 
     /* Erase an IBLT together with a value into a bigger IBLT
     * @param chldIBLT the IBLT to be erased
     * @param chldHash a value represent in the hash_t type
     * */
-    void erase(GenIBLT &chldIBLT, hash_t &chldHash, function<long(ZZ)> calcNumHashes = NULL);
+    void erase(GenIBLT &chldIBLT, hash_t &chldHash);
 
     // Represents each entry in the iblt
     class HashTableEntry
@@ -281,6 +310,9 @@ protected:
 
     // The number of hashes used per insert
     long numHashes;
+
+    // Functional that calculates the number of hashes for each element.
+    function<long(ZZ)> calcNumHashes;
 
     // The number hash used to create the hash-check for each entry
     long numHashCheck;
