@@ -11,13 +11,20 @@ GenIBLT::~GenIBLT() = default;
 
 
 GenIBLT::GenIBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize)
-: numHashes(numHashes), numHashCheck(numHashCheck), valueSize(valueSize)
+: numHashes(numHashes), numHashCheck(numHashCheck), valueSize(valueSize), calcNumHashes(NULL)
 {
     // 1.5x expectedNumEntries gives very low probability of decoding failure
     size_t nEntries = expectedNumEntries + expectedNumEntries/2;
 
     // resize cells to be divisible by number of hash
     hashTable.resize(nEntries + nEntries % numHashes);
+}
+
+GenIBLT::GenIBLT(size_t numCells, size_t valueSize, function<long(ZZ)> calcNumHashes)
+: numHashes(0), numHashCheck(0), valueSize(valueSize), calcNumHashes(calcNumHashes)
+{
+    // resize cells to that requested
+    hashTable.resize(numCells);
 }
 
 hash_t GenIBLT::_hash(const hash_t& initial, long kk) {
@@ -41,10 +48,10 @@ hash_t GenIBLT::_setHash(multiset<shared_ptr<DataObject>> &tarSet)
     return outHash;
 }
 
-void GenIBLT::_insert(long plusOrMinus, ZZ key, ZZ value, function<long(ZZ)> calcNumHashes) {
+void GenIBLT::_insert(long plusOrMinus, ZZ key, ZZ value) {
     long numHashes = this->numHashes;
-    if (calcNumHashes != NULL) {
-        numHashes = calcNumHashes(key);
+    if (this->calcNumHashes != NULL) {
+        numHashes = this->calcNumHashes(key);
     }
 
     long bucketsPerHash = hashTable.size() / numHashes;
@@ -71,20 +78,20 @@ void GenIBLT::_insert(long plusOrMinus, ZZ key, ZZ value, function<long(ZZ)> cal
     }
 }
 
-void GenIBLT::insert(ZZ key, ZZ value, function<long(ZZ)> calcNumHashes)
+void GenIBLT::insert(ZZ key, ZZ value)
 {
-    _insert(1, key, value, calcNumHashes);
+    _insert(1, key, value);
 }
 
-void GenIBLT::erase(ZZ key, ZZ value, function<long(ZZ)> calcNumHashes)
+void GenIBLT::erase(ZZ key, ZZ value)
 {
-    _insert(-1, key, value, calcNumHashes);
+    _insert(-1, key, value);
 }
 
-bool GenIBLT::get(ZZ key, ZZ& result, function<long(ZZ)> calcNumHashes){
+bool GenIBLT::get(ZZ key, ZZ& result){
     long numHashes = this->numHashes;
-    if (calcNumHashes != NULL) {
-        numHashes = calcNumHashes(key);
+    if (this->calcNumHashes != NULL) {
+        numHashes = this->calcNumHashes(key);
     }
 
     long bucketsPerHash = hashTable.size()/numHashes;
@@ -125,7 +132,7 @@ bool GenIBLT::get(ZZ key, ZZ& result, function<long(ZZ)> calcNumHashes){
                     return true;
                 }
                 nErased++;
-                this->_insert(-entry.count, entry.keySum, entry.valueSum, calcNumHashes);
+                this->_insert(-entry.count, entry.keySum, entry.valueSum);
             }
         }
     } while (nErased > 0);
@@ -146,7 +153,7 @@ bool GenIBLT::HashTableEntry::empty() const
     return (count == 0 && IsZero(keySum) && keyCheck == 0);
 }
 
-bool GenIBLT::listEntries(vector<pair<ZZ, ZZ>> &positive, vector<pair<ZZ, ZZ>> &negative, function<long(ZZ)> calcNumHashes){
+bool GenIBLT::listEntries(vector<pair<ZZ, ZZ>> &positive, vector<pair<ZZ, ZZ>> &negative){
     long nErased;
     do {
         nErased = 0;
@@ -158,7 +165,7 @@ bool GenIBLT::listEntries(vector<pair<ZZ, ZZ>> &positive, vector<pair<ZZ, ZZ>> &
                 else {
                     negative.emplace_back(std::make_pair(entry.keySum, entry.valueSum));
                 }
-                this->_insert(-entry.count, entry.keySum, entry.valueSum, calcNumHashes);
+                this->_insert(-entry.count, entry.keySum, entry.valueSum);
                 ++nErased;
             }
         }
@@ -242,21 +249,21 @@ void GenIBLT::reBuild(string &inStr)
     }
 }
 
-void GenIBLT::insert(GenIBLT &chldIBLT, hash_t &chldHash, function<long(ZZ)> calcNumHashes)
+void GenIBLT::insert(GenIBLT &chldIBLT, hash_t &chldHash)
 {
     ZZ ibltZZ = strToZZ(chldIBLT.toString());
     // conv can't be applied to hash_t types, have to use toStr&strTo functions
     // instead.
-    _insert(1, ibltZZ, strTo<ZZ>(toStr<hash_t>(chldHash)), calcNumHashes);
+    _insert(1, ibltZZ, strTo<ZZ>(toStr<hash_t>(chldHash)));
 }
 
-void GenIBLT::erase(GenIBLT &chldIBLT, hash_t &chldHash, function<long(ZZ)> calcNumHashes)
+void GenIBLT::erase(GenIBLT &chldIBLT, hash_t &chldHash)
 {
     ZZ ibltZZ = strToZZ(chldIBLT.toString());
-    _insert(-1, ibltZZ, strTo<ZZ>(toStr<hash_t>(chldHash)), calcNumHashes);
+    _insert(-1, ibltZZ, strTo<ZZ>(toStr<hash_t>(chldHash)));
 }
 
-void GenIBLT::insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet, function<long(ZZ)> calcNumHashes)
+void GenIBLT::insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet)
 {
     hash_t setHash = _setHash(tarSet);
 
@@ -273,15 +280,15 @@ void GenIBLT::insert(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, s
     GenIBLT chldIBLT(4, 11, expnChldSet, elemSize);
     for (auto itr : tarSet)
     {
-        chldIBLT.insert(itr->to_ZZ(), itr->to_ZZ(), calcNumHashes);
+        chldIBLT.insert(itr->to_ZZ(), itr->to_ZZ());
     }
 
     // Put the pair(chld IBLT, hash of set) into the outer IBLT T
-    insert(chldIBLT, setHash, calcNumHashes);
-    
+    insert(chldIBLT, setHash);
+
 }
 
-void GenIBLT::erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet, function<long(ZZ)> calcNumHashes)
+void GenIBLT::erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, size_t expnChldSet)
 {
     hash_t setHash = _setHash(tarSet);
     
@@ -316,8 +323,8 @@ void GenIBLT::erase(multiset<shared_ptr<DataObject>> tarSet, size_t elemSize, si
     GenIBLT chldIBLT(4, 11, expnChldSet, elemSize);
     for (auto itr : tarSet)
     {
-        chldIBLT.insert(itr->to_ZZ(), itr->to_ZZ(), calcNumHashes);
+        chldIBLT.insert(itr->to_ZZ(), itr->to_ZZ());
     }
-    erase(chldIBLT, setHash, calcNumHashes);
+    erase(chldIBLT, setHash);
 
 }
