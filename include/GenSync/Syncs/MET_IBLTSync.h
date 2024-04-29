@@ -38,7 +38,7 @@ private:
     /**
      * MET IBLT instance variable for storing data
      */
-    MET_IBLT myMET;
+    shared_ptr<MET_IBLT> myMET;
 
     /**
      * Instance variable to store expected number of elements

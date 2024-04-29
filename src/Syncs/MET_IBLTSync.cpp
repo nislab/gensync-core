@@ -14,10 +14,10 @@ MET_IBLTSync::MET_IBLTSync(size_t expNumElems, size_t eltSize)
     elementSize = eltSize;
 
     vector<vector<int>> deg_matrix = {{3,4,2}};
-    vector<int> m_cells = {1};
-    vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
+    vector<int> m_cells = {5};
 
-    function<int(ZZ)> key2type = [probMatrix](ZZ key) {
+    function<int(ZZ)> key2type = [](ZZ key) {
+        vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
         std::hash<string> shash;
         uint hashedVal = shash(to_string(to_int(key)));
         
@@ -27,17 +27,16 @@ MET_IBLTSync::MET_IBLTSync(size_t expNumElems, size_t eltSize)
         {
             return 0;
         }
-        else if(randVal <= probMatrix[1])
+        if(randVal <= probMatrix[0] + probMatrix[1])
         {
             return 1;
         }
-        else
-        {
-            return 2;
-        }
+        
+        return 2;
+        
     };
 
-    myMET = MET_IBLT(deg_matrix, m_cells, key2type, eltSize);
+    myMET = make_shared<MET_IBLT>(deg_matrix, m_cells, key2type, eltSize);
 }
 
 MET_IBLTSync::~MET_IBLTSync() = default;
@@ -45,21 +44,28 @@ MET_IBLTSync::~MET_IBLTSync() = default;
 bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf)
 {
     int mIndex = 0;
+    commSync->commConnect();
 
     while(true)
     {
-        commSync->commSend(myMET.tables[mIndex]);
+        commSync->establishIBLTSend(myMET->m_cells[mIndex], myMET->eltSize, true);
+        commSync->commSend(myMET->tables[mIndex]);
         bool peelSuccess = commSync->commRecv_int();
         
         if(peelSuccess)
             break;
         
         mIndex++;
-        myMET.addCellType(pow(2, mIndex), {1,4,1});
+        
+        vector<int> cellMatrix = {1,4,1};
+        if(mIndex > 4)
+            cellMatrix = {1,5,1};
+            
+        myMET->addCellType(pow(2, mIndex) * myMET->m_cells[0], cellMatrix);
         
         for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
         {
-            myMET.insert((**iter).to_ZZ(), mIndex);
+            myMET->insert((**iter).to_ZZ(), mIndex);
         }
     }
 
@@ -79,12 +85,15 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
     vector<ZZ> diffsPos;
     vector<ZZ> diffsNeg;
 
+    commSync->commListen();
+
     while(true)
     {
-        IBLT clientIBLT = commSync->commRecv_IBLT(myMET.m_cells[mIndex], elementSize);
-        IBLT diffIBLT = myMET.tables[0] - clientIBLT;
-        
+        commSync->establishIBLTRecv(myMET->m_cells[mIndex], myMET->eltSize, true);
+        GenIBLT clientIBLT = commSync->commRecv_GenIBLT(myMET->m_cells[mIndex], elementSize);
+        GenIBLT diffIBLT = myMET->tables[0] - clientIBLT;
         diffMET.tables.push_back(diffIBLT);
+
         bool peelSuccess = diffMET.peelAll(diffsPos, diffsNeg);
         commSync->commSend(peelSuccess);
 
@@ -92,11 +101,16 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
             break;
 
         mIndex++;
-        myMET.addCellType(pow(2, mIndex), {1,4,1});
+
+        vector<int> cellMatrix = {1,4,1};
+        if(mIndex > 4)
+            cellMatrix = {1,5,1};
+
+        myMET->addCellType(pow(2, mIndex) * myMET->m_cells[0], cellMatrix);
 
         for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
         {
-            myMET.insert((**iter).to_ZZ(), mIndex);
+            myMET->insert((**iter).to_ZZ(), mIndex);
         }
     }
 
@@ -118,7 +132,7 @@ bool MET_IBLTSync::addElem(shared_ptr<DataObject> datum)
 {
     // call parent add
     SyncMethod::addElem(datum);
-    myMET.insert(datum->to_ZZ());
+    myMET->insert(datum->to_ZZ());
     return true;
 }
 
@@ -126,7 +140,7 @@ bool MET_IBLTSync::delElem(shared_ptr<DataObject> datum)
 {
     // call parent delete
     SyncMethod::delElem(datum);
-    myMET.erase(datum->to_ZZ());
+    myMET->erase(datum->to_ZZ());
     return true;
 }
 

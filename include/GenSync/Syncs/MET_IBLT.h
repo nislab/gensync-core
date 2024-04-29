@@ -13,7 +13,7 @@
 #include <string>
 #include <functional>
 #include <NTL/ZZ.h>
-#include <GenSync/Syncs/IBLT.h>
+#include <GenSync/Syncs/GenIBLT.h>
 
 using std::string;
 using std::vector;
@@ -96,7 +96,7 @@ private:
      * @param cellType Index of IBLT in tables or cell type.
      * @return A hasher function or which returns number of hashes for an element according to type and degree matrix.
      */
-    function<int(ZZ)> createHasher(int cellType);
+    function<long(ZZ)> createHasher(int cellType);
 
     // Degree matrix. Cell Types X Elem Types
     vector<vector<int>> deg_matrix;
@@ -108,7 +108,7 @@ private:
     function<int(ZZ)> key2type;
 
     // List of IBLTs according to Degree Matrix and Cells
-    vector<IBLT> tables;
+    vector<GenIBLT> tables;
 
     // Size of elements being stored
     size_t eltSize;

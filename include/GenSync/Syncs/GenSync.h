@@ -328,6 +328,7 @@ public:
         IBLTSync_Multiset,
         CuckooSync,
         BloomFilterSync,
+        MET_IBLTSync,
         END     // one after the end of iterable options
     };
 
