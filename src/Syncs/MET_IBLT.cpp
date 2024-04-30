@@ -41,11 +41,7 @@ void MET_IBLT::insert(ZZ value)
 
 void MET_IBLT::insert(ZZ value, int mIndex)
 {
-    for(int i = 0; i < tables.size(); i++)
-    {
-        // Abstraction for new IBLT implementation
-        tables[mIndex].insert(value, value); // new IBLT will allow diff hashes for each insert
-    }
+    tables[mIndex].insert(value, value); // new IBLT will allow diff hashes for each insert
 }
 
 void MET_IBLT::erase(ZZ value)
@@ -89,15 +85,15 @@ bool MET_IBLT::peelOnce(std::set<ZZ> &positive, std::set<ZZ> &negative)
     
     vector<std::set<ZZ>> removedPerTable;
     std::set<ZZ> removedTotal;
-    bool success = true;
+    bool success = false;
 
     for (auto& table : tables)
     {
         vector<pair<ZZ, ZZ>> pos, neg;
         
         // return false if even one of the IBLT's fail to list all entries
-        if(!table.listEntries(pos, neg))
-            success = false;
+        if(table.listEntries(pos, neg))
+            success = true;
 
         std::set<ZZ> toBeRemoved;
 

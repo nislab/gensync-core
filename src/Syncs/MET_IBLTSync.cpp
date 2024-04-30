@@ -48,8 +48,8 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
 
     while(true)
     {
-        commSync->establishIBLTSend(myMET->m_cells[mIndex], myMET->eltSize, true);
-        commSync->commSend(myMET->tables[mIndex]);
+        // commSync->establishIBLTSend(myMET->m_cells[mIndex], myMET->eltSize, true);
+        commSync->commSend(myMET->tables[mIndex], true);
         bool peelSuccess = commSync->commRecv_int();
         
         if(peelSuccess)
@@ -57,9 +57,9 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
         
         mIndex++;
         
-        vector<int> cellMatrix = {1,4,1};
+        vector<int> cellMatrix = {4,4,4};
         if(mIndex > 4)
-            cellMatrix = {1,5,1};
+            cellMatrix = {4,4,4};
             
         myMET->addCellType(pow(2, mIndex) * myMET->m_cells[0], cellMatrix);
         
@@ -89,22 +89,28 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
 
     while(true)
     {
-        commSync->establishIBLTRecv(myMET->m_cells[mIndex], myMET->eltSize, true);
-        GenIBLT clientIBLT = commSync->commRecv_GenIBLT(myMET->m_cells[mIndex], elementSize);
-        GenIBLT diffIBLT = myMET->tables[0] - clientIBLT;
+        // commSync->establishIBLTRecv(myMET->m_cells[mIndex], myMET->eltSize, true);
+        cout << "----------------" << endl;
+        GenIBLT clientIBLT = commSync->commRecv_GenIBLT(myMET->m_cells[mIndex], elementSize, myMET->tables[mIndex].getCalcNumHashes());
+        GenIBLT diffIBLT = myMET->tables[mIndex] - clientIBLT;
         diffMET.tables.push_back(diffIBLT);
 
-        bool peelSuccess = diffMET.peelAll(diffsPos, diffsNeg);
+        MET_IBLT diffCopy = diffMET;
+        bool peelSuccess = diffCopy.peelAll(diffsPos, diffsNeg);
         commSync->commSend(peelSuccess);
+        cout << diffsPos.size() << ", " << diffsNeg.size() << ", " << peelSuccess << endl;
 
         if(peelSuccess)
             break;
 
+        diffsPos.clear();
+        diffsNeg.clear();
+        
         mIndex++;
 
-        vector<int> cellMatrix = {1,4,1};
+        vector<int> cellMatrix = {4,4,4};
         if(mIndex > 4)
-            cellMatrix = {1,5,1};
+            cellMatrix = {4,4,4};
 
         myMET->addCellType(pow(2, mIndex) * myMET->m_cells[0], cellMatrix);
 
@@ -115,11 +121,11 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
     }
 
     for(const auto& val : diffsPos) {
-        otherMinusSelf.push_back(make_shared<DataObject>(val));
+        selfMinusOther.push_back(make_shared<DataObject>(val));
     }
 
     for(const auto& val : diffsNeg) {
-        selfMinusOther.push_back(make_shared<DataObject>(val));
+        otherMinusSelf.push_back(make_shared<DataObject>(val));
     }
 
     commSync->commSend(selfMinusOther);
