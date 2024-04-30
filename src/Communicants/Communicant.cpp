@@ -266,6 +266,18 @@ vec_ZZ_p Communicant::commRecv_vec_ZZ_p() {
     return result;
 }
 
+void Communicant::commSend(const GenIBLT &iblt, bool sync) {
+    if (!sync) {
+        commSend((long) iblt.size());
+        commSend((long) iblt.eltSize());
+    }
+
+    // Access the hashTable representation of iblt to serialize it
+    for(const GenIBLT::HashTableEntry& hte : iblt.hashTable) {
+        commSend(hte, iblt.eltSize());
+    }
+}
+
 void Communicant::commSend(const IBLT& iblt, bool sync) {
     if (!sync) {
         commSend((long) iblt.size());
@@ -373,6 +385,8 @@ IBLT Communicant::commRecv_IBLTNHash(Nullable<size_t> size, Nullable<size_t> elt
 
     IBLT theirs;
     theirs.valueSize = numEltSize;
+    theirs.numHashes = 4;
+    theirs.numHashCheck = 11;
 
     for (int ii = 0; ii < numSize; ii++)
     {
@@ -522,6 +536,29 @@ ZZ Communicant::commRecv_ZZ(const int size) {
     return result;
 }
 
+GenIBLT Communicant::commRecv_GenIBLT(Nullable<size_t> size, Nullable<size_t> eltSize, function<long(ZZ)> calcNumHashes) {
+    size_t numSize;
+    size_t numEltSize;
+
+    if(size.isNullQ() || eltSize.isNullQ()) {
+        numSize = (size_t) commRecv_long();
+        numEltSize = (size_t) commRecv_long();
+    } else {
+        numSize = *size;
+        numEltSize = *eltSize;
+    }
+
+    GenIBLT theirs;
+    theirs.valueSize = numEltSize;
+    theirs.calcNumHashes = calcNumHashes;
+
+    for(int ii = 0; ii < numSize; ii++) {
+        theirs.hashTable.push_back(commRecv_HashTableEntry(numEltSize));
+    }
+
+    return theirs;
+}
+
 IBLT Communicant::commRecv_IBLT(Nullable<size_t> size, Nullable<size_t> eltSize) {
     size_t numSize;
     size_t numEltSize;
@@ -560,6 +597,8 @@ IBLTMultiset Communicant::commRecv_IBLTMultiset(Nullable<size_t> size, Nullable<
 
     IBLTMultiset theirs;
     theirs.valueSize = numEltSize;
+    theirs.numHashes = 4;
+    theirs.numHashCheck = 11;
 
     for(int ii = 0; ii < numSize; ii++) {
         theirs.hashTable.push_back(commRecv_HashTableEntry_Multiset(numEltSize));
