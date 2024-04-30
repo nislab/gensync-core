@@ -536,6 +536,8 @@ IBLT Communicant::commRecv_IBLT(Nullable<size_t> size, Nullable<size_t> eltSize)
 
     IBLT theirs;
     theirs.valueSize = numEltSize;
+    theirs.numHashes = 4;
+    theirs.numHashCheck = 11;
 
     for(int ii = 0; ii < numSize; ii++) {
         theirs.hashTable.push_back(commRecv_HashTableEntry(numEltSize));
