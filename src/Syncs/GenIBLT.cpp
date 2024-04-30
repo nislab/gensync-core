@@ -209,6 +209,10 @@ GenIBLT GenIBLT::operator-(const GenIBLT& other) const {
     return result;
 }
 
+function<long(ZZ)> GenIBLT::getCalcNumHashes() const {
+    return calcNumHashes;
+}
+
 size_t GenIBLT::size() const {
     return hashTable.size();
 }

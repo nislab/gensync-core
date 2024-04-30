@@ -234,6 +234,11 @@ public:
     GenIBLT& operator-=(const GenIBLT& other);
 
     /**
+     * @return the functional that calculates the number of hashes for each element
+     */
+    function<long(ZZ)> getCalcNumHashes() const;
+
+    /**
      * @return the number of cells in the IBLT. Not necessarily equal to the expected number of entries
      */
     size_t size() const;
