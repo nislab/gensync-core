@@ -11,7 +11,7 @@ MET_IBLT::~MET_IBLT() = default;
 
 MET_IBLT::MET_IBLT(const vector<vector<int>>& deg_matrix, 
                    const vector<int>& m_cells, 
-                   function<int(ZZ)> key2type, size_t eltSize)
+                   function<int(ZZ)>& key2type, size_t eltSize)
 {
     this->deg_matrix = deg_matrix;
     this->m_cells = m_cells;
@@ -20,7 +20,6 @@ MET_IBLT::MET_IBLT(const vector<vector<int>>& deg_matrix,
 
     for(int cellType = 0; cellType < m_cells.size(); cellType++)
     {
-        // Abstraction for new IBLT implementation pass numCells, eltSize, and hasher
         GenIBLT iblt = GenIBLT::Builder().
                                 setValueSize(eltSize).
                                 setNumCells(m_cells[cellType]).
@@ -30,52 +29,40 @@ MET_IBLT::MET_IBLT(const vector<vector<int>>& deg_matrix,
     }
 }
 
+vector<vector<int>> MET_IBLT::getDegMatrix()
+{
+    return deg_matrix;
+}
+
+vector<int> MET_IBLT::getCellTypes()
+{
+    return m_cells;
+}
+
+GenIBLT MET_IBLT::getTable(int cellType)
+{
+    return tables[cellType];
+}
+
 void MET_IBLT::insert(ZZ value)
 {
     for(int i = 0; i < tables.size(); i++)
     {
-        // Abstraction for new IBLT implementation
-        tables[i].insert(value, value); // new IBLT will allow diff hashes for each insert
+        tables[i].insert(value, value);
     }
 }
 
-void MET_IBLT::insert(ZZ value, int mIndex)
+void MET_IBLT::insert(ZZ value, int cellType)
 {
-    tables[mIndex].insert(value, value); // new IBLT will allow diff hashes for each insert
+    tables[cellType].insert(value, value);
 }
 
 void MET_IBLT::erase(ZZ value)
 {
     for(int i = 0; i < tables.size(); i++)
     {
-        // Abstraction for new IBLT implementation
         tables[i].erase(value, value);
     }
-}
-
-void MET_IBLT::addCellType(int size, vector<int> elemHashes)
-{
-    m_cells.push_back(size);
-    deg_matrix.push_back(elemHashes);
-    // Abstraction for new IBLT implementation
-    GenIBLT iblt = GenIBLT::Builder().
-                                setValueSize(eltSize).
-                                setNumCells(size).
-                                setCalcNumHashes(createHasher(m_cells.size()-1)).
-                                build();
-    tables.push_back(iblt); // no size mult needed
-}
-
-function<long(ZZ)> MET_IBLT::createHasher(int cellType)
-{
-    function<long(ZZ)> hasher = [this, cellType](ZZ elem)
-    {
-        int elemType = this->key2type(elem);
-        long numHashes = deg_matrix[cellType][elemType];
-        return numHashes;
-    };
-
-    return hasher;
 }
 
 bool MET_IBLT::peelOnce(std::set<ZZ> &positive, std::set<ZZ> &negative)
@@ -91,7 +78,7 @@ bool MET_IBLT::peelOnce(std::set<ZZ> &positive, std::set<ZZ> &negative)
     {
         vector<pair<ZZ, ZZ>> pos, neg;
         
-        // return false if even one of the IBLT's fail to list all entries
+        // return true if at least one of the IBLT's is able to list entries
         if(table.listEntries(pos, neg))
             success = true;
 
@@ -163,4 +150,33 @@ string MET_IBLT::toString()
     }
     
     return outStr;
+}
+
+void MET_IBLT::addCellType(int size, vector<int> elemHashes)
+{
+    m_cells.push_back(size);
+    deg_matrix.push_back(elemHashes);
+    GenIBLT iblt = GenIBLT::Builder().
+                                setValueSize(eltSize).
+                                setNumCells(size).
+                                setCalcNumHashes(createHasher(m_cells.size()-1)).
+                                build();
+    tables.push_back(iblt);
+}
+
+void MET_IBLT::addGenIBLT(GenIBLT newIBLT)
+{
+    tables.push_back(newIBLT);
+}
+
+function<long(ZZ)> MET_IBLT::createHasher(int cellType)
+{
+    function<long(ZZ)> hasher = [this, cellType](ZZ elem)
+    {
+        int elemType = this->key2type(elem);
+        long numHashes = deg_matrix[cellType][elemType];
+        return numHashes;
+    };
+
+    return hasher;
 }

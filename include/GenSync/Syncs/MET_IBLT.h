@@ -22,7 +22,6 @@ using namespace NTL;
 class MET_IBLT
 {
 public:
-    friend class MET_IBLTSync;
 
     // Default Constructor
     MET_IBLT();
@@ -39,13 +38,39 @@ public:
      */
     MET_IBLT(const vector<vector<int>>& deg_matrix, 
              const vector<int>& m_cells, 
-             function<int(ZZ)> key2type, size_t eltSize);
+             function<int(ZZ)>& key2type, size_t eltSize);
+
+    /**
+     * Getter method for the MET IBLT's Degree Matrix.
+     * @return vector<vector<int>> The deg_matrix used by the MET IBLT.
+     */
+    vector<vector<int>> getDegMatrix();
+
+    /**
+     * Getter method for the MET IBLT's Cell Types.
+     * @return vector<vector<int>> The m_cells used by the MET IBLT.
+     */
+    vector<int> getCellTypes();
+
+    /**
+     * Getter method for a table of a specific type in MET IBLT.
+     * @param cellType The cell type (index) of the desired GenIBLT.
+     * @return GenIBLT The GenIBLT representing cells of cellType.
+     */
+    GenIBLT getTable(int cellType);
 
     /**
      * Insert an element into MET IBLT.
      * @param value The element to be added to MET IBLT.
      */
     void insert(ZZ value);
+
+    /**
+     * Insert an element into MET IBLT to a specific cell type.
+     * @param value The element to be added to MET IBLT.
+     * @param cellType The cell type the element will be added to.
+     */
+    void insert(ZZ value, int cellType);
 
     /**
      * Erases an element from the MET IBLT.
@@ -55,7 +80,7 @@ public:
     void erase(ZZ value);
 
     /**
-     * TODO: DOCUMENTATION NEEDED
+     * TODO: Attempts a single peel operation on the MET IBLT by searching for pure cell and removing its element.
      * @param positive The resulting list of elements peeled with positive count in MET IBLT.
      * @param negative The resulting list of elements peeled with negative count in MET IBLT.
      * @return true iff all elements successfully peeled.
@@ -63,7 +88,7 @@ public:
     bool peelOnce(std::set<ZZ> &positive, std::set<ZZ> &negative);
 
     /**
-     * TODO: DOCUMENTATION NEEDED
+     * TODO: Attempts to recover all elements from MET IBLT by repeated performing peel operations.
      * @param positive The resulting list of elements peeled with positive count in MET IBLT.
      * @param negative The resulting list of elements peeled with negative count in MET IBLT.
      * @return true iff all elements successfully peeled.
@@ -76,20 +101,23 @@ public:
      */
     string toString();
 
-private:
     /**
-     * Insert an element into MET IBLT to a specific cell type.
-     * @param value The element to be added to MET IBLT.
-     * @param cellType The cell type the element will be added to.
-     */
-    void insert(ZZ value, int mIndex);
-
-    /**
-     * Add cell type to MET IBLT.
+     * Adds new cell type to MET IBLT.
+     * @warning This does not automatically insert existing elements into the new cell type.
      * @param size Number of cells in cell type.
      * @param elemHashes Vector specifying element type hashes. To be added to degree matrix.
      */
     void addCellType(int size, vector<int> elemHashes);
+
+    /**
+     * Adds GenIBLT to end of MET IBLT's list of tables.
+     * @warning This should ONLY be used when performing peelAll on a difference MET IBLT.
+     * @warning This may make the MET IBLT INCONSISTENT if used in any other situation.
+     * @param newIBLT GenIBLT to be added.
+     */
+    void addGenIBLT(GenIBLT newIBLT);
+
+private:
 
     /**
      * Creates hasher function for an IBLT in tables.
@@ -101,13 +129,13 @@ private:
     // Degree matrix. Cell Types X Elem Types
     vector<vector<int>> deg_matrix;
 
-    // Cells, index is cell type, value is number of cells
+    // Cell Types, index is cell type, value is number of cells
     vector<int> m_cells;
 
     // Returns Element's Type given Element
     function<int(ZZ)> key2type;
 
-    // List of IBLTs according to Degree Matrix and Cells
+    // List of GenIBLTs according to Degree Matrix and Cells
     vector<GenIBLT> tables;
 
     // Size of elements being stored

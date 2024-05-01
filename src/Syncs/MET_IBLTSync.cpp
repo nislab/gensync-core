@@ -13,11 +13,11 @@ MET_IBLTSync::MET_IBLTSync(size_t expNumElems, size_t eltSize)
     this->expNumElems = expNumElems;
     elementSize = eltSize;
 
-    vector<vector<int>> deg_matrix = {{3,4,2}};
+    vector<vector<int>> deg_matrix = {{2,4,3}};
     vector<int> m_cells = {5};
+    vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
 
-    function<int(ZZ)> key2type = [](ZZ key) {
-        vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
+    function<int(ZZ)> key2type = [probMatrix](ZZ key) {
         std::hash<string> shash;
         uint hashedVal = shash(to_string(to_int(key)));
         
@@ -44,12 +44,12 @@ MET_IBLTSync::~MET_IBLTSync() = default;
 bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shared_ptr<DataObject>> &selfMinusOther, list<shared_ptr<DataObject>> &otherMinusSelf)
 {
     int mIndex = 0;
+    int initSize = myMET->getCellTypes()[0];
     commSync->commConnect();
 
     while(true)
     {
-        // commSync->establishIBLTSend(myMET->m_cells[mIndex], myMET->eltSize, true);
-        commSync->commSend(myMET->tables[mIndex], true);
+        commSync->commSend(myMET->getTable(mIndex), true);
         bool peelSuccess = commSync->commRecv_int();
         
         if(peelSuccess)
@@ -59,9 +59,9 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
         
         vector<int> cellMatrix = {4,4,4};
         if(mIndex > 4)
-            cellMatrix = {4,4,4};
+            cellMatrix = {5,5,5};
             
-        myMET->addCellType(pow(2, mIndex) * myMET->m_cells[0], cellMatrix);
+        myMET->addCellType(pow(2, mIndex) * initSize, cellMatrix);
         
         for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
         {
@@ -82,6 +82,8 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
 {
     MET_IBLT diffMET;
     int mIndex = 0;
+    int initSize = myMET->getCellTypes()[0];
+    
     vector<ZZ> diffsPos;
     vector<ZZ> diffsNeg;
 
@@ -89,19 +91,19 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
 
     while(true)
     {
-        // commSync->establishIBLTRecv(myMET->m_cells[mIndex], myMET->eltSize, true);
         cout << "----------------" << endl;
-        GenIBLT clientIBLT = commSync->commRecv_GenIBLT(myMET->m_cells[mIndex], elementSize, myMET->tables[mIndex].getCalcNumHashes());
-        GenIBLT diffIBLT = myMET->tables[mIndex] - clientIBLT;
-        diffMET.tables.push_back(diffIBLT);
+        GenIBLT clientIBLT = commSync->commRecv_GenIBLT(myMET->getCellTypes()[mIndex], elementSize, myMET->getTable(mIndex).getCalcNumHashes());
+        GenIBLT diffIBLT = myMET->getTable(mIndex) - clientIBLT;
+        diffMET.addGenIBLT(diffIBLT);
 
         MET_IBLT diffCopy = diffMET;
         bool peelSuccess = diffCopy.peelAll(diffsPos, diffsNeg);
         commSync->commSend(peelSuccess);
-        cout << diffsPos.size() << ", " << diffsNeg.size() << ", " << peelSuccess << endl;
 
-        if(peelSuccess)
+        if(peelSuccess) {
+            cout << diffIBLT.size() << endl;
             break;
+        }
 
         diffsPos.clear();
         diffsNeg.clear();
@@ -110,9 +112,9 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
 
         vector<int> cellMatrix = {4,4,4};
         if(mIndex > 4)
-            cellMatrix = {4,4,4};
+            cellMatrix = {5,5,5};
 
-        myMET->addCellType(pow(2, mIndex) * myMET->m_cells[0], cellMatrix);
+        myMET->addCellType(pow(2, mIndex) * initSize, cellMatrix);
 
         for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
         {
