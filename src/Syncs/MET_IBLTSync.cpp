@@ -8,7 +8,7 @@
 #include <GenSync/Syncs/MET_IBLTSync.h>
 #include <GenSync/Syncs/MET_IBLT.h>
 
-MET_IBLTSync::MET_IBLTSync(size_t expNumElems, size_t eltSize)
+MET_IBLTSync::MET_IBLTSync(size_t eltSize)
 {
     this->expNumElems = expNumElems;
     elementSize = eltSize;

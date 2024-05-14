@@ -324,7 +324,7 @@ BenchParams::BenchParams(SyncMethod& meth) :
     auto met_iblt = dynamic_cast<MET_IBLTSync*>(&meth);
     if (met_iblt) {
         syncProtocol = GenSync::SyncProtocol::MET_IBLTSync;
-        syncParams = make_shared<IBLTParams>(met_iblt->getExpNumElems(), met_iblt->getElementSize());
+        syncParams = make_shared<IBLTParams>(0, met_iblt->getElementSize());
         return;
     }
 

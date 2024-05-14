@@ -17,7 +17,7 @@ public:
      * @param expNumElems The expected number of elements being stored
      * @param eltSize The size of elements being stored
      */
-    MET_IBLTSync(size_t expNumElems, size_t eltSize);
+    MET_IBLTSync(size_t eltSize);
     ~MET_IBLTSync() override;
 
     // Implemented parent class methods
