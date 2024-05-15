@@ -35,7 +35,7 @@ using std::vector;
 using namespace NTL;
 
 // Shorthand for the hash type
-typedef uint64_t hash_t;
+typedef uint64_t bf_hash_t;
 
 class BloomFilter
 {
@@ -242,7 +242,7 @@ protected:
      * @param kk The current iteration of hash(value)
      * @return hash(hash(value) + hash(kk))
      */
-    static hash_t _hash(const ZZ& value, long kk);
+    static bf_hash_t _hash(const ZZ& value, long kk);
 
     /**
      * Bit string representing the contents of the Bloom Filter
