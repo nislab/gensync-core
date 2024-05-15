@@ -89,6 +89,19 @@ struct BloomFilterParams : Params {
     void apply(GenSync::Builder& gsb) const;
 };
 
+struct MET_IBLTParams : Params {
+    size_t eltSize;
+
+    MET_IBLTParams() : eltSize (0){}
+    MET_IBLTParams(size_t eltSize) :
+        eltSize (eltSize){}
+
+    ostream& serialize(ostream& os) const;
+    istream& unserialize(istream& is);
+
+    void apply(GenSync::Builder& gsb) const;
+};
+
 struct CuckooParams : Params {
     size_t fngprtSize, bucketSize, filterSize, maxKicks;
 

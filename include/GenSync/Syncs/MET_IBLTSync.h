@@ -14,7 +14,6 @@ class MET_IBLTSync : public SyncMethod {
 public:
     /**
      * Constructor.
-     * @param expNumElems The expected number of elements being stored
      * @param eltSize The size of elements being stored
      */
     MET_IBLTSync(size_t eltSize);
@@ -29,7 +28,6 @@ public:
     string getName() override;
 
     /* Getters for the parameters set in the constructor */
-    size_t getExpNumElems() const {return expNumElems;}
     size_t getElementSize() const {return elementSize;}
 
 protected:
@@ -39,11 +37,6 @@ private:
      * MET IBLT instance variable for storing data
      */
     shared_ptr<MET_IBLT> myMET;
-
-    /**
-     * Instance variable to store expected number of elements
-     */
-    size_t expNumElems;
 
     /**
      * Size of elements as set in the constructor

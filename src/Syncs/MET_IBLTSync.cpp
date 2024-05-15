@@ -10,7 +10,6 @@
 
 MET_IBLTSync::MET_IBLTSync(size_t eltSize)
 {
-    this->expNumElems = expNumElems;
     elementSize = eltSize;
 
     vector<vector<int>> deg_matrix = {{2,4,3}};
@@ -154,5 +153,5 @@ bool MET_IBLTSync::delElem(shared_ptr<DataObject> datum)
 
 string MET_IBLTSync::getName()
 {
-	return "MET IBLT Sync:   Expected number of elements = " + toStr(expNumElems) + "   Size of values = " + toStr(elementSize) + "\n";
+	return "MET IBLT Sync:   Size of values = " + toStr(elementSize) + "\n";
 }
