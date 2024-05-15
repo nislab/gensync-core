@@ -44,13 +44,19 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
 {
     int mIndex = 0;
     int initSize = myMET->getCellTypes()[0];
+
+    mySyncStats.timerStart(SyncStats::IDLE_TIME);
     commSync->commConnect();
+    mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
     while(true)
     {
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(myMET->getTable(mIndex), true);
         bool peelSuccess = commSync->commRecv_int();
-        
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
         if(peelSuccess)
             break;
         
@@ -66,13 +72,18 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
         {
             myMET->insert((**iter).to_ZZ(), mIndex);
         }
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
     }
 
+    mySyncStats.timerStart(SyncStats::COMM_TIME);
     list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
     list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
+    mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
+    mySyncStats.timerStart(SyncStats::COMP_TIME);
     otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
     selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
+    mySyncStats.timerEnd(SyncStats::COMP_TIME);
     
     return true;
 }
@@ -86,24 +97,36 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
     vector<ZZ> diffsPos;
     vector<ZZ> diffsNeg;
 
+    mySyncStats.timerStart(SyncStats::IDLE_TIME);
     commSync->commListen();
+    mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
     while(true)
     {
         cout << "----------------" << endl;
+
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
         GenIBLT clientIBLT = commSync->commRecv_GenIBLT(myMET->getCellTypes()[mIndex], elementSize, myMET->getTable(mIndex).getCalcNumHashes());
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+        
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
         GenIBLT diffIBLT = myMET->getTable(mIndex) - clientIBLT;
         diffMET.addGenIBLT(diffIBLT);
 
         MET_IBLT diffCopy = diffMET;
         bool peelSuccess = diffCopy.peelAll(diffsPos, diffsNeg);
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
+        
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(peelSuccess);
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         if(peelSuccess) {
             cout << diffIBLT.size() << endl;
             break;
         }
 
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
         diffsPos.clear();
         diffsNeg.clear();
         
@@ -119,8 +142,10 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
         {
             myMET->insert((**iter).to_ZZ(), mIndex);
         }
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
     }
 
+    mySyncStats.timerStart(SyncStats::COMP_TIME);
     for(const auto& val : diffsPos) {
         selfMinusOther.push_back(make_shared<DataObject>(val));
     }
@@ -128,9 +153,12 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
     for(const auto& val : diffsNeg) {
         otherMinusSelf.push_back(make_shared<DataObject>(val));
     }
+    mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
+    mySyncStats.timerStart(SyncStats::COMM_TIME);
     commSync->commSend(selfMinusOther);
     commSync->commSend(otherMinusSelf);
+    mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
     return true;
 }
