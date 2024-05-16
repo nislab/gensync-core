@@ -22,17 +22,15 @@ MET_IBLTSync::MET_IBLTSync(size_t eltSize)
         
         float randVal = hashedVal / static_cast<float>(UINT_MAX);
         
-        if(randVal <= probMatrix[0])
+        float sumProb = 0.0;
+        for(int i = 0; i < probMatrix.size(); i++)
         {
-            return 0;
-        }
-        if(randVal <= probMatrix[0] + probMatrix[1])
-        {
-            return 1;
+            sumProb += probMatrix[i];
+            if(randVal <= sumProb)
+                return i;
         }
         
-        return 2;
-        
+        return int(probMatrix.size());
     };
 
     myMET = make_shared<MET_IBLT>(deg_matrix, m_cells, key2type, eltSize);
