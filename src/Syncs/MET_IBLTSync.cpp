@@ -101,8 +101,6 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
 
     while(true)
     {
-        cout << "----------------" << endl;
-
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         GenIBLT clientIBLT = commSync->commRecv_GenIBLT(myMET->getCellTypes()[mIndex], elementSize, myMET->getTable(mIndex).getCalcNumHashes());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
@@ -120,7 +118,6 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         if(peelSuccess) {
-            cout << diffIBLT.size() << endl;
             break;
         }
 

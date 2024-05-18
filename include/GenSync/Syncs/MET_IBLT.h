@@ -1,8 +1,19 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
 
 /*
- * Multi-Edge-Type Invertible Bloom Filter
- *
+ * Multi-Edge-Type Invertible Bloom Lookup Table
+ * 
+ * The MET-IBLT is a novel IBLT-based set reconciliation protocol that does not
+ * require estimation of the size of the set-difference. This is due to the
+ * scalable nature of the MET-IBLT data structure.
+ * 
+ * Citation for the original paper outlining MET IBLTs:
+ * F. Lazaro and B. Matuz, "A Rate-Compatible Solution to the Set Reconciliation Problem,"
+ * in IEEE Transactions on Communications, vol. 71, no. 10, pp 5769-5782, Oct. 2023.
+ * 
+ * Code was inspired by Python implementation of MET IBLT:
+ * github.com/avi1mizrahi/MET_IBF
+ * 
  * Created by Anish Sinha on 2/19/24.
  */
 
@@ -26,13 +37,13 @@ public:
     // Default Constructor
     MET_IBLT();
 
-    // default destructor
+    // Default Destructor
     ~MET_IBLT();
 
     /**
      * Constructs a MET IBLT.
      * @param deg_matrix The degree matrix specifying the number of hashes between each cell and element type.
-     * @param m_cells The list of cell types, each index specifies type and value at index specifies number of cells.
+     * @param m_cells The list of cell types, each index specifies type, and value at index specifies number of cells.
      * @param key2type Function which returns element type given an element (key).
      * @param eltSize Size of elements being stored.
      */
@@ -48,14 +59,14 @@ public:
 
     /**
      * Getter method for the MET IBLT's Cell Types.
-     * @return vector<vector<int>> The m_cells used by the MET IBLT.
+     * @return vector<vector<int>> The m_cells or list of cell types used by the MET IBLT.
      */
     vector<int> getCellTypes();
 
     /**
      * Getter method for a table of a specific type in MET IBLT.
-     * @param cellType The cell type (index) of the desired GenIBLT.
-     * @return GenIBLT The GenIBLT representing cells of cellType.
+     * @param cellType The cell type (index) of the desired table (GenIBLT).
+     * @return GenIBLT The GenIBLT representing the table/cells of cellType.
      */
     GenIBLT getTable(int cellType);
 
@@ -80,15 +91,15 @@ public:
     void erase(ZZ value);
 
     /**
-     * TODO: Attempts a single peel operation on the MET IBLT by searching for pure cell and removing its element.
+     * TODO: Iterates through all tables ONCE and attempts to recover each.
      * @param positive The resulting list of elements peeled with positive count in MET IBLT.
      * @param negative The resulting list of elements peeled with negative count in MET IBLT.
-     * @return true iff all elements successfully peeled.
+     * @return true iff at least one of the tables were completely peeled/recovered.
      */
     bool peelOnce(std::set<ZZ> &positive, std::set<ZZ> &negative);
 
     /**
-     * TODO: Attempts to recover all elements from MET IBLT by repeated performing peel operations.
+     * TODO: Attempts to recover all elements from MET IBLT by repeatedly performing peel operations.
      * @param positive The resulting list of elements peeled with positive count in MET IBLT.
      * @param negative The resulting list of elements peeled with negative count in MET IBLT.
      * @return true iff all elements successfully peeled.
@@ -120,8 +131,8 @@ public:
 private:
 
     /**
-     * Creates hasher function for an IBLT in tables.
-     * @param cellType Index of IBLT in tables or cell type.
+     * Creates hasher function for a GenIBLT in tables.
+     * @param cellType Index of GenIBLT in tables or cell type.
      * @return A hasher function or which returns number of hashes for an element according to type and degree matrix.
      */
     function<long(ZZ)> createHasher(int cellType);
