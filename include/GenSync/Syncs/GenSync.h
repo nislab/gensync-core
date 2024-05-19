@@ -528,6 +528,36 @@ public:
     }
 
     /**
+     * MET IBLT synchronization specific setter.
+     * Sets probability matrix for MET's key2type functional.
+     * @param probMatrix The probability matrix of element types for MET IBLT.
+     */
+    Builder& setProbMatrix(vector<float> probMatrix) {
+        this->probMatrix = probMatrix;
+        return *this;
+    }
+
+    /**
+     * MET IBLT synchronization specific setter.
+     * Sets functional for cell types in MET IBLT Synchronization.
+     * @param cellTypeFunc The function which outputs size of cell type given cell type index for MET IBLT.
+     */
+    Builder& setCellTypeFunc(function<int(size_t)> cellTypeFunc) {
+        this->cellTypeFunc = cellTypeFunc;
+        return *this;
+    }
+
+    /**
+     * MET IBLT synchronization specific setter.
+     * Sets functional for degree matrix in MET IBLT Synchronization.
+     * @param degMatrixFunc The function which outputs degrees of cell type given cell type index for MET IBLT.
+     */
+    Builder& setDegMatrixFunc(function<vector<int>(size_t)> degMatrixFunc) {
+        this->degMatrixFunc = degMatrixFunc;
+        return *this;
+    }
+
+    /**
      * @param theFileName A file name from which data is to be drawn for the initial population of the sync object.
      */
     Builder& setDataFile(string theFileName) {
@@ -578,6 +608,9 @@ private:
     Nullable<size_t> filterSize;
     Nullable<size_t> maxKicks;
     Nullable<float> falsePosProb;
+    Nullable<vector<float>> probMatrix; /** Probability matrix for element types in MET */
+    Nullable<std::function<int(size_t)>> cellTypeFunc; /** Function which outputs size of cell type given cell type index for MET */
+    Nullable<std::function<vector<int>(size_t)>> degMatrixFunc; /** Function which outputs degrees of cell type given cell type index for MET */
 
 
     // ... bookkeeping variables

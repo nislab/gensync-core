@@ -8,29 +8,62 @@
 #include <GenSync/Syncs/MET_IBLTSync.h>
 #include <GenSync/Syncs/MET_IBLT.h>
 
-MET_IBLTSync::MET_IBLTSync(size_t eltSize)
+MET_IBLTSync::MET_IBLTSync(size_t eltSize, Nullable<vector<float>> probMatrix, Nullable<std::function<int(size_t)>> cellTypeFunc, Nullable<std::function<vector<int>(size_t)>> degMatrixFunc)
 {
     elementSize = eltSize;
 
-    vector<vector<int>> deg_matrix = {{2,4,3}};
-    vector<int> m_cells = {5};
-    vector<float> probMatrix = {0.1959, 0.1904, 0.6137};
+    vector<float> probElemTypes;
+    vector<vector<int>> deg_matrix;
+    vector<int> m_cells;
+    
+    // if not all parameters are set, resort to default parameters
+    if(probMatrix.isNullQ() || cellTypeFunc.isNullQ() || degMatrixFunc.isNullQ())
+    {
+        this->cellTypeFunc = [](size_t index) {
+            int res = pow(2,index) * 5;
+            return res;
+        };
+        
+        this->degMatrixFunc = [](size_t index) {
+            vector<int> cellMatrix;
+            if(index == 0)
+                cellMatrix = {3,4,2};
+            else if(index < 4)
+                cellMatrix = {4,4,4};
+            else
+                cellMatrix = {5,5,5};
 
-    function<int(ZZ)> key2type = [probMatrix](ZZ key) {
+            return cellMatrix;
+        };
+
+        probElemTypes = {0.1959, 0.1904, 0.6137};
+    }
+    else
+    {
+        this->cellTypeFunc = cellTypeFunc;
+        this->degMatrixFunc = degMatrixFunc;
+
+        probElemTypes = probMatrix;
+    }
+
+    m_cells.push_back(this->cellTypeFunc(0));
+    deg_matrix.push_back(this->degMatrixFunc(0));
+
+    function<int(ZZ)> key2type = [probElemTypes](ZZ key) {
         std::hash<string> shash;
         uint hashedVal = shash(to_string(to_int(key)));
         
         float randVal = hashedVal / static_cast<float>(UINT_MAX);
         
         float sumProb = 0.0;
-        for(int i = 0; i < probMatrix.size(); i++)
+        for(int i = 0; i < probElemTypes.size(); i++)
         {
-            sumProb += probMatrix[i];
+            sumProb += probElemTypes[i];
             if(randVal <= sumProb)
                 return i;
         }
         
-        return int(probMatrix.size());
+        return int(probElemTypes.size());
     };
 
     myMET = make_shared<MET_IBLT>(deg_matrix, m_cells, key2type, eltSize);
@@ -60,11 +93,10 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
         
         mIndex++;
         
-        vector<int> cellMatrix = {4,4,4};
-        if(mIndex > 4)
-            cellMatrix = {5,5,5};
-            
-        myMET->addCellType(pow(2, mIndex) * initSize, cellMatrix);
+        int cellSize = cellTypeFunc(mIndex);
+        vector<int> cellMatrix = degMatrixFunc(mIndex);
+        
+        myMET->addCellType(cellSize, cellMatrix);
         
         for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
         {
@@ -127,11 +159,10 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
         
         mIndex++;
 
-        vector<int> cellMatrix = {4,4,4};
-        if(mIndex > 4)
-            cellMatrix = {5,5,5};
-
-        myMET->addCellType(pow(2, mIndex) * initSize, cellMatrix);
+        int cellSize = cellTypeFunc(mIndex);
+        vector<int> cellMatrix = degMatrixFunc(mIndex);
+        
+        myMET->addCellType(cellSize, cellMatrix);
 
         for(auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++)
         {

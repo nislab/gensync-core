@@ -16,7 +16,7 @@ public:
      * Constructor.
      * @param eltSize The size of elements being stored
      */
-    MET_IBLTSync(size_t eltSize);
+    MET_IBLTSync(size_t eltSize, Nullable<vector<float>> probMatrix, Nullable<std::function<int(size_t)>> cellTypeFunc, Nullable<std::function<vector<int>(size_t)>> degMatrixFunc);
     ~MET_IBLTSync() override;
 
     // Implemented parent class methods
@@ -42,6 +42,16 @@ private:
      * Size of elements as set in the constructor
      */
     size_t elementSize;
+
+    /**
+     * Function which outputs size of cell type given cell type index
+     */
+    function<int(size_t)> cellTypeFunc;
+
+    /**
+     * Function which outputs degrees of cell type given cell type index
+     */
+    function<vector<int>(size_t)> degMatrixFunc;
 };
 
 #endif
