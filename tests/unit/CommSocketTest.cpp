@@ -55,4 +55,3 @@ void CommSocketTest::SocketSendAndReceiveTest() {
 		//Else test has already completed and the success status has been reported
 	}
 }
-

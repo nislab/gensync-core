@@ -20,6 +20,7 @@ FullSyncTest::~FullSyncTest() = default;
 void FullSyncTest::setUp() {
     const int SEED = 941;
     srand(SEED);
+    ZZ_p::init(randZZ());
 }
 
 void FullSyncTest::tearDown() {
