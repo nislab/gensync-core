@@ -114,7 +114,10 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
     otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
     selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
     mySyncStats.timerEnd(SyncStats::COMP_TIME);
-    
+
+    mySyncStats.increment(SyncStats::XMIT,commSync->getXmitBytes());
+    mySyncStats.increment(SyncStats::RECV,commSync->getRecvBytes());
+	
     return true;
 }
 
@@ -186,6 +189,9 @@ bool MET_IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shar
     commSync->commSend(otherMinusSelf);
     mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
+    mySyncStats.increment(SyncStats::XMIT,commSync->getXmitBytes());
+    mySyncStats.increment(SyncStats::RECV,commSync->getRecvBytes());
+	
     return true;
 }
 
