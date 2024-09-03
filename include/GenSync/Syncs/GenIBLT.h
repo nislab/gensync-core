@@ -1,7 +1,7 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
 
 //
-// Created by Thomas Poimenidis on 4/12/24
+// Created by tpoimen on 4/12/24
 //
 
 #ifndef GENSYNCLIB_GENIBLT_H

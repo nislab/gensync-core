@@ -1,14 +1,13 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
 
 //
-// Created by Thomas Poimenidis on 4/12/24
+// Created by tpoimen on 4/12/24
 //
 
 #include <GenSync/Syncs/GenIBLT.h>
 
 GenIBLT::GenIBLT() = default;
 GenIBLT::~GenIBLT() = default;
-
 
 GenIBLT::GenIBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize)
 : numHashes(numHashes), numHashCheck(numHashCheck), valueSize(valueSize), calcNumHashes(NULL)
