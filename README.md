@@ -59,8 +59,10 @@ This program launches two processes, connected by a network socket:
 * The second process (host 2) contains a set of elements 'b' and 'd'.
 
 #### Run
-Simply type:
-*./TryMe
+Simply type the following argument in the terminal:
+```
+./TryMe
+```
 
 #### Output
 The output from the program shows both hosts with the same sets (note that the order of elements within a set does not matter):
@@ -198,55 +200,17 @@ int main(int argc, char *argv[]) {
     }
 }
 ```
-On MacOS, to compile use:
-```shell
-$ g++ -I/opt/local/include -L/opt/local/lib -std=c++11 tryme2.cpp -lgensync -lntl -o tryme2
-```
-On Linux, to compile use:
-```shell
-$ g++ -I/usr/local/include -L/usr/local/lib -std=c++11 tryme2.cpp -lgensync -lntl -o tryme2
-```
+
 To run, open two terminals.  In one issue the command:
 ```
-$ ./tryme2 server CPISync
+$ ./TryMe2 server CPISync
 connecting on port 8001...
 sync succeeded.
 ```
 
 In a second, issue the command:
-```angular2html
-$ ./tryme2 client CPISync
-listening on port 8001...
-sync succeeded.
 ```
-
-<a name="UseInstructions"></a>    } else {
-        genSync.addElem(make_shared<DataObject>('e'));
-
-        cout << "connecting on port " << PORT << "..." << endl;
-		genSync.serverSyncBegin(0);
-        cout << "sync succeeded." << endl;
-    }
-}
-```
-On MacOS, to compile use:
-```shell
-$ g++ -I/opt/local/include -L/opt/local/lib -std=c++11 tryme2.cpp -lgensync -lntl -o tryme2
-```
-On Linux, to compile use:
-```shell
-$ g++ -I/usr/local/include -L/usr/local/lib -std=c++11 tryme2.cpp -lgensync -lntl -o tryme2
-```
-To run, open two terminals.  In one issue the command:
-```
-$ ./tryme2 server CPISync
-connecting on port 8001...
-sync succeeded.
-```
-
-In a second, issue the command:
-```angular2html
-$ ./tryme2 client CPISync
+$ ./TryMe2 client CPISync
 listening on port 8001...
 sync succeeded.
 ```
