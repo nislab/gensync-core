@@ -61,17 +61,11 @@ This program launches two processes, connected by a network socket:
 * The first process (host 1) contains a set with elements 'a', 'b', and 'c'.
 * The second process (host 2) contains a set of elements 'b' and 'd'.
 
-#### Compilation
+#### Run
 On MacOS, the program can be compiled with
-```shell
-$ g++ -I/opt/local/include -L/opt/local/lib -std=c++11 TryMe.cpp -lgensync -lntl -o tryme
-$ ./tryme
-```
-On Linux, the program can be compiled with
-```shell
-$ g++ -I/usr/local/include -L/usr/local/lib -std=c++11 TryMe.cpp -lgensync -lntl -o tryme
-$ ./tryme
-```
+Simply type:
+./TryMe
+
 #### Output
 The output from the program shows both hosts with the same sets (note that the order of elements within a set does not matter):
 ```
