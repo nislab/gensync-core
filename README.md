@@ -54,8 +54,7 @@ The current version is 2.0.4
 
 <a name="Examples"></a>
 ## Examples
-
-Here is a simple example of GenSync in action.  It can be compiled as follows, with `/opt/local` replaced by your MacPorts directory, or if on Linux replaced by your libraries directory:
+After you install core libraries in your computer, navigate to the respective directory where CmakeList locates, and run the example cpp files as instructed below.
 
 ### TryMe.cpp
 This program launches two processes, connected by a network socket:
