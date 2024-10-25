@@ -156,6 +156,9 @@ install(DIRECTORY ${AUX_DIR_INC} ${DATA_DIR_INC} ${COMM_DIR_INC} ${SYNC_DIR_INC}
 add_executable(TryMe ${SRC_DIR}/TryMe.cpp)
 target_link_libraries(TryMe gensync)
 
+add_executable(TryMe2 ${SRC_DIR}/TryMe2.cpp)
+target_link_libraries(TryMe2 gensync)
+
 # Benchmarks
 add_executable(Benchmarks ${BENCH_DIR}/Runner.cpp)
 target_link_libraries(Benchmarks gensync)
