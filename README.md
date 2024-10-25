@@ -7,6 +7,7 @@ The current version is 2.0.4
 ------------------------------
 
 ## Table Of Contents
+- [Examples](#Examples)
 - [Usage](#UseInstructions)
     - [Builder Parameters](#BuilderParameters)
     - [Sync Types](#SyncTypes)
