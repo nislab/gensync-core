@@ -7,12 +7,50 @@ The current version is 2.0.4
 ------------------------------
 
 ## Table Of Contents
+- [Compilation](#Compilation)
+- [Installation](#Installation)
 - [Examples](#Examples)
 - [Usage](#UseInstructions)
     - [Builder Parameters](#BuilderParameters)
     - [Sync Types](#SyncTypes)
 - [References](#References)
     - [Contributors](#Contributors)
+
+<a name="Compilation"></a>
+## Compilation:
+
+* Dependencies:
+   * [NTL](http://www.shoup.net/ntl/) - A library for doing Number Theory (>9.5) 
+       - ptheads - may be required depending on how NTL is configured
+       - gmp - may be required depending on how NTL is configured
+   * [cppunit](http://cppunit.sourceforge.net/doc/cvs/index.html) - For testing
+   * [cmake](https://cmake.org) - For building
+
+- Ensure that compiler flags for relevant libraries are included (`-lCPISync -lntl -lpthread -lgmp` etc.)
+   - May also need to include `-std=c++11` on some devices
+ 
+* Dependency Install Linux
+    * `sudo apt install cmake libgmp3-dev libcppunit-dev libpthread-stubs0-dev`
+    *  NTL must be installed manually from the link above  
+
+
+## Installation:
+ **MacOS & Linux**  
+ 1. Install dependencies, download the project and navigate to the project folder in terminal
+ 2. Run the following commands in the project directory (The directory containing CMakeLists.txt)
+    - `cmake .`
+    - `sudo make install`
+ 3. Run `./UnitTest` to ensure that the install has run successfully
+
+    *OR*
+
+ 1\.  Run the .deb or .rpm files included on a compatible linux system
+
+
+
+
+ **Windows** - Not currently supported
+
 
 <a name="Examples"></a>
 ## Examples
