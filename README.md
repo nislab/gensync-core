@@ -13,7 +13,10 @@ The current version is 2.0.4
 - [References](#References)
     - [Contributors](#Contributors)
 
-<a name="UseInstructions"></a>
+<a name="Examples"></a>
+## Examples
+
+Here is a simple example of GenSync in action.  It can be compiled as follows, with `/opt/local` replaced by your MacPorts directory, or if on Linux replaced by your libraries directory:
 
 ### TryMe.cpp
 This program launches two processes, connected by a network socket:
