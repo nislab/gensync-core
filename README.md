@@ -46,9 +46,6 @@ The current version is 2.0.4
 
  1\.  Run the .deb or .rpm files included on a compatible linux system
 
-
-
-
  **Windows** - Not currently supported
 
 
@@ -62,9 +59,8 @@ This program launches two processes, connected by a network socket:
 * The second process (host 2) contains a set of elements 'b' and 'd'.
 
 #### Run
-On MacOS, the program can be compiled with
 Simply type:
-./TryMe
+*./TryMe
 
 #### Output
 The output from the program shows both hosts with the same sets (note that the order of elements within a set does not matter):
