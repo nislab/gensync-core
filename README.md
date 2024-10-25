@@ -33,7 +33,7 @@ The current version is 2.0.4
     * `sudo apt install cmake libgmp3-dev libcppunit-dev libpthread-stubs0-dev`
     *  NTL must be installed manually from the link above  
 
-
+<a name="Installation"></a>
 ## Installation:
  **MacOS & Linux**  
  1. Install dependencies, download the project and navigate to the project folder in terminal
