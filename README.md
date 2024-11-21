@@ -7,11 +7,213 @@ The current version is 2.0.4
 ------------------------------
 
 ## Table Of Contents
+- [Compilation](#Compilation)
+- [Installation](#Installation)
+- [Examples](#Examples)
 - [Usage](#UseInstructions)
     - [Builder Parameters](#BuilderParameters)
     - [Sync Types](#SyncTypes)
 - [References](#References)
     - [Contributors](#Contributors)
+
+<a name="Compilation"></a>
+## Compilation:
+
+* Dependencies:
+   * [NTL](http://www.shoup.net/ntl/) - A library for doing Number Theory (>9.5) 
+       - ptheads - may be required depending on how NTL is configured
+       - gmp - may be required depending on how NTL is configured
+   * [cppunit](http://cppunit.sourceforge.net/doc/cvs/index.html) - For testing
+   * [cmake](https://cmake.org) - For building
+
+- Ensure that compiler flags for relevant libraries are included (`-lCPISync -lntl -lpthread -lgmp` etc.)
+   - May also need to include `-std=c++11` on some devices
+ 
+* Dependency Install Linux
+    * `sudo apt install cmake libgmp3-dev libcppunit-dev libpthread-stubs0-dev`
+    *  NTL must be installed manually from the link above  
+
+<a name="Installation"></a>
+## Installation:
+ **MacOS & Linux**  
+ 1. Install dependencies, download the project and navigate to the project folder in terminal
+ 2. Run the following commands in the project directory (The directory containing CMakeLists.txt)
+    - `cmake .`
+    - `sudo make install`
+ 3. Run `./UnitTest` to ensure that the install has run successfully
+
+    *OR*
+
+ 1\.  Run the .deb or .rpm files included on a compatible linux system
+
+ **Windows** - Not currently supported
+
+
+<a name="Examples"></a>
+## Examples
+After you install core libraries in your computer, navigate to the respective directory where CmakeList locates, and run the example cpp files as instructed below.
+
+### TryMe.cpp
+This program launches two processes, connected by a network socket:
+* The first process (host 1) contains a set with elements 'a', 'b', and 'c'.
+* The second process (host 2) contains a set of elements 'b' and 'd'.
+
+#### Run
+Simply type the following argument in the terminal:
+```
+./TryMe
+```
+
+#### Output
+The output from the program shows both hosts with the same sets (note that the order of elements within a set does not matter):
+```
+host 1 now has a b c d 
+host 2 now has b d c a 
+```
+
+#### Code
+```cpp
+#include <iostream>
+#include <GenSync/Syncs/GenSync.h>
+
+int main() {
+  // BUILD the first host
+  GenSync host1 = GenSync::Builder().
+    setProtocol(GenSync::SyncProtocol::CPISync). // CPISync protocol
+    setComm(GenSync::SyncComm::socket).		 // communicate over network sockets
+    setMbar(5).					 // required parameter for CPISync
+    build();
+  
+  // BUILD the second host
+  GenSync host2 = GenSync::Builder().
+    setProtocol(GenSync::SyncProtocol::CPISync).
+    setComm(GenSync::SyncComm::socket).
+    setMbar(5).
+    build();
+
+  // ADD elements to each host
+  // ... host 1
+  host1.addElem(make_shared<DataObject>('a')); // DataObject containing a character 'a'
+  host1.addElem(make_shared<DataObject>('b'));
+  host1.addElem(make_shared<DataObject>('c'));
+
+  // ... host 2
+  host2.addElem(make_shared<DataObject>('b'));
+  host2.addElem(make_shared<DataObject>('d'));
+
+  // FORK into two processes
+  if (fork()) {
+      // ... PARENT process
+      host1.clientSyncBegin(0);		     // set up the 0-th synchronizer and connect to a server
+      cout << "host 1 now has ";
+      for (auto &i: host1.dumpElements())    // print out the elements at host 1
+	cout << i << " ";
+      cout << endl;
+    }
+    else {
+      // ... CHILD process
+      host2.serverSyncBegin(0);		      // set up the 0-th synchronizer and wait for connections
+      cout << "host 2 now has ";
+      for (auto &i: host2.dumpElements())     // print out the elements at host 2
+	cout << i << " ";
+      cout << endl;
+    }
+  
+  }
+```
+
+### TryMe2.cpp
+A more complicated example allows the user to select various synchronization parameters from the command-line.
+```cpp
+#include <iostream>
+#include <GenSync/Syncs/GenSync.h>
+
+using std::cout;
+using std::endl;
+using std::string;
+
+int main(int argc, char *argv[]) {
+    if(argc<=1 || strcmp(argv[1], "client")!=0 && strcmp(argv[1], "server")!=0) {
+      cout << "usage: '"
+	   << argv[0]
+	   << " client <sync type>' for client mode, 'TryMe server <sync type>' for server mode." << endl;
+        cout << "run the client in one terminal instance and the server in another." << endl;
+        exit(0);
+    }
+
+    GenSync::SyncProtocol prot;
+    string type = string(argv[2]);
+
+    // no string switch statements :(
+    if(type == "CPISync") {
+        prot = GenSync::SyncProtocol::CPISync;
+    } else if (type == "InterCPISync") {
+        prot = GenSync::SyncProtocol::InteractiveCPISync;
+    } else if (type == "OneWayCPISync") {
+        prot = GenSync::SyncProtocol::OneWayCPISync;
+    } else if (type == "FullSync") {
+        prot = GenSync::SyncProtocol::FullSync;
+    } else if (type == "IBLTSync") {
+        prot = GenSync::SyncProtocol::IBLTSync;
+    } else if (type == "OneWayIBLTSync") {
+        prot = GenSync::SyncProtocol::OneWayIBLTSync;
+    } else {
+        cout << "invalid sync type!" << endl;
+        exit(1);
+    }
+
+    const int PORT = 8001; // port on which to connect
+    const int ERR = 8; // inverse log of error chance
+    const int M_BAR = 1; // max differences between server and client
+    const int BITS = CHAR_BIT; // bits per entry
+    const int PARTS = 3; // partitions per level for partition-syncs
+    const int EXP_ELTS = 4; // expected number of elements per set
+
+    GenSync genSync = GenSync::Builder().
+			setProtocol(prot).
+			setComm(GenSync::SyncComm::socket).
+			setPort(PORT).
+			setErr(ERR).
+			setMbar(M_BAR).
+			setBits((prot == GenSync::SyncProtocol::IBLTSync || prot == GenSync::SyncProtocol::OneWayIBLTSync ? BITS : BITS * CHAR_BIT)).
+			setNumPartitions(PARTS).
+			setExpNumElems(EXP_ELTS).
+            build();
+
+    genSync.addElem(make_shared<DataObject>('a'));
+    genSync.addElem(make_shared<DataObject>('b'));
+    genSync.addElem(make_shared<DataObject>('c'));
+
+    if(strcmp(argv[1], "client")==0) {
+        genSync.addElem(make_shared<DataObject>('d'));
+
+        cout << "listening on port " << PORT << "..." << endl;
+		genSync.clientSyncBegin(0);
+        cout << "sync succeeded." << endl;
+
+    } else {
+        genSync.addElem(make_shared<DataObject>('e'));
+
+        cout << "connecting on port " << PORT << "..." << endl;
+		genSync.serverSyncBegin(0);
+        cout << "sync succeeded." << endl;
+    }
+}
+```
+
+To run, open two terminals.  In one issue the command:
+```
+$ ./TryMe2 server CPISync
+connecting on port 8001...
+sync succeeded.
+```
+
+In a second, issue the command:
+```
+$ ./TryMe2 client CPISync
+listening on port 8001...
+sync succeeded.
+```
 
 <a name="UseInstructions"></a>
 ## Extended Use Instructions:
