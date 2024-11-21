@@ -75,6 +75,20 @@ struct IBLTParams : Params {
     void apply(GenSync::Builder& gsb) const;
 };
 
+struct BloomFilterParams : Params {
+    size_t expected, eltSize;
+    float falsePosProb;
+
+    BloomFilterParams() : expected (0), eltSize (0), falsePosProb (0) {}
+    BloomFilterParams(size_t expected, size_t eltSize, float falsePosProb = 0.05) :
+        expected (expected), eltSize (eltSize), falsePosProb (falsePosProb) {}
+
+    ostream& serialize(ostream& os) const;
+    istream& unserialize(istream& is);
+
+    void apply(GenSync::Builder& gsb) const;
+};
+
 struct CuckooParams : Params {
     size_t fngprtSize, bucketSize, filterSize, maxKicks;
 

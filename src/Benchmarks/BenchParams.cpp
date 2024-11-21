@@ -102,6 +102,28 @@ void IBLTParams::apply(GenSync::Builder& gsb) const {
     gsb.setExpNumElemChild(numElemChild);
 }
 
+ostream& BloomFilterParams::serialize(ostream& os) const {
+    os << "expected: " << expected << "\n"
+       << "eltSize: " << eltSize << "\n"
+       << "falsePosProb: " << falsePosProb;
+
+    return os;
+}
+
+istream& BloomFilterParams::unserialize(istream& is) {
+    getVal<decltype(expected)>(is, expected);
+    getVal<decltype(eltSize)>(is, eltSize);
+    getVal<decltype(falsePosProb)>(is, falsePosProb);
+
+    return is;
+}
+
+void BloomFilterParams::apply(GenSync::Builder& gsb) const {
+    gsb.setExpNumElems(expected);
+    gsb.setBits(eltSize);
+    gsb.setFalsePosProb(falsePosProb);
+}
+
 ostream& CuckooParams::serialize(ostream& os) const {
     os << "fngprtSize: " << fngprtSize << "\n"
        << "bucketSize: " << bucketSize << "\n"
@@ -147,7 +169,12 @@ inline shared_ptr<Params> decideBenchParams(GenSync::SyncProtocol syncProtocol, 
         auto par = make_shared<IBLTParams>();
         is >> *par;
         return par;
-    } else if (syncProtocol == GenSync::SyncProtocol::CuckooSync) {
+    } else if (syncProtocol == GenSync::SyncProtocol::BloomFilterSync) {
+        auto par = make_shared<BloomFilterParams>();
+        is >> *par;
+        return par;
+    } 
+    else if (syncProtocol == GenSync::SyncProtocol::CuckooSync) {
         auto par = make_shared<CuckooParams>();
         is >> *par;
         return par;
@@ -318,7 +345,7 @@ BenchParams::BenchParams(SyncMethod& meth) :
     auto bfilter = dynamic_cast<BloomFilterSync*>(&meth);
     if (bfilter) {
         syncProtocol = GenSync::SyncProtocol::BloomFilterSync;
-        syncParams = make_shared<IBLTParams>(bfilter->getExpNumElems(), bfilter->getElementSize());
+        syncParams = make_shared<BloomFilterParams>(bfilter->getExpNumElems(), bfilter->getElementSize(), bfilter->getFalsePosProb());
         return;
     }
 
