@@ -36,6 +36,8 @@ int main(int argc, char *argv[]) {
         prot = GenSync::SyncProtocol::OneWayIBLTSync;
     } else if (type == "BloomFilterSync") {
         prot = GenSync::SyncProtocol::BloomFilterSync;
+    } else if (type == "MET-IBLTSync") {
+        prot = GenSync::SyncProtocol::MET_IBLTSync;
     } else {
         cout << "invalid sync type!" << endl;
         exit(1);
@@ -54,7 +56,7 @@ int main(int argc, char *argv[]) {
 			setPort(PORT).
 			setErr(ERR).
 			setMbar(M_BAR).
-			setBits((prot == GenSync::SyncProtocol::IBLTSync || prot == GenSync::SyncProtocol::OneWayIBLTSync ? BITS : BITS * CHAR_BIT)).
+			setBits((prot == GenSync::SyncProtocol::IBLTSync || prot == GenSync::SyncProtocol::OneWayIBLTSync || prot == GenSync::SyncProtocol::MET_IBLTSync ? BITS : BITS * CHAR_BIT)).
 			setNumPartitions(PARTS).
 			setExpNumElems(EXP_ELTS).
             setFalsePosProb(0.05).

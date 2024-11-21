@@ -19,6 +19,7 @@
 #include <GenSync/Syncs/IBLTSetOfSets.h>
 #include <GenSync/Syncs/CuckooSync.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
+#include <GenSync/Syncs/MET_IBLTSync.h>
 
 const char BenchParams::KEYVAL_SEP = ':';
 const string BenchParams::FILEPATH_SEP = "/"; // TODO: we currently don't compile for _WIN32!
@@ -124,6 +125,22 @@ void BloomFilterParams::apply(GenSync::Builder& gsb) const {
     gsb.setFalsePosProb(falsePosProb);
 }
 
+ostream& MET_IBLTParams::serialize(ostream& os) const {
+    os << "eltSize: " << eltSize;
+
+    return os;
+}
+
+istream& MET_IBLTParams::unserialize(istream& is) {
+    getVal<decltype(eltSize)>(is, eltSize);
+
+    return is;
+}
+
+void MET_IBLTParams::apply(GenSync::Builder& gsb) const {
+    gsb.setBits(eltSize);
+}
+
 ostream& CuckooParams::serialize(ostream& os) const {
     os << "fngprtSize: " << fngprtSize << "\n"
        << "bucketSize: " << bucketSize << "\n"
@@ -171,6 +188,10 @@ inline shared_ptr<Params> decideBenchParams(GenSync::SyncProtocol syncProtocol, 
         return par;
     } else if (syncProtocol == GenSync::SyncProtocol::BloomFilterSync) {
         auto par = make_shared<BloomFilterParams>();
+        is >> *par;
+        return par;
+    } else if (syncProtocol == GenSync::SyncProtocol::MET_IBLTSync) {
+        auto par = make_shared<MET_IBLTParams>();
         is >> *par;
         return par;
     } 
@@ -346,6 +367,13 @@ BenchParams::BenchParams(SyncMethod& meth) :
     if (bfilter) {
         syncProtocol = GenSync::SyncProtocol::BloomFilterSync;
         syncParams = make_shared<BloomFilterParams>(bfilter->getExpNumElems(), bfilter->getElementSize(), bfilter->getFalsePosProb());
+        return;
+    }
+
+    auto met_iblt = dynamic_cast<MET_IBLTSync*>(&meth);
+    if (met_iblt) {
+        syncProtocol = GenSync::SyncProtocol::MET_IBLTSync;
+        syncParams = make_shared<MET_IBLTParams>(met_iblt->getElementSize());
         return;
     }
 

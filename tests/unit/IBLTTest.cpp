@@ -29,7 +29,12 @@ void IBLTTest::testAll() {
     for(int ii = 0; ii < SIZE; ii++)
         items.push_back({randZZ(), randZZ()});
 
-    IBLT iblt(SIZE * 2, ITEM_SIZE);
+    IBLT iblt = IBLT::Builder().
+                setNumHashes(4).
+                setNumHashCheck(11).
+                setExpectedNumEntries(SIZE * 2).
+                setValueSize(ITEM_SIZE).
+                build();
     for(unsigned int ii=0; ii < SIZE/2; ii++)
         iblt.insert(items.at(ii).first, items.at(ii).second);
 
@@ -54,14 +59,24 @@ void IBLTTest::SerializeTest()
     vector<pair<ZZ, ZZ>> pos, neg, ref, neg1, pos1;
     const int SIZE = 10;
     const size_t ITEM_SIZE = sizeof(ZZ(0));
-    IBLT iblt(SIZE, ITEM_SIZE);
+    IBLT iblt = IBLT::Builder().
+                setNumHashes(4).
+                setNumHashCheck(11).
+                setExpectedNumEntries(SIZE).
+                setValueSize(ITEM_SIZE).
+                build();
     for (int ii = 1; ii < SIZE; ii++)
     {
         iblt.insert(ZZ(ii), ZZ(ii));
         ref.push_back({ZZ(ii), ZZ(ii)});
     }
     string str = iblt.toString();
-    IBLT reconstructedIBLT(SIZE, ITEM_SIZE);
+    IBLT reconstructedIBLT = IBLT::Builder().
+                setNumHashes(4).
+                setNumHashCheck(11).
+                setExpectedNumEntries(SIZE).
+                setValueSize(ITEM_SIZE).
+                build();
     reconstructedIBLT.reBuild(str);
     // Make sure everything's same between original IBLT and reconstructed IBLT
     CPPUNIT_ASSERT_EQUAL(str, reconstructedIBLT.toString());
@@ -76,7 +91,12 @@ void IBLTTest::IBLTNestedInsertRetrieveTest()
     const int expEntries = 20;
     const int BYTE = 8;
 
-    IBLT InsideIBLT(expEntries, BYTE);
+    IBLT InsideIBLT = IBLT::Builder().
+                setNumHashes(4).
+                setNumHashCheck(11).
+                setExpectedNumEntries(expEntries).
+                setValueSize(BYTE).
+                build();
 
     //Add data to interior IBLT
     for (int ii = 0; ii < expEntries; ii++)
@@ -95,8 +115,12 @@ void IBLTTest::IBLTNestedInsertRetrieveTest()
         InsideIBLT.insert(InsideData->to_ZZ(), InsideData->to_ZZ());
     }
 
-
-    IBLT OutsideIBLT(expEntries, BYTE);
+    IBLT OutsideIBLT = IBLT::Builder().
+                setNumHashes(4).
+                setNumHashCheck(11).
+                setExpectedNumEntries(expEntries).
+                setValueSize(BYTE).
+                build();
 
     //Insert the inside IBLT into the outside IBLT
     OutsideIBLT.insert(result, BYTE, expEntries);
