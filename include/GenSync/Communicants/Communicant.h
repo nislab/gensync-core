@@ -14,6 +14,7 @@
 #include <GenSync/Aux/ConstantsAndTypes.h>
 #include <GenSync/Data/DataObject.h>
 #include <GenSync/Data/DataPriorityObject.h>
+#include <GenSync/Syncs/GenIBLT.h>
 #include <GenSync/Syncs/IBLT.h>
 #include <GenSync/Syncs/IBLTMultiset.h>
 #include <GenSync/Syncs/Cuckoo.h>
@@ -236,6 +237,13 @@ public:
     void commSend(const vec_ZZ_p &vec);
 
     /**
+     * Sends an GenIBLT.
+     * @param iblt The GenIBLT to send.
+     * @param sync Should be true iff EstablishModSend/Recv called and/or the receiver knows the GenIBLT's size and eltSize
+     */
+    void commSend(const GenIBLT &iblt, bool sync = false);
+
+    /**
      * Sends an IBLT.
      * @param iblt The IBLT to send.
      * @param sync Should be true iff EstablishModSend/Recv called and/or the receiver knows the IBLT's size and eltSize
@@ -325,6 +333,14 @@ public:
     double commRecv_double();
 
     byte commRecv_byte();
+
+    /**
+     * Receives a GenIBLT.
+     * @param size The size of the GenIBLT to be received.  Must be >0 or NOT_SET.
+     * @param eltSize The size of values of the GenIBLTs to be received.  Must be >0 or NOT_SET.
+     * @param calcNumHashes The functional which determines the number of hashes for an element.
+     */
+    GenIBLT commRecv_GenIBLT(Nullable<size_t> size, Nullable<size_t> eltSize, function<long(ZZ)> calcNumHashes);
 
     /**
      * Receives an IBLT.

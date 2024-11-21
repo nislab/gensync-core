@@ -6,8 +6,10 @@
 #ifndef CPISYNCLIB_IBLTSYNCTEST_H
 #define CPISYNCLIB_IBLTSYNCTEST_H
 
-
 #include <cppunit/extensions/HelperMacros.h>
+#include <GenSync/Syncs/GenSync.h>
+#include <GenSync/Syncs/IBLTSync.h>
+#include "../TestAuxiliary.h"
 
 class IBLTSyncTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(IBLTSyncTest);

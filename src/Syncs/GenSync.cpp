@@ -18,6 +18,7 @@
 #include <GenSync/Syncs/IBLTSetOfSets.h>
 #include <GenSync/Syncs/CuckooSync.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
+#include <GenSync/Syncs/MET_IBLTSync.h>
 
 #if defined (RECORD)
 #include <GenSync/Benchmarks/BenchParams.h>
@@ -520,8 +521,11 @@ GenSync GenSync::Builder::build() {
         case SyncProtocol::IBLTSync_Multiset:
             myMeth = make_shared<IBLTSync_Multiset>(numExpElem, bits);
             break;
-	case SyncProtocol::BloomFilterSync:
+        case SyncProtocol::BloomFilterSync:
             myMeth = make_shared<BloomFilterSync>(numExpElem, bits, falsePosProb);
+            break;
+        case SyncProtocol::MET_IBLTSync:
+            myMeth = make_shared<MET_IBLTSync>(bits, probMatrix, cellTypeFunc, degMatrixFunc);
             break;
         default:
             throw invalid_argument("I don't know how to synchronize with this protocol.");

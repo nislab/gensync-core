@@ -10,6 +10,9 @@
 // this prime is used for modulus operations
 const long int LARGE_PRIME = 982451653;
 
+const long N_HASH = 4;
+const long N_HASHCHECK = 11;
+
 class IBLTMultiset: public IBLT {
 public:
 

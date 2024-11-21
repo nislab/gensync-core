@@ -7,10 +7,17 @@
 #include <GenSync/Aux/Exceptions.h>
 #include <GenSync/Syncs/IBLTSync.h>
 
-IBLTSync::IBLTSync(size_t expected, size_t eltSize) : myIBLT(expected, eltSize) {
+IBLTSync::IBLTSync(size_t expected, size_t eltSize) {
     expNumElems = expected;
     oneWay = false;
     elementSize = eltSize;
+
+    myIBLT = IBLT::Builder().
+                setNumHashes(4).
+                setNumHashCheck(11).
+                setExpectedNumEntries(expected).
+                setValueSize(eltSize).
+                build();
 }
 
 IBLTSync::~IBLTSync() = default;

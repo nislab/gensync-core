@@ -64,6 +64,7 @@ set(SOURCE_FILES
         ${SYNC_DIR}/InterCPISync.cpp
         ${SYNC_DIR}/probCPISync.cpp
         ${SYNC_DIR}/HashSync.cpp
+        ${SYNC_DIR}/GenIBLT.cpp
         ${SYNC_DIR}/IBLT.cpp
         ${SYNC_DIR}/IBLTMultiset.cpp
         ${SYNC_DIR}/IBLTSync.cpp
@@ -75,6 +76,8 @@ set(SOURCE_FILES
         ${SYNC_DIR}/FullSync.cpp
 	${SYNC_DIR}/BloomFilterSync.cpp
 	${SYNC_DIR}/BloomFilter.cpp
+        ${SYNC_DIR}/MET_IBLTSync.cpp
+        ${SYNC_DIR}/MET_IBLT.cpp
 
         ${BENCH_DIR}/BenchParams.cpp
         ${BENCH_DIR}/FromFileGen.cpp
@@ -110,6 +113,7 @@ set(HEADERS
         ${SYNC_DIR_INC}/FullSync.h
         ${SYNC_DIR_INC}/GenSync.h
         ${SYNC_DIR_INC}/HashSync.h
+        ${SYNC_DIR_INC}/GenIBLT.h
         ${SYNC_DIR_INC}/IBLT.h
         ${SYNC_DIR_INC}/IBLTMultiset.h
         ${SYNC_DIR_INC}/IBLTSync.h
@@ -124,6 +128,8 @@ set(HEADERS
         ${SYNC_DIR_INC}/ProbCPISync.h
 	${SYNC_DIR_INC}/BloomFilterSync.h
 	${SYNC_DIR_INC}/BloomFilter.h
+        ${SYNC_DIR_INC}/MET_IBLTSync.h
+        ${SYNC_DIR_INC}/MET_IBLT.h
 
         ${SYNC_BENCH_INC}/BenchObserv.h
         ${SYNC_BENCH_INC}/BenchParams.h

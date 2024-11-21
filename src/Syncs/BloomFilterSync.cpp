@@ -21,6 +21,7 @@ BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, int szMult,
 BloomFilterSync::BloomFilterSync(size_t expNumElems, size_t eltSize, float falsePosProb)
 {
         this->expNumElems = expNumElems;
+        this->falsePosProb = falsePosProb;
         elementSize = eltSize;
         myBloomFilter = BloomFilter::Builder().
                         setNumExpElems(expNumElems).
@@ -219,5 +220,5 @@ bool BloomFilterSync::addElem(shared_ptr<DataObject> datum)
 
 string BloomFilterSync::getName()
 {
-	return "BloomFilterSync:   Expected number of elements = " + toStr(expNumElems) + "   Size of values = " + toStr(elementSize) + "\n";
+	return "BloomFilterSync:   Expected number of elements = " + toStr(expNumElems) + "   Size of values = " + toStr(elementSize) + "   Probability of false positives = " + toStr(falsePosProb) + "\n";
 }

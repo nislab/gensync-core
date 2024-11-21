@@ -4,9 +4,6 @@
 //
 
 #include "IBLTSetOfSetsTest.h"
-#include <GenSync/Syncs/GenSync.h>
-#include <GenSync/Syncs/IBLTSetOfSets.h>
-#include "TestAuxiliary.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(IBLTSetOfSetsTest);
 
@@ -24,7 +21,7 @@ void IBLTSetOfSetsTest::tearDown(){}
 
 void IBLTSetOfSetsTest::TestIBLTGetName()
 {
-    IBLTSetOfSets IBLTSetOfSets(0, 0, 0);
+    IBLTSetOfSets IBLTSetOfSets(1, 1, 1);
     CPPUNIT_ASSERT(!IBLTSetOfSets.getName().empty());
 }
 

@@ -19,6 +19,7 @@
 #include <GenSync/Syncs/IBLTSetOfSets.h>
 #include <GenSync/Syncs/CuckooSync.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
+#include <GenSync/Syncs/MET_IBLTSync.h>
 
 const char BenchParams::KEYVAL_SEP = ':';
 const string BenchParams::FILEPATH_SEP = "/"; // TODO: we currently don't compile for _WIN32!
@@ -102,6 +103,44 @@ void IBLTParams::apply(GenSync::Builder& gsb) const {
     gsb.setExpNumElemChild(numElemChild);
 }
 
+ostream& BloomFilterParams::serialize(ostream& os) const {
+    os << "expected: " << expected << "\n"
+       << "eltSize: " << eltSize << "\n"
+       << "falsePosProb: " << falsePosProb;
+
+    return os;
+}
+
+istream& BloomFilterParams::unserialize(istream& is) {
+    getVal<decltype(expected)>(is, expected);
+    getVal<decltype(eltSize)>(is, eltSize);
+    getVal<decltype(falsePosProb)>(is, falsePosProb);
+
+    return is;
+}
+
+void BloomFilterParams::apply(GenSync::Builder& gsb) const {
+    gsb.setExpNumElems(expected);
+    gsb.setBits(eltSize);
+    gsb.setFalsePosProb(falsePosProb);
+}
+
+ostream& MET_IBLTParams::serialize(ostream& os) const {
+    os << "eltSize: " << eltSize;
+
+    return os;
+}
+
+istream& MET_IBLTParams::unserialize(istream& is) {
+    getVal<decltype(eltSize)>(is, eltSize);
+
+    return is;
+}
+
+void MET_IBLTParams::apply(GenSync::Builder& gsb) const {
+    gsb.setBits(eltSize);
+}
+
 ostream& CuckooParams::serialize(ostream& os) const {
     os << "fngprtSize: " << fngprtSize << "\n"
        << "bucketSize: " << bucketSize << "\n"
@@ -147,7 +186,16 @@ inline shared_ptr<Params> decideBenchParams(GenSync::SyncProtocol syncProtocol, 
         auto par = make_shared<IBLTParams>();
         is >> *par;
         return par;
-    } else if (syncProtocol == GenSync::SyncProtocol::CuckooSync) {
+    } else if (syncProtocol == GenSync::SyncProtocol::BloomFilterSync) {
+        auto par = make_shared<BloomFilterParams>();
+        is >> *par;
+        return par;
+    } else if (syncProtocol == GenSync::SyncProtocol::MET_IBLTSync) {
+        auto par = make_shared<MET_IBLTParams>();
+        is >> *par;
+        return par;
+    } 
+    else if (syncProtocol == GenSync::SyncProtocol::CuckooSync) {
         auto par = make_shared<CuckooParams>();
         is >> *par;
         return par;
@@ -318,7 +366,14 @@ BenchParams::BenchParams(SyncMethod& meth) :
     auto bfilter = dynamic_cast<BloomFilterSync*>(&meth);
     if (bfilter) {
         syncProtocol = GenSync::SyncProtocol::BloomFilterSync;
-        syncParams = make_shared<IBLTParams>(bfilter->getExpNumElems(), bfilter->getElementSize());
+        syncParams = make_shared<BloomFilterParams>(bfilter->getExpNumElems(), bfilter->getElementSize(), bfilter->getFalsePosProb());
+        return;
+    }
+
+    auto met_iblt = dynamic_cast<MET_IBLTSync*>(&meth);
+    if (met_iblt) {
+        syncProtocol = GenSync::SyncProtocol::MET_IBLTSync;
+        syncParams = make_shared<MET_IBLTParams>(met_iblt->getElementSize());
         return;
     }
 
