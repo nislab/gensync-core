@@ -1,6 +1,6 @@
 #include <GenSync/Communicants/CommSocket.h>
 #include "CommSocketTest.h"
-#include "TestAuxiliary.h"
+#include "../TestAuxiliary.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CommSocketTest);
 

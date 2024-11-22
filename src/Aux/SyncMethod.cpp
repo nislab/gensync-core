@@ -7,9 +7,11 @@
 SyncMethod::SyncMethod() {
     SyncID = SYNC_TYPE::GenericSync; // synchronization type
 
+#if defined (RECORD)
     sketches = make_shared<Sketches>(Sketches{Sketches::Types::CARDINALITY,
                                               Sketches::Types::UNIQUE_ELEM,
                                               Sketches::Types::HEAVY_HITTERS}); // initiate sketches
+#endif
 }
 
 SyncMethod::~SyncMethod() = default;

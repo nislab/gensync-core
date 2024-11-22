@@ -386,7 +386,7 @@ bool cmpMultiset(const multiset<T> first, const multiset<T> second)
 template <typename T>
 class cmp {
 public:
-    bool operator()(const T a, const T b) {
+    bool operator()(const T a, const T b) const {
         return (*a) < (*b);
     }
 };

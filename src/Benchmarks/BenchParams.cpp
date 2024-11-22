@@ -284,8 +284,11 @@ BenchParams::BenchParams(const string& fName) {
  */
 BenchParams::BenchParams(SyncMethod& meth) :
     AElems (nullptr),
-    BElems (nullptr),
-    sketches (meth.getSketches()) {
+    BElems (nullptr)
+#ifdef RECORD
+    , sketches (meth.getSketches())
+#endif
+{
     auto cpi = dynamic_cast<CPISync*>(&meth);
     if (cpi) {
         syncProtocol = GenSync::SyncProtocol::CPISync;
@@ -379,8 +382,6 @@ BenchParams::BenchParams(SyncMethod& meth) :
 
     throw runtime_error("The SyncMethod is not known to BenchParams");
 }
-
-BenchParams::~BenchParams() {}
 
 ostream& operator<<(ostream& os, const BenchParams& bp) {
     os << "Sync protocol (as in GenSync.h): " << (int) bp.syncProtocol << "\n"

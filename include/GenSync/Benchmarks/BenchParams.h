@@ -123,7 +123,7 @@ struct BenchParams {
     static const string FILEPATH_SEP;  // path separator for the referenced files in parameter files
 
     BenchParams() = default;
-    ~BenchParams();
+    ~BenchParams() = default;
 
     /**
      * Reconstructs the sync parameters from the input stream. The

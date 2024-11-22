@@ -17,7 +17,7 @@
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/FullSync.h>
 #include <GenSync/Aux/ForkHandle.h>
-#include "TestAuxiliary.h"
+#include "../../TestAuxiliary.h"
 
 class BenchmarkTest : public CPPUNIT_NS::TestFixture
 {

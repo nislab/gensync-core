@@ -9,7 +9,7 @@
 #include <GenSync/Syncs/InterCPISync.h>
 #include <GenSync/Communicants/CommString.h>
 #include "GenericSyncTests.h"
-#include "TestAuxiliary.h"
+#include "../../TestAuxiliary.h"
 
 using namespace std::chrono;
 

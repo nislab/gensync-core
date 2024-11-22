@@ -74,8 +74,8 @@ set(SOURCE_FILES
         ${SYNC_DIR}/Cuckoo.cpp
         ${SYNC_DIR}/CuckooSync.cpp
         ${SYNC_DIR}/FullSync.cpp
-	${SYNC_DIR}/BloomFilterSync.cpp
-	${SYNC_DIR}/BloomFilter.cpp
+	    ${SYNC_DIR}/BloomFilterSync.cpp
+	    ${SYNC_DIR}/BloomFilter.cpp
         ${SYNC_DIR}/MET_IBLTSync.cpp
         ${SYNC_DIR}/MET_IBLT.cpp
 
@@ -126,8 +126,9 @@ set(HEADERS
         ${SYNC_DIR_INC}/InterCPISync.h
         ${SYNC_DIR_INC}/PrioCPISync.h
         ${SYNC_DIR_INC}/ProbCPISync.h
-	${SYNC_DIR_INC}/BloomFilterSync.h
-	${SYNC_DIR_INC}/BloomFilter.h
+	    ${SYNC_DIR_INC}/BloomFilter.h
+	    ${SYNC_DIR_INC}/BloomFilterSync.h
+	    ${SYNC_DIR_INC}/BloomFilter.h
         ${SYNC_DIR_INC}/MET_IBLTSync.h
         ${SYNC_DIR_INC}/MET_IBLT.h
 
@@ -214,7 +215,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "2")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "3")
 set(CPACK_PACKAGE_CONTACT "Ari Trachtenberg")
-set(CPAKC_PACKAGE_VENDOR "NISLAB")
+set(CPACK_PACKAGE_VENDOR "NISLAB")
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}")
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST /usr/local /usr/local/lib64 /usr/local/lib /usr/local/include)

@@ -7,7 +7,7 @@
  */
 
 #include "CuckooSyncTest.h"
-#include "TestAuxiliary.h"
+#include "../TestAuxiliary.h"
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/CuckooSync.h>
 
