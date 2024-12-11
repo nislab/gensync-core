@@ -315,6 +315,10 @@ sync succeeded.
         * The client sends their IBLT to their server peer and the server determines what elements they need to add to their set. The client does not receive a return message and does not update their set
     * CuckooSync
         * Each peer encodes their set into a [cuckoo filter](https://www.cs.cmu.edu/~dga/papers/cuckoo-conext2014.pdf). Peers exchange their cuckoo filters. Each host infers the elements that are not in its peer by looking them up in the peer's cuckoo filter. Any elements that are not found in the peer's cuckoo filter are sent to it.
+    * MET-IBLT Sync
+        * The [Multi-Edge-Type IBLT](https://arxiv.org/pdf/2211.05472) is an IBLT-based set reconciliation protocol that does not require estimation of the size of the set-difference. This is due to the scalable nature of the MET-IBLT data structure. The protocol works by iteratively adding and exchanging parts ("types") of the MET-IBLT data structure between the client and server until all differing elements are peeled/decoded.
+    * Bloom Filter Sync
+        * The [Bloom Filter](https://dl.acm.org/doi/pdf/10.1145/362686.362692) is a space-efficient probabilistic data structure for testing set membership. The protocol enables set reconciliation by exchanging filters and transferring only elements which are detected as most likely missing from the other party's set.
 * **Included Sync Protocols (Set of Sets):**
     * IBLT Set of Sets
         * Sync using the protocol described [here](https://dl.acm.org/doi/abs/10.1145/3196959.3196988). This sync serializes an IBLT containing a child set into a bitstring where it is then treated as an element of a larger IBLT. Each host recovers the IBLT containing the serialized IBLTs and deserializes each one. A matching procedure is then used to determine which child sets should sync with each other and which elements they need. If this sync is two way this info is then sent back to the peer node. The number of differences in each child IBLT may not be larger than the total number of sets being synced
@@ -398,6 +402,8 @@ Elements of the GenSync project code have been worked on, at various points, by:
 * Novak Boškov
 * Xingyu Chen
 * Nathan Strahs
+* Anish Sinha
+* Thomas Poimenidis
 
 # Acknowledgments:
 * NSF
