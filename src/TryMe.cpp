@@ -1,81 +1,47 @@
-//
-// TryMe.cpp - a really simple example of how to use this library.
-// Created by eliez on 8/17/2018.
-//
-
-
 #include <iostream>
 #include <GenSync/Syncs/GenSync.h>
 
-using std::cout;
-using std::endl;
-using std::string;
+int main() {
+    // BUILD the first host
+    GenSync host1 = GenSync::Builder().
+                    setProtocol(GenSync::SyncProtocol::CPISync). // CPISync protocol
+                    setComm(GenSync::SyncComm::socket).		 // communicate over network sockets
+                    setMbar(5).					 // required parameter for CPISync
+                    build();
 
-int main(int argc, char *argv[]) {
-    if(strcmp(argv[1], "client")!=0 && strcmp(argv[1], "server")!=0) {
-        cout << "usage: 'TryMe client <sync type>' for client mode, 'TryMe server <sync type>' for server mode." << endl;
-        cout << "run the client in one terminal instance and the server in another." << endl;
-        exit(0);
+    // BUILD the second host
+    GenSync host2 = GenSync::Builder().
+                    setProtocol(GenSync::SyncProtocol::CPISync).
+                    setComm(GenSync::SyncComm::socket).
+                    setMbar(5).
+                    build();
+
+    // ADD elements to each host
+    // ... host 1
+    host1.addElem(make_shared<DataObject>('a')); // DataObject containing a character 'a'
+    host1.addElem(make_shared<DataObject>('b'));
+    host1.addElem(make_shared<DataObject>('c'));
+
+    // ... host 2
+    host2.addElem(make_shared<DataObject>('b'));
+    host2.addElem(make_shared<DataObject>('d'));
+
+    // FORK into two processes
+    if (fork()) {
+        // ... PARENT process
+        host1.clientSyncBegin(0);		     // set up the 0-th synchronizer and connect to a server
+        cout << "host 1 now has ";
+        for (auto &i: host1.dumpElements())    // print out the elements at host 1
+            cout << i << " ";
+        cout << endl;
+    }
+    else {
+        // ... CHILD process
+        host2.serverSyncBegin(0);		      // set up the 0-th synchronizer and wait for connections
+        cout << "host 2 now has ";
+        for (auto &i: host2.dumpElements())     // print out the elements at host 2
+            cout << i << " ";
+        cout << endl;
     }
 
-    GenSync::SyncProtocol prot;
-    string type = string(argv[2]);
-
-    // no string switch statements :(
-    if(type == "CPISync") {
-        prot = GenSync::SyncProtocol::CPISync;
-    } else if (type == "InterCPISync") {
-        prot = GenSync::SyncProtocol::InteractiveCPISync;
-    } else if (type == "OneWayCPISync") {
-        prot = GenSync::SyncProtocol::OneWayCPISync;
-    } else if (type == "FullSync") {
-        prot = GenSync::SyncProtocol::FullSync;
-    } else if (type == "IBLTSync") {
-        prot = GenSync::SyncProtocol::IBLTSync;
-    } else if (type == "OneWayIBLTSync") {
-        prot = GenSync::SyncProtocol::OneWayIBLTSync;
-    } else if (type == "BloomFilterSync") {
-        prot = GenSync::SyncProtocol::BloomFilterSync;
-    } else {
-        cout << "invalid sync type!" << endl;
-        exit(1);
-    }
-
-    const int PORT = 8001; // port on which to connect
-    const int ERR = 8; // inverse log of error chance
-    const int M_BAR = 1; // max differences between server and client
-    const int BITS = CHAR_BIT; // bits per entry
-    const int PARTS = 3; // partitions per level for partition-syncs
-    const int EXP_ELTS = 4; // expected number of elements per set
-
-    GenSync genSync = GenSync::Builder().
-			setProtocol(prot).
-			setComm(GenSync::SyncComm::socket).
-			setPort(PORT).
-			setErr(ERR).
-			setMbar(M_BAR).
-			setBits((prot == GenSync::SyncProtocol::IBLTSync || prot == GenSync::SyncProtocol::OneWayIBLTSync ? BITS : BITS * CHAR_BIT)).
-			setNumPartitions(PARTS).
-			setExpNumElems(EXP_ELTS).
-            setFalsePosProb(0.05).
-            build();
-
-    genSync.addElem(make_shared<DataObject>('a'));
-    genSync.addElem(make_shared<DataObject>('b'));
-    genSync.addElem(make_shared<DataObject>('c'));
-
-    if(strcmp(argv[1], "client")==0) {
-        genSync.addElem(make_shared<DataObject>('d'));
-
-        cout << "listening on port " << PORT << "..." << endl;
-		genSync.clientSyncBegin(0);
-        cout << "sync succeeded." << endl;
-
-    } else {
-        genSync.addElem(make_shared<DataObject>('e'));
-
-        cout << "connecting on port " << PORT << "..." << endl;
-		genSync.serverSyncBegin(0);
-        cout << "sync succeeded." << endl;
-    }
 }

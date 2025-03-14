@@ -204,7 +204,7 @@ public:
      * Sends out a single byte over the line
      * @param num
      */
-    void commSend(byte bt);
+    void commSend(byte_t bt);
 
     // Specialized send functions for specific data types
     /**
@@ -324,7 +324,7 @@ public:
 
     double commRecv_double();
 
-    byte commRecv_byte();
+    byte_t commRecv_byte();
 
     /**
      * Receives an IBLT.

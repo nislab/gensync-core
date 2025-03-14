@@ -210,7 +210,7 @@ void Communicant::commSend(const long num) {
     commSend(ustring(toSend, XMIT_LONG), XMIT_LONG);
 }
 
-void Communicant::commSend(const byte bt) {
+void Communicant::commSend(const byte_t bt) {
 
     Logger::gLog(Logger::COMM, string("... attempting to send: byte num ") + toStr((int) bt));
     commSend(&bt, 1);
@@ -488,11 +488,11 @@ int Communicant::commRecv_int() {
     return to_int(num);
 }
 
-byte Communicant::commRecv_byte() {
+byte_t Communicant::commRecv_byte() {
     string received = commRecv(1);
     Logger::gLog(Logger::COMM, string("... received byte num ") + toStr((int) received[0]));
 
-    return static_cast<byte>(received[0]);
+    return static_cast<byte_t>(received[0]);
 }
 
 ZZ_p Communicant::commRecv_ZZ_p() {

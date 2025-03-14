@@ -377,8 +377,8 @@ void CPISync::RecvSyncParam(const shared_ptr<Communicant>& commSync, bool oneWay
     // take care of parent sync method
     SyncMethod::RecvSyncParam(commSync, oneWay);
 
-    // ... sync ID, mbar, bits, and epsilon        
-    byte theSyncID = commSync->commRecv_byte();
+    // ... sync ID, mbar, bits, and epsilon
+    byte_t theSyncID = commSync->commRecv_byte();
     long mbarClient = commSync->commRecv_long();
     long bitsClient = commSync->commRecv_long();
     int epsilonClient = commSync->commRecv_int();

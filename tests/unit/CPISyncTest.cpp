@@ -5,7 +5,7 @@
 #include <GenSync/Syncs/CPISync.h>
 #include "CPISyncTest.h"
 #include <GenSync/Syncs/InterCPISync.h>
-#include "TestAuxiliary.h"
+#include "TestAuxilliary.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CPISyncTest);
 

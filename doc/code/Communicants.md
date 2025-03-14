@@ -23,7 +23,7 @@ Communicant creation and use can be handled by the builder class but if you wish
 
     * Stats Logging
         * `CommSocket.resetCommCounters()`
-            * Reset byte counters
+            * Reset byte_t counters
         * `CommSocket.getXmitBytes()`
             * Returns the amount of bytes sent since the last reset
             * If your have a GenSync object use GenSync.getXmitBytes() instead

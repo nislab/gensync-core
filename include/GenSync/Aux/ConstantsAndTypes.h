@@ -8,7 +8,7 @@
 #include <NTL/ZZ.h>
 #include <NTL/RR.h>
 
-typedef unsigned char byte;
+typedef std::uint8_t byte_t;
 typedef std::basic_string<unsigned char> ustring; // a string of unsigned characters
 
 // namespaces
@@ -33,13 +33,13 @@ const RR RR_ONE = (RR) 1.0;
 const RR RR_TWO = (RR) 2.0;
 const string SYNC_FAILED = "ERR: SYNC FAILED"; // message that a sync attempt has failed
 // ... these constants must copy at most one byte
-const byte SYNC_FAIL_FLAG = 0; /** The sync failed. */
-const byte SYNC_OK_FLAG = 1; /** The sync succeeded. */
-const byte SYNC_SOME_INFO = 2; /** I have some information to sync. */
-const byte SYNC_NO_INFO = 3; /** I have no information to sync. */
+const byte_t SYNC_FAIL_FLAG = 0; /** The sync failed. */
+const byte_t SYNC_OK_FLAG = 1; /** The sync succeeded. */
+const byte_t SYNC_SOME_INFO = 2; /** I have some information to sync. */
+const byte_t SYNC_NO_INFO = 3; /** I have no information to sync. */
 
 // ... ... synchronization type
-enum class SYNC_TYPE : byte {
+enum class SYNC_TYPE : byte_t {
   GenericSync,
   CPISync,
   CPISync_HalfRound,

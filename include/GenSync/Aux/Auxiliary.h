@@ -67,12 +67,12 @@ Target narrow_cast(Source v)
  * @require string must have fewer than MAXINT characters
  * @return A vector of bytes, corresponding, one by one, to the characters of data
  */
-inline vector<byte> StrToVec(const string& data) {
-    vector<byte> result; // where we will be build the result to be returned
+inline vector<byte_t> StrToVec(const string& data) {
+    vector<byte_t> result; // where we will be build the result to be returned
 
     const char *data_c_str = data.c_str();
     result.reserve((int) data.length()); result.reserve((int) data.length()); for (int ii = 0; ii < (int) data.length(); ii++)
-        result.push_back(static_cast<byte>(data_c_str[ii]));
+        result.push_back(static_cast<byte_t>(data_c_str[ii]));
 
     return result;
 }
@@ -158,7 +158,7 @@ inline string zzToString(ZZ num)
  * @require vector must have fewer than MAXINT characters
  * @return The string whose characters correspond, one by one, to the bytes of data.
  */
-inline string VecToStr(vector<byte>&& data) {
+inline string VecToStr(vector<byte_t>&& data) {
     string result;
     for (unsigned char ii : data)
         result.push_back(ii);
@@ -588,8 +588,8 @@ inline long randLong() {
  * @return A random byte
  * @require srand() must've been called
  */
-inline byte randByte() {
-    return (byte) (rand() % (int) pow(2, CHAR_BIT));
+inline byte_t randByte() {
+    return (byte_t) (rand() % (int) pow(2, CHAR_BIT));
 }
 
 /**
@@ -629,10 +629,10 @@ inline ZZ randZZ() {
  * Converts an enum to a byte, signalling an compile-time error if the enum's underlying class is not byte.
  */
 template <class T>
-inline byte enumToByte(T theEnum) {
-    static_assert(std::is_same<byte, typename std::underlying_type<T>::type>::value,
+inline byte_t enumToByte(T theEnum) {
+    static_assert(std::is_same<byte_t, typename std::underlying_type<T>::type>::value,
         "Underlying enum class is not byte - cannot convert to byte!");
-    return static_cast< byte >(theEnum);
+    return static_cast<byte_t>(theEnum);
 }
 
 /**

@@ -166,7 +166,7 @@ void InterCPISync::RecvSyncParam(const shared_ptr<Communicant>& commSync, bool o
     // take care of parent sync method
     SyncMethod::RecvSyncParam(commSync);
 
-    byte theSyncID = commSync->commRecv_byte();
+    byte_t theSyncID = commSync->commRecv_byte();
     long mbarClient = commSync->commRecv_long();
     long bitsClient = commSync->commRecv_long();
     int epsilonClient = commSync->commRecv_int();
