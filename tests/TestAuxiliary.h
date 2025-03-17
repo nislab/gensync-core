@@ -16,6 +16,7 @@
 #include <GenSync/Aux/ForkHandle.h>
 #include <type_traits>
 #include <chrono>
+#include <thread>
 
 #ifndef CPISYNCLIB_GENERIC_SYNC_TESTS_H
 #define CPISYNCLIB_GENERIC_SYNC_TESTS_H
@@ -400,15 +401,15 @@ inline bool checkServerSuccess(multiset<string> &resServer, multiset<string> &re
  * @return true iff server reconciliation check is successful, false otherwise
  */
 inline bool
-checkServerSucceeded(multiset<string> &resultantServer, multiset<string> &reconciled, bool setofSets, bool oneWay,
-                     forkHandleReport &serverReport) {
+checkServerSucceeded(multiset<string> &resultantServer, const multiset<string> &reconciled, bool setofSets, bool oneWay,
+                     forkHandleReport &serverReport)  {
 
     if (!setofSets) {
         bool isSuccess = (resultantServer == reconciled && serverReport.success);
         return isSuccess;
     } else if (oneWay) { // Set of sets one way
         Logger::error_and_quit("Not implemented yet");
-    } else { // set-of-sets two way
+    } else { // set-of-sets two-way
         return (checkReconSetofSets(resultantServer, reconciled) && serverReport.success);
     }
 
@@ -426,7 +427,7 @@ checkServerSucceeded(multiset<string> &resultantServer, multiset<string> &reconc
  * @return true iff client reconciliation check is successful, false otherwise
  */
 inline bool
-checkClientSucceeded(multiset<string> &resultantClient, multiset<string> &initialClient, multiset<string> &reconciled,
+checkClientSucceeded(multiset<string> &resultantClient, multiset<string> &initialClient, const multiset<string> &reconciled,
                      bool setofSets, bool oneWay, forkHandleReport &clientReport) {
 
     if (!oneWay) { // reconciliation conditions are same for client and server in two way sync
@@ -455,8 +456,9 @@ checkClientSucceeded(multiset<string> &resultantClient, multiset<string> &initia
  * @param CLIENT_MINUS_SERVER amount of elements unique to client
  * @param SERVER_MINUS_CLIENT amount of elements unique to server
  * @param reconciled The expected reconciled dataset
- * @return True if the recon appears to be successful and false otherwise
- * @return true if reconciliation succeeded, false otherwise
+ * @return true if the recon appears to be successful and false otherwise
+ *
+ * @update Now uses threads instead of forked processes to avoid SIP issues on mac.
  */
 inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,bool oneWay, bool probSync,bool syncParamTest,
                                const unsigned int SIMILAR,const unsigned int CLIENT_MINUS_SERVER,
@@ -469,7 +471,6 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
     forkHandleReport clientReport, serverReport;
     high_resolution_clock::time_point start = high_resolution_clock::now();
     pid_t pID = fork();
-
 
     if (pID == 0) { // child process will act as server and run sync
         Logger::gLog(Logger::COMM,"created a child process, server, pid: " + toStr(getpid()));
@@ -526,6 +527,79 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
     // unreachable state
     return false;
 }
+//
+//// Same as createForkForTest but with threads rather than processes
+//inline bool createThreadForTest(GenSync& GenSyncClient, GenSync& GenSyncServer, bool oneWay, bool probSync, bool syncParamTest,
+//                                const unsigned int SIMILAR, const unsigned int CLIENT_MINUS_SERVER,
+//                                const unsigned int SERVER_MINUS_CLIENT, const multiset<string>& reconciled,
+//                                bool setofSets) {
+//
+//    int method_num = 0;
+//    forkHandleReport clientReport, serverReport;
+//    high_resolution_clock::time_point start = high_resolution_clock::now();
+//
+//    bool serverSuccess = false, clientSuccess = false;
+//
+//    // Server
+//    thread serverThread([&]() {
+//        Logger::gLog(Logger::COMM, "Server thread started, tid: " + toStr(this_thread::get_id()));
+//
+//        serverReport.success = GenSyncServer.serverSyncBegin(method_num);
+//        serverReport.totalTime = duration_cast<microseconds>(high_resolution_clock::now() - start).count() * 1e-6;
+//        serverReport.CPUtime = GenSyncServer.getCommTime(method_num);
+//        serverReport.bytes = GenSyncServer.getXmitBytes(method_num) + GenSyncServer.getRecvBytes(method_num);
+//
+//        multiset<string> resultantServer;
+//        for (const auto& elem : GenSyncServer.dumpElements()) {
+//            resultantServer.insert(elem);
+//        }
+//
+//        serverSuccess = checkServerSucceeded(resultantServer, reconciled, setofSets, oneWay, serverReport);
+//
+//        {
+//            Logger::gLog(Logger::COMM, "Server thread finished, status: " + to_string(serverReport.success) +
+//                                           ", check success: " + to_string(serverSuccess) +
+//                                           ", tid: " + toStr(this_thread::get_id()));
+//        }
+//    });
+//
+//    // Client
+//    thread clientThread([&]() {
+//        Logger::gLog(Logger::COMM, "Client thread started, tid: " + toStr(this_thread::get_id()));
+//
+//        multiset<string> initialClient;
+//        if (oneWay) {
+//            for (const auto& elem : GenSyncClient.dumpElements()) {
+//                initialClient.insert(elem);
+//            }
+//        }
+//
+//        clientReport.success = GenSyncClient.clientSyncBegin(method_num);
+//        clientReport.totalTime = duration_cast<microseconds>(high_resolution_clock::now() - start).count() * 1e-6;
+//        clientReport.CPUtime = GenSyncClient.getCommTime(method_num);
+//        clientReport.bytes = GenSyncClient.getXmitBytes(method_num);
+//
+//        multiset<string> resultantClient;
+//        for (const auto& elem : GenSyncClient.dumpElements()) {
+//            resultantClient.insert(elem);
+//        }
+//
+//        clientSuccess = checkClientSucceeded(resultantClient, initialClient, reconciled, setofSets, oneWay, clientReport);
+//
+//        {
+//            Logger::gLog(Logger::COMM, "Client thread finished, status: " + to_string(clientReport.success) +
+//                                           ", check success: " + to_string(clientSuccess) +
+//                                           ", tid: " + toStr(this_thread::get_id()));
+//        }
+//    });
+//
+//    // Wait for both threads to finish
+//    serverThread.join();
+//    clientThread.join();
+//
+//    // Final synchronization success check
+//    return clientSuccess && serverSuccess;
+//}
 
 
 /**
@@ -916,11 +990,13 @@ inline bool syncTest(GenSync &GenSyncClient, GenSync &GenSyncServer, bool oneWay
 		// add elements to server, client and reconciled
 		auto objectsPtr = addElements(Multiset,SIMILAR,SERVER_MINUS_CLIENT,CLIENT_MINUS_SERVER,GenSyncServer,GenSyncClient,reconciled);
 		//Returns a boolean value for the success of the synchronization
+
                 success &= createForkForTest(GenSyncClient, GenSyncServer, oneWay, probSync, syncParamTest, SIMILAR,
                                       CLIENT_MINUS_SERVER,SERVER_MINUS_CLIENT, reconciled,false);
+
 		//Remove all elements from GenSyncs and clear dynamically allocated memory for reuse
 		success &= GenSyncServer.clearData();
-		success &= GenSyncClient.clearData();
+                success &= GenSyncClient.clearData();
 
 		//Memory is deallocated here because these are shared_ptrs and are deleted when the last ptr to an object is deleted
 		objectsPtr.clear();

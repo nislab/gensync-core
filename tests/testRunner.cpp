@@ -55,7 +55,10 @@ private:
     bool m_lastTestFailed;
 };
 
-int main() {
+// Usage:
+// [prog] - runs all tests
+// [prog] -t [name] - runs only test [name]
+int main(int argc, char* argv[]) {
     // Create the event manager and test controller
     CPPUNIT_NS::TestResult controller;
 
@@ -69,7 +72,27 @@ int main() {
 
     // Add the top suite to the test runner
     CPPUNIT_NS::TestRunner runner;
-    runner.addTest(CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest());
+    auto allTests = CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest();
+
+    if (argc==3 && std::string(argv[1])=="-t") {
+        // only register a specific tests
+        std::string testName = argv[2];
+
+        auto specificTest = allTests->findTest(testName);
+        if (specificTest) {
+            std::cout << "Running specific test: "<< testName << std::endl;
+            runner.addTest(specificTest);
+        }
+        else {
+            std::cerr << "Could not find test " << testName << std::endl;
+            return 1;
+        }
+    } else {
+        // register all tests
+        runner.addTest(allTests);
+    }
+
+    // run the tests
     runner.run(controller);
 
     // Print test in a compiler compatible format.
