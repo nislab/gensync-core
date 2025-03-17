@@ -53,7 +53,7 @@ public:
      * Increments all the initiated sketches with the single new element.
      * @throws sketches_exception if something goes wrong in the process
      */
-    void inc(std::shared_ptr<DataObject>);
+    void inc(const std::shared_ptr<DataObject>&) const;
 
     /**
      * @returns The numerical values of all the sketches.

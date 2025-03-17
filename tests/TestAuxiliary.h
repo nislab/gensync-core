@@ -916,7 +916,7 @@ inline bool syncTest(GenSync &GenSyncClient, GenSync &GenSyncServer, bool oneWay
 		// add elements to server, client and reconciled
 		auto objectsPtr = addElements(Multiset,SIMILAR,SERVER_MINUS_CLIENT,CLIENT_MINUS_SERVER,GenSyncServer,GenSyncClient,reconciled);
 		//Returns a boolean value for the success of the synchronization
-        success &= createForkForTest(GenSyncClient, GenSyncServer, oneWay, probSync, syncParamTest, SIMILAR,
+                success &= createForkForTest(GenSyncClient, GenSyncServer, oneWay, probSync, syncParamTest, SIMILAR,
                                       CLIENT_MINUS_SERVER,SERVER_MINUS_CLIENT, reconciled,false);
 		//Remove all elements from GenSyncs and clear dynamically allocated memory for reuse
 		success &= GenSyncServer.clearData();

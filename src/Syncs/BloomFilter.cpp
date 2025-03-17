@@ -32,7 +32,7 @@ size_t BloomFilter::getSize()
     return this->bits.size();
 }
 
-int BloomFilter::getNumHashes()
+int BloomFilter::getNumHashes() const
 {
     return this->numHashes;
 }
@@ -59,7 +59,7 @@ bf_hash_t BloomFilter::_hash(const ZZ& value, long kk)
     return shash( to_string(hash_val) + to_string(hash_kk) );
 }
 
-void BloomFilter::insert(ZZ value)
+void BloomFilter::insert(const ZZ& value)
 {
     vector<int> locs;
     size_t bfSize = this->bits.size();
@@ -71,7 +71,7 @@ void BloomFilter::insert(ZZ value)
     }
 }
 
-bool BloomFilter::exist(ZZ value)
+bool BloomFilter::exist(const ZZ& value)
 {
     vector<int> locs;
     size_t bfSize = this->bits.size();
@@ -86,7 +86,7 @@ bool BloomFilter::exist(ZZ value)
     return true;
 }
 
-void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet)
+void BloomFilter::insert(const multiset<shared_ptr<DataObject>>& tarSet)
 {
     for(auto& val: tarSet)
 	this->insert(val->to_ZZ());
@@ -94,7 +94,7 @@ void BloomFilter::insert(multiset<shared_ptr<DataObject>> tarSet)
 
 string BloomFilter::toString() const
 {
-    string res = "";
+    string res;
 
     for(auto v: this->bits)
         res += to_string(v);
@@ -110,7 +110,7 @@ ZZ BloomFilter::toZZ()
     if(bits.size()%byteSize != 0)
         numBytes++;
 
-    unsigned char* pp = new unsigned char[numBytes];
+    auto* pp = new unsigned char[numBytes];
     int index = 0;
     vector<bool> tempBits = bits;
     reverse(tempBits.begin(), tempBits.end());
@@ -133,14 +133,14 @@ ZZ BloomFilter::toZZ()
     return res;
 }
 
-BloomFilter BloomFilter::ZZtoBF(ZZ val)
+BloomFilter BloomFilter::ZZtoBF(const ZZ& val)
 {   
     size_t sz = this->getSize();
     vector<bool> resBits(sz, 0);
     int byteSize = CHAR_BIT;
     
     size_t numBytes = NTL::NumBytes(val);
-    unsigned char* pp = new unsigned char[numBytes];
+    auto* pp = new unsigned char[numBytes];
     NTL::BytesFromZZ(pp, val, NTL::NumBytes(val));
 
     for(size_t i = 0; i < numBytes; ++i)

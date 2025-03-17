@@ -165,7 +165,7 @@ public:
      * Getter for number of hash functions used by BloomFilter.
      * @return int The number of hash functions used by BloomFilter per element
      */
-    int getNumHashes();
+    int getNumHashes() const;
 
     /**
      * Getter for BloomFilter's bits in form of vector<bool>.
@@ -184,20 +184,20 @@ public:
      * Insert an element into BloomFilter.
      * @param value The element to be added to BloomFilter
      */
-    void insert(ZZ value);
+    void insert(const ZZ& value);
     
     /**
      * Insert a set of elements into BloomFilter.
      * @param tarSet target set to be added to BloomFilter
      */
-    void insert(multiset<shared_ptr<DataObject>> tarSet);
+    void insert(const multiset<shared_ptr<DataObject>>& tarSet);
 
     /**
      * Probabilistically determine whether an element is in BloomFilter's bit string.
      * @param value The element to be determined if in BloomFilter
      * @return true iff element is probably in BloomFilter, false if definitely not.
      */
-    bool exist(ZZ value);
+    bool exist(const ZZ& value);
 
     /**
      * Convert BloomFilter to a readable string.
@@ -217,7 +217,7 @@ public:
      * @param ZZ The ZZ to be converted
      * @return BloomFilter
      */
-    BloomFilter ZZtoBF(ZZ val);
+    BloomFilter ZZtoBF(const ZZ& val);
 
 protected:
     // constructors should not be used, only builder pattern should be accessible

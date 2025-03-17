@@ -2,7 +2,6 @@
 #include <NTL/RR.h>
 
 // project libraries
-#include <GenSync/Aux/SyncMethod.h>
 #include <GenSync/Syncs/CPISync.h>
 #include <GenSync/Syncs/ProbCPISync.h>
 

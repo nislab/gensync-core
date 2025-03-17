@@ -8,6 +8,8 @@
 
 #include <GenSync/Aux/Sketches.h>
 
+#include <memory>
+
 const string Sketches::PRINT_KEY = "Sketches";
 const uint Sketches::HLL_LOG_K = 14;
 const uint Sketches::FI_LOG_MAX_SIZE = 10;
@@ -16,32 +18,32 @@ Sketches::Sketches(std::initializer_list<Types> sketches) {
     for (auto st : sketches)
         switch (st) {
         case Types::CARDINALITY:
-            cardinality.value = std::unique_ptr<int>(new int(0));
+            cardinality.value = std::make_unique<int>(0);
             cardinality.initiated = true;
             break;
         case Types::UNIQUE_ELEM:
-            uniqueElem.value = std::unique_ptr<datasketches::hll_sketch_alloc<>>(new datasketches::hll_sketch_alloc<>(HLL_LOG_K));
+            uniqueElem.value = std::make_unique<datasketches::hll_sketch_alloc<>>(HLL_LOG_K);
             uniqueElem.initiated = true;
             break;
         case Types::HEAVY_HITTERS:
-            heavyHitters.value = std::unique_ptr<datasketches::frequent_items_sketch<unsigned long>>(new datasketches::frequent_items_sketch<unsigned long>(FI_LOG_MAX_SIZE));
+            heavyHitters.value = std::make_unique<datasketches::frequent_items_sketch<unsigned long>>(FI_LOG_MAX_SIZE);
             heavyHitters.initiated = true;
             break;
         }
 }
 
 Sketches::Sketches() {
-    cardinality.value = std::unique_ptr<int>(new int(0));
+    cardinality.value = std::make_unique<int>(0);
     cardinality.initiated = true;
 
-    uniqueElem.value = std::unique_ptr<datasketches::hll_sketch_alloc<>>(new datasketches::hll_sketch_alloc<>(HLL_LOG_K));
+    uniqueElem.value = std::make_unique<datasketches::hll_sketch_alloc<>>(HLL_LOG_K);
     uniqueElem.initiated = true;
 
-    heavyHitters.value = std::unique_ptr<datasketches::frequent_items_sketch<unsigned long>>(new datasketches::frequent_items_sketch<unsigned long>(FI_LOG_MAX_SIZE));
+    heavyHitters.value = std::make_unique<datasketches::frequent_items_sketch<unsigned long>>(FI_LOG_MAX_SIZE);
     heavyHitters.initiated = true;
 }
 
-void Sketches::inc(std::shared_ptr<DataObject> elem) {
+void Sketches::inc(const std::shared_ptr<DataObject>& elem) const {
     if (cardinality.initiated)
         (*cardinality.value)++;
 

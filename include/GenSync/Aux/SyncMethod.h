@@ -192,11 +192,12 @@ public:
          * @param statID The stat to increment
          * @param incr how much to increment the given stat by
          */
-        inline void increment(StatID statID, double incr){
-            for (int ii=(+NONE)+1; ii<(+ALL); ii++)
-                if (ii==(+statID) || statID==ALL)
-                    dataArray[ii] += (ii==(+XMIT) || ii==(+RECV)?floor(incr):incr);
-    }
+        inline void increment(StatID statID, double incr) {
+            for (int ii = (+NONE) + 1; ii < (+ALL); ii++)
+                if (ii == (+statID) || statID == ALL)
+                    dataArray[ii] +=
+                        (ii == (+XMIT) || ii == (+RECV) ? floor(incr) : incr);
+        }
 
         /**
          * starts a timer for the specified StatID. Only works for time type StatIDs

@@ -27,7 +27,7 @@ public:
     /**
      * @return the unique ID of this object.
      */
-    int getObjectID() {
+    int getObjectID() const {
         return myID;
     }
 

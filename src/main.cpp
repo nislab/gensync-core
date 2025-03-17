@@ -11,7 +11,6 @@
 #include <getopt.h>
 
 #include <GenSync/Aux/Auxiliary.h>
-#include <GenSync/Aux/SyncMethod.h>
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/CPISync.h>
 #include <GenSync/Communicants/CommString.h>
@@ -56,17 +55,17 @@ static struct option long_options[] = {
         {"nohash", no_argument, &nohash_flag, 1}, // if set, then no hashing is done to reduce the element size to a fixed bitlength
         {"integer", no_argument, &int_flag,   1},   // if set, then all set element strings are parsed as arbitrarily-sized Integers
 
-        {"file", required_argument, 0,        'f'}, // a file from which to get elements to be synced
-        {"string", required_argument, 0,      's'}, // a string from which to get a sync hash to which to synchronize
-        {"host", required_argument, 0,        'h'}, // a host to which to synchronize
-        {"port", required_argument, 0, 'o'}, // a port to which to synchronize or on which to list for other synchronizing clients
+        {"file", required_argument, nullptr,        'f'}, // a file from which to get elements to be synced
+        {"string", required_argument, nullptr,      's'}, // a string from which to get a sync hash to which to synchronize
+        {"host", required_argument, nullptr,        'h'}, // a host to which to synchronize
+        {"port", required_argument, nullptr, 'o'}, // a port to which to synchronize or on which to list for other synchronizing clients
 
         // sync parameters
-        {"perr", required_argument, 0, 'e'}, // maximum probability of error allowed, for sync algorithms that take this as a parameter
-        {"mbar", required_argument, 0, 'm'}, // maximum number of differences in an atomic sync operation
-        {"bits", required_argument, 0, 'b'}, // number of bits used to represent each set element internally
-        {"partition", required_argument, 0, 'p'}, // the number of partitions in interactive GenSync
-        {"numElems", required_argument, 0, 'n'},  // maximum number of elements expected in the sync object (esp. for IBLT)
+        {"perr", required_argument, nullptr, 'e'}, // maximum probability of error allowed, for sync algorithms that take this as a parameter
+        {"mbar", required_argument, nullptr, 'm'}, // maximum number of differences in an atomic sync operation
+        {"bits", required_argument, nullptr, 'b'}, // number of bits used to represent each set element internally
+        {"partition", required_argument, nullptr, 'p'}, // the number of partitions in interactive GenSync
+        {"numElems", required_argument, nullptr, 'n'},  // maximum number of elements expected in the sync object (esp. for IBLT)
 
         // other
         {"help", no_argument, &help_flag, 1} // get help
@@ -179,6 +178,9 @@ int main(int argc, char *argv[]) {
             case '?':
                 Logger::error_and_quit(display_usage(argv[0]));
                 break;
+
+            default:
+                Logger::error_and_quit("Could not parse command-line option '"+to_string(choice)+"'");
 
         }
     } while (choice != -1);

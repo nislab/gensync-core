@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 project(gensync)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # if compiled with RECORD, GenSync server and client produce extensive log files
 # that can be used to reproduce exact sync behavior afterwards

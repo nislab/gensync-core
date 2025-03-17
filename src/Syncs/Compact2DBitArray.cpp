@@ -3,7 +3,7 @@
  *
  * @author Novak Boškov <boskov@bu.edu>
  *
- * Created on April, 2020.
+ * Created on April 2020.
  */
 
 #include <GenSync/Syncs/Compact2DBitArray.h>
@@ -15,7 +15,7 @@
 std::once_flag onceEndiannessFlag;
 static bool littleEndian = true;
 
-void _discern_endianness() {
+void discern_endianness() {
     // This assumes size(int) > size(char). I can imagine a tiny
     // embedded device where this is not the case.
     unsigned int x = 1;
@@ -42,7 +42,7 @@ Compact2DBitArray::Compact2DBitArray(size_t fingerprintSize, size_t bucketSize,
     nBuckets (NumOfBuckets)
 {
     _constructorGuards();
-    std::call_once(onceEndiannessFlag, _discern_endianness);
+    std::call_once(onceEndiannessFlag, discern_endianness);
     store.resize(narrow_cast<unsigned long>(ceil((fSize * bSize * nBuckets) / float(BYTE))));
 }
 
@@ -55,7 +55,7 @@ Compact2DBitArray::Compact2DBitArray(size_t fingerprintSize, size_t bucketSize,
     nBuckets (NumOfBuckets)
 {
     _constructorGuards();
-    std::call_once(onceEndiannessFlag, _discern_endianness);
+    std::call_once(onceEndiannessFlag, discern_endianness);
 }
 
 size_t Compact2DBitArray::getF() const {
