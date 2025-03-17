@@ -252,7 +252,7 @@ void CommunicantTest::testCommByte() {
     CommDummy cRecv(&qq);
     
     for(int ii = 0; ii < TIMES; ii++) {
-        const byte exp = randByte();
+        const byte_t exp = randByte();
         cSend.Communicant::commSend(exp);
 
         CPPUNIT_ASSERT_EQUAL(exp, cRecv.commRecv_byte());
