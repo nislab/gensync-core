@@ -470,7 +470,6 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
     high_resolution_clock::time_point start = high_resolution_clock::now();
     pid_t pID = fork();
 
-
     if (pID == 0) { // child process will act as server and run sync
         Logger::gLog(Logger::COMM,"created a child process, server, pid: " + toStr(getpid()));
 
