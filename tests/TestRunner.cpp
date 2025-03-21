@@ -14,7 +14,6 @@
 #include <cppunit/TestResult.h>
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/TestRunner.h>
-
 #include <cppunit/TestFailure.h>
 
 class ProgressListener : public CPPUNIT_NS::TestListener {
@@ -55,7 +54,8 @@ private:
     bool m_lastTestFailed;
 };
 
-int main() {
+
+int main(int argc, char **argv) {
     // Create the event manager and test controller
     CPPUNIT_NS::TestResult controller;
 
