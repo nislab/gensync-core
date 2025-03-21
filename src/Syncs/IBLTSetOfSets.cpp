@@ -7,7 +7,7 @@
 //
 
 #include <GenSync/Syncs/IBLT.h>
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 #include <GenSync/Syncs/IBLTSetOfSets.h>
 
 /** 

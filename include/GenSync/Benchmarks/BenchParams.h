@@ -13,7 +13,7 @@
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Benchmarks/DataObjectGenerator.h>
 #include <GenSync/Benchmarks/FromFileGen.h>
-#include <GenSync/Aux/Sketches.h>
+#include <GenSync/Auxiliary/Sketches.h>
 
 /**
  * Virtual class to represent the parameters of the syncs.

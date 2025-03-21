@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <GenSync/Benchmarks/DataObjectGenerator.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 
 /**
  * Generates DataObjects from a file of base64 encoded ZZ objects.

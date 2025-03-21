@@ -27,8 +27,8 @@
 #include <climits>
 #include <cstring>
 #include <memory>
-#include <GenSync/Aux/ConstantsAndTypes.h>
-#include <GenSync/Aux/Logger.h>
+#include <GenSync/Auxiliary/ConstantsAndTypes.h>
+#include <GenSync/Auxiliary/Logger.h>
 
 // namespaces
 using std::runtime_error;

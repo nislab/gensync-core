@@ -4,7 +4,7 @@
 // Created by Anish Sinha on 12/4/2023.
 //
 
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <iostream>
 

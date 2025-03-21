@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include <GenSync/Syncs/GenSync.h>
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 #include <GenSync/Syncs/CPISync.h>
 #include <GenSync/Communicants/CommSocket.h>
 #include <GenSync/Communicants/CommString.h>

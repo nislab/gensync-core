@@ -9,7 +9,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <GenSync/Syncs/IBLT.h>
 #include <GenSync/Syncs/IBLTMultiset.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <iostream>
 #include <algorithm>
 

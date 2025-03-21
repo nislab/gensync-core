@@ -7,7 +7,7 @@
 #ifndef GENSYNCLIB_HASHSYNC_H
 #define GENSYNCLIB_HASHSYNC_H
 
-#include <GenSync/Aux/SyncMethod.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
 #include <GenSync/Data/DataObject.h>
 #include <GenSync/Syncs/GenSync.h>
 

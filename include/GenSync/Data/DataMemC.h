@@ -5,7 +5,7 @@
 #define DATA_MEM_CONTAINER_H
 
 #include <GenSync/Data/DataObjC.h>
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 
 class DataMemC: public DataObjC, public UnimplementedClassException
 {

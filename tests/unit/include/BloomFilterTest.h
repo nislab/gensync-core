@@ -8,7 +8,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <GenSync/Syncs/BloomFilter.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <iostream>
 #include <algorithm>
 

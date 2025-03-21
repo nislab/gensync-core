@@ -10,10 +10,10 @@
 #include <GenSync/Syncs/InterCPISync.h>
 #include <GenSync/Communicants/CommString.h>
 #include <GenSync/Communicants/CommSocket.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/FullSync.h>
-#include <GenSync/Aux/ForkHandle.h>
+#include <GenSync/Auxiliary/ForkHandle.h>
 #include <type_traits>
 #include <chrono>
 

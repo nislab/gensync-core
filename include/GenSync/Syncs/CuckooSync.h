@@ -12,8 +12,8 @@
 #ifndef GENSYNCLIB_CUCKOOSYNC_H
 #define GENSYNCLIB_CUCKOOSYNC_H
 
-#include <GenSync/Aux/SyncMethod.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/Cuckoo.h>
 
 class CuckooSync : public SyncMethod {

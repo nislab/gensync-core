@@ -13,8 +13,8 @@
 #include <map>
 #include <list>
 
-#include <GenSync/Aux/UID.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/UID.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 
 // namespaces
 using std::string;

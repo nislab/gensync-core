@@ -16,8 +16,8 @@
 #ifndef GENSYNCLIB_IBLTSetOfSets_H
 #define GENSYNCLIB_IBLTSetOfSets_H
 
-#include <GenSync/Aux/SyncMethod.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/IBLT.h>
 #include <NTL/ZZ.h>
 

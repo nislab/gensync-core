@@ -21,7 +21,7 @@
 #include <vector>
 #include <cstddef>
 #include <mutex>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 
 #define BYTE 8
 

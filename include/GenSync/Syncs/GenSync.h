@@ -13,8 +13,8 @@
 
 #include <GenSync/Communicants/Communicant.h>
 #include <GenSync/Data/DataObject.h>
-#include <GenSync/Aux/Auxiliary.h>
-#include <GenSync/Aux/SyncMethod.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
 
 // namespace info
 using std::string;

@@ -12,10 +12,10 @@
 #include <NTL/ZZ_pXFactoring.h>
 
 // project libraries
-#include <GenSync/Aux/Auxiliary.h>
-#include <GenSync/Aux/SyncMethod.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
 #include <GenSync/Syncs/CPISync.h>
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 
 // namespaces
 

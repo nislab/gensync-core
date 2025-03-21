@@ -10,7 +10,7 @@
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/GenSync.h>
 
 class GenSyncTest : public CPPUNIT_NS::TestFixture {

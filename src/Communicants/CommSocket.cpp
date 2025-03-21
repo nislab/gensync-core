@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <sstream>
 #include <thread>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Communicants/CommSocket.h>
 
 CommSocket::CommSocket() = default;

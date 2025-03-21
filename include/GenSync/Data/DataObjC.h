@@ -4,7 +4,7 @@
 #define DATA_OBJECT_CONTAINER_H 
 
 #include <GenSync/Data/DataObject.h>
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 
 /**
  * Data Object Container

@@ -16,8 +16,8 @@
 #ifndef GENSYNCLIB_BLOOMFILTERSYNC_H
 #define GENSYNCLIB_BLOOMFILTERSYNC_H
 
-#include <GenSync/Aux/SyncMethod.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/BloomFilter.h>
 
 class BloomFilterSync : public SyncMethod {
