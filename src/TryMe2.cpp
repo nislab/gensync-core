@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 
     const int PORT = 8001; // port on which to connect
     const int ERR = 8; // inverse log of error chance
-    const int M_BAR = 1; // max differences between server and client
+    const int M_BAR = 3; // max differences between server and client
     const int BITS = CHAR_BIT; // bits per entry
     const int PARTS = 3; // partitions per level for partition-syncs
     const int EXP_ELTS = 4; // expected number of elements per set
@@ -64,18 +64,24 @@ int main(int argc, char *argv[]) {
     genSync.addElem(make_shared<DataObject>('b'));
     genSync.addElem(make_shared<DataObject>('c'));
 
-    if(strcmp(argv[1], "client")==0) {
+    if(strcmp(argv[1], "server")==0) {
         genSync.addElem(make_shared<DataObject>('d'));
 
         cout << "listening on port " << PORT << "..." << endl;
-		genSync.clientSyncBegin(0);
-        cout << "sync succeeded." << endl;
+        cout << "sync " << (genSync.clientSyncBegin(0)?"succeeded":"failed") << endl;
+        cout << "Updated elements: ";
+        for (auto &i: genSync.dumpElements())    // print out the elements at host 1
+            cout << i << " ";
+        cout << endl;
 
     } else {
         genSync.addElem(make_shared<DataObject>('e'));
 
         cout << "connecting on port " << PORT << "..." << endl;
-		genSync.serverSyncBegin(0);
-        cout << "sync succeeded." << endl;
+        cout << "sync " << (genSync.serverSyncBegin(0)?"succeeded":"failed") << endl;
+        cout << "Updated elements: ";
+        for (auto &i: genSync.dumpElements())    // print out the elements at host 1
+            cout << i << " ";
+        cout << endl;
     }
 }
