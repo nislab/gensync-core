@@ -468,8 +468,8 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
     int method_num = 0;
     forkHandleReport clientReport, serverReport;
     high_resolution_clock::time_point start = high_resolution_clock::now();
-    pid_t pID = fork();
 
+    pid_t pID = fork();
 
     if (pID == 0) { // child process will act as server and run sync
         Logger::gLog(Logger::COMM,"created a child process, server, pid: " + toStr(getpid()));
@@ -489,7 +489,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
                      "server, status: " + toStr(serverReport.success) + ", check success: " + toStr(serverSuccess) +
                      ", pid: " + toStr(getpid()));
 
-        exit(serverSuccess);
+        _exit(serverSuccess);
     } else if (pID < 0) {
         Logger::error_and_quit("Fork error in sync test");
     }
