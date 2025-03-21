@@ -1,8 +1,10 @@
 # GenSync-core
 
-GenSync-core only contains the core source-code and tests of gensync project.
+GenSync-core only contains the core source-code and tests of [GenSync](https://github.com/nislab/gensync) project.
+If you want to use this code within a library, please explore the [GenSync-lib](https://github.com/nislab/gensync-lib) module.
 
-The current version is 2.0.4
+
+The current version is 2.0.5
 
 ------------------------------
 
