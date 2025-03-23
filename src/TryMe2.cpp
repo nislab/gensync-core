@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         cout << "connecting on port " << PORT << "..." << endl;
         cout << "sync " << (genSync.serverSyncBegin(0)?"succeeded":"failed") << endl;
         cout << "Updated elements: ";
-        for (auto &i: genSync.dumpElements())    // print out the elements at host 1
+        for (auto &i: genSync.dumpElements())    // print out the elements at host 2
             cout << i << " ";
         cout << endl;
     }
