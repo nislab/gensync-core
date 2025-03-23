@@ -10,10 +10,10 @@
 #include <GenSync/Syncs/InterCPISync.h>
 #include <GenSync/Communicants/CommString.h>
 #include <GenSync/Communicants/CommSocket.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/FullSync.h>
-#include <GenSync/Aux/ForkHandle.h>
+#include <GenSync/Auxiliary/ForkHandle.h>
 #include <type_traits>
 #include <chrono>
 
@@ -469,6 +469,7 @@ inline bool createForkForTest(GenSync& GenSyncClient, GenSync& GenSyncServer,boo
     forkHandleReport clientReport, serverReport;
     high_resolution_clock::time_point start = high_resolution_clock::now();
     pid_t pID = fork();
+
 
     if (pID == 0) { // child process will act as server and run sync
         Logger::gLog(Logger::COMM,"created a child process, server, pid: " + toStr(getpid()));

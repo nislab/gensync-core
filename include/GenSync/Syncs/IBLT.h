@@ -13,7 +13,7 @@
 #include <string>
 #include <NTL/ZZ.h>
 #include <sstream>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Data/DataObject.h>
 
 using std::vector;

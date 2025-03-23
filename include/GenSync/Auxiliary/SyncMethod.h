@@ -10,7 +10,7 @@
 #include <GenSync/Communicants/Communicant.h>
 
 #if defined (RECORD)
-#include <GenSync/Aux/Sketches.h>
+#include <GenSync/Auxiliary/Sketches.h>
 #endif
 
 // namespaces

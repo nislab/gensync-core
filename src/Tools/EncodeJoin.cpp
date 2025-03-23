@@ -6,7 +6,7 @@
  * Created on January, 2021.
  */
 
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Benchmarks/FromFileGen.h>
 #include <fstream>
 #include <iostream>

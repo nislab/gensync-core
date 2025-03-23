@@ -6,7 +6,7 @@
  */
 
 #include <chrono>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Communicants/CommString.h>
 
 CommString::CommString(const string& initial, bool base64) {

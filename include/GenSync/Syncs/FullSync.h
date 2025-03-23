@@ -19,9 +19,9 @@
 #include <NTL/vec_ZZ_p.h>
 #include <NTL/ZZ_pXFactoring.h>
 #include <algorithm>
-#include <GenSync/Aux/Auxiliary.h>
-#include <GenSync/Aux/SyncMethod.h>
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 
 // namespaces
 using namespace NTL;

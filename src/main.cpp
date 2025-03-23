@@ -10,7 +10,7 @@
 #include <vector>
 #include <getopt.h>
 
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/CPISync.h>
 #include <GenSync/Communicants/CommString.h>

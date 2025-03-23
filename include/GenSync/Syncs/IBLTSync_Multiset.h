@@ -6,7 +6,7 @@
 #define GENSYNC_IBLTSYNC_MULTISET_H
 
 #include <GenSync/Syncs/IBLTMultiset.h>
-#include <GenSync/Aux/SyncMethod.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
 
 class IBLTSync_Multiset : public SyncMethod {
 public:

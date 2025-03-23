@@ -4,7 +4,7 @@
 // Created by Eliezer Pearl on 8/3/2018.
 //
 
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 #include <GenSync/Syncs/IBLTSync.h>
 
 IBLTSync::IBLTSync(size_t expected, size_t eltSize) : myIBLT(expected, eltSize) {

@@ -6,7 +6,7 @@
  * Created on October, 2020.
  */
 
-#include <GenSync/Aux/Sketches.h>
+#include <GenSync/Auxiliary/Sketches.h>
 
 #include <memory>
 

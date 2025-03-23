@@ -7,9 +7,9 @@
  * Created on November 30, 2011, 10:46 PM
  */
 
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Communicants/Communicant.h>
-#include <GenSync/Aux/Exceptions.h>
+#include <GenSync/Auxiliary/Exceptions.h>
 #include <GenSync/Syncs/CPISync.h>
 #include <GenSync/Syncs/InterCPISync.h>
 

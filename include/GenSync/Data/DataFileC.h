@@ -4,8 +4,8 @@
 #ifndef DATA_FILE_CONTAINER_H
 #define DATA_FILE_CONTAINER_H
 
-#include <GenSync/Aux/Exceptions.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Exceptions.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include "DataObjC.h"
 
 class DataFileC: public DataObjC, public UnimplementedClassException {

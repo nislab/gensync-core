@@ -11,7 +11,7 @@
 #include <cerrno>
 #include <NTL/ZZ_p.h>
 #include <NTL/vec_ZZ_p.h>
-#include <GenSync/Aux/ConstantsAndTypes.h>
+#include <GenSync/Auxiliary/ConstantsAndTypes.h>
 #include <GenSync/Data/DataObject.h>
 #include <GenSync/Data/DataPriorityObject.h>
 #include <GenSync/Syncs/IBLT.h>

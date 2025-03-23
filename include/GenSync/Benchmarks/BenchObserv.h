@@ -12,7 +12,7 @@
 #include <vector>
 #include <algorithm>
 #include <GenSync/Benchmarks/BenchParams.h>
-#include <GenSync/Aux/SyncMethod.h>
+#include <GenSync/Auxiliary/SyncMethod.h>
 
 using namespace std;
 

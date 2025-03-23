@@ -18,7 +18,7 @@
 #include <stack>
 #include <NTL/ZZ.h>
 #include <GenSync/Data/DataObject.h>
-#include <GenSync/Aux/Auxiliary.h>
+#include <GenSync/Auxiliary/Auxiliary.h>
 #include <GenSync/Syncs/Compact2DBitArray.h>
 
 using std::vector;
