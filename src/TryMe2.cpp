@@ -13,7 +13,7 @@ using std::string;
 
 int main(int argc, char *argv[]) {
     if(strcmp(argv[1], "client")!=0 && strcmp(argv[1], "server")!=0) {
-        cout << "usage: 'TryMe client <sync type>' for client mode, 'TryMe server <sync type>' for server mode." << endl;
+        cout << "usage: 'TryMe2 client <sync type>' for client mode, 'TryMe server <sync type>' for server mode." << endl;
         cout << "run the client in one terminal instance and the server in another." << endl;
         exit(0);
     }
@@ -79,9 +79,5 @@ int main(int argc, char *argv[]) {
 
         cout << "connecting on port " << PORT << "..." << endl;
         cout << "sync " << (genSync.serverSyncBegin(0)?"succeeded":"failed") << endl;
-        cout << "Updated elements: ";
-        for (auto &i: genSync.dumpElements())    // print out the elements at host 2
-            cout << i << " ";
-        cout << endl;
     }
 }
