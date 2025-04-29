@@ -69,6 +69,7 @@ set(SOURCE_FILES
         ${SYNC_DIR}/IBLTMultiset.cpp
         ${SYNC_DIR}/IBLTSync.cpp
         ${SYNC_DIR}/IBLTSync_Multiset.cpp
+        ${SYNC_DIR}/IBLTSync_Adaptive.cpp
         ${SYNC_DIR}/IBLTSetOfSets.cpp
         ${SYNC_DIR}/Compact2DBitArray.cpp
         ${SYNC_DIR}/Cuckoo.cpp
@@ -120,14 +121,15 @@ set(HEADERS
         ${SYNC_DIR_INC}/IBLTSetOfSets.h
         ${SYNC_DIR_INC}/IBLTSync_HalfRound.h
         ${SYNC_DIR_INC}/IBLTSync_Multiset.h
+        ${SYNC_DIR_INC}/IBLTSync_Adaptive.h
         ${SYNC_DIR_INC}/Compact2DBitArray.h
         ${SYNC_DIR_INC}/Cuckoo.h
         ${SYNC_DIR_INC}/CuckooSync.h
         ${SYNC_DIR_INC}/InterCPISync.h
         ${SYNC_DIR_INC}/PrioCPISync.h
         ${SYNC_DIR_INC}/ProbCPISync.h
-	${SYNC_DIR_INC}/BloomFilterSync.h
-	${SYNC_DIR_INC}/BloomFilter.h
+	    ${SYNC_DIR_INC}/BloomFilterSync.h
+	    ${SYNC_DIR_INC}/BloomFilter.h
         ${SYNC_DIR_INC}/MET_IBLTSync.h
         ${SYNC_DIR_INC}/MET_IBLT.h
 
@@ -137,6 +139,25 @@ set(HEADERS
         ${SYNC_BENCH_INC}/RandGen.h
         ${SYNC_BENCH_INC}/FromFileGen.h
     )
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    if(NOT DEFINED includedir)
+        set(includedir "/usr/local")
+    endif()
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    if(NOT DEFINED includedir)
+        set(includedir "/opt/local")
+    endif()
+endif()
+
+# Users may need to update these paths
+include_directories(${includedir}/include)
+link_directories(${includedir}/lib)
+link_directories(${includedir}/lib64)
+
+
+include_directories(${CMAKE_INSTALL_INCLUDEDIR})
+link_directories(${CMAKE_INSTALL_LIBDIR})
 
 # Add gensync library
 add_library(gensync STATIC ${SOURCE_FILES} ${HEADERS})
@@ -164,6 +185,10 @@ target_link_libraries(TryMe gensync)
 
 add_executable(TryMe2 ${SRC_DIR}/TryMe2.cpp)
 target_link_libraries(TryMe2 gensync)
+
+# For test purpose
+add_executable(test_adaptive ${SRC_DIR}/test_adaptive.cpp)
+target_link_libraries(test_adaptive gensync)
 
 # Benchmarks
 add_executable(Benchmarks ${BENCH_DIR}/Runner.cpp)
