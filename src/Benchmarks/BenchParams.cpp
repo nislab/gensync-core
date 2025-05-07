@@ -182,7 +182,8 @@ inline shared_ptr<Params> decideBenchParams(GenSync::SyncProtocol syncProtocol, 
     } else if (syncProtocol == GenSync::SyncProtocol::IBLTSync
                || syncProtocol == GenSync::SyncProtocol::OneWayIBLTSync
                || syncProtocol == GenSync::SyncProtocol::IBLTSetOfSets
-               || syncProtocol == GenSync::SyncProtocol::IBLTSync_Multiset) {
+               || syncProtocol == GenSync::SyncProtocol::IBLTSync_Multiset
+               || syncProtocol == GenSync::SyncProtocol::IBLTSync_Adaptive) {
         auto par = make_shared<IBLTParams>();
         is >> *par;
         return par;

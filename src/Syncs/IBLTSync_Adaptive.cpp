@@ -94,13 +94,12 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                 .setValueSize(elementSize)
                 .build();
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        size_t theirSize, theirEltSize;
         bool oneWay;
         if (!commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false)) {
             Logger::error_and_quit("IBLT parameter mismatch during SyncServer.");
         }
         std::cout << "Server: size check passed" << std::endl;
-        IBLT clientIBLT = commSync->commRecv_IBLT(theirSize, theirEltSize);
+        IBLT clientIBLT = commSync->commRecv_IBLT(myIBLT.size(), myIBLT.eltSize());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
         std::cout << "Server: clientIBLT received" << std::endl;
 
