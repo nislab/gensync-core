@@ -6,45 +6,47 @@
 #include <memory>
 #include <unistd.h>
 #include <GenSync/Syncs/GenSync.h>
-#include <GenSync/Syncs/IBLTSync_Adaptive.h>  // 你自定义的 Adaptive 类
+#include <GenSync/Syncs/IBLTSync_Adaptive.h>
 
 using namespace std;
 
 int main() {
     size_t eltSize = 8;
-    size_t initialExpected = 10;  // 初始估计 entries 数
+    size_t initialExpected = 5;
 
-    // 创建两个主机的同步器
     shared_ptr<SyncMethod> syncA = make_shared<IBLTSync_Adaptive>(initialExpected, eltSize);
     shared_ptr<SyncMethod> syncB = make_shared<IBLTSync_Adaptive>(initialExpected, eltSize);
 
     GenSync host1 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
             .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
+            .setExpNumElems(10)
+            .setBits(8)
             .build();
 
     GenSync host2 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
             .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
+            .setExpNumElems(10)
+            .setBits(8)
             .build();
-
-    // 插入 100 个元素
-    for (int i = 0; i < 100; ++i) {
+    std::cout << "Both hosts generated." << std::endl;
+    for (int i = 0; i < 10; ++i) {
         string elem = "e" + to_string(i);
-        if (i < 90) {
-            // 两边都插入 [0,89]
+        if (i < 20) {
+            // insert [0,19] to both sides
             host1.addElem(make_shared<DataObject>(elem));
             host2.addElem(make_shared<DataObject>(elem));
         } else {
-            // host1 插入 [90,99]（共10个），构成 difference
+            // insert [20,29] to host1, [30,39] to host2
             host1.addElem(make_shared<DataObject>(elem));
             host2.addElem(make_shared<DataObject>("e" + to_string(i+10)));
         }
     }
+    std::cout << "Elements added." << std::endl;
 
-    // fork 分为 client/server
     if (fork()) {
-        sleep(1);  // 等待服务端就绪
+        sleep(1);
         host1.clientSyncBegin(0);
 
         cout << "[Client] Host1 after sync: ";

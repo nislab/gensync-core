@@ -87,7 +87,6 @@ bool Communicant::establishIBLTRecv(const size_t size, const size_t eltSize, boo
     // receive other size and eltSize. both must be read, even if the first parameter is wrong
     long otherSize = commRecv_long();
     long otherEltSize = commRecv_long();
-
     if(otherSize == size && otherEltSize == eltSize) {
         if(!oneWay)
             commSend(SYNC_OK_FLAG);

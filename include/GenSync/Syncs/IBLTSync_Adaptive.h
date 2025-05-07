@@ -40,6 +40,7 @@ public:
     size_t getInitExpNumElems() const {return initExpNumElems;}
     size_t getElementSize() const {return elementSize;}
 private:
+    IBLT myIBLT;
     size_t initExpNumElems;
     size_t elementSize;
 };
