@@ -70,7 +70,7 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
         } else {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
             currentExpected *= 2;
-            commSync->commClose();
+//            commSync->commClose();
         }
     }
 }
@@ -137,58 +137,10 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         } else {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
             currentExpected *= 2;
-            commSync->commClose();
+//            commSync->commClose();
         }
     }
 }
-
-//bool IBLTSync_Adaptive::SyncServer(const std::shared_ptr<Communicant>& commSync,
-//                                   std::list<std::shared_ptr<DataObject>>& selfMinusOther,
-//                                   std::list<std::shared_ptr<DataObject>>& otherMinusSelf) {
-//    mySyncStats.timerStart(SyncStats::IDLE_TIME);
-//    commSync->commListen();
-//    mySyncStats.timerEnd(SyncStats::IDLE_TIME);
-//
-//    while (true) {
-//        std::cout << "[Adaptive IBLT] Server attempting sync with expectedNumEntries = "
-//                  << currentExpectedEntries << std::endl;
-//
-//        mySyncStats.timerStart(SyncStats::COMM_TIME);
-//        commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false);
-//        IBLT theirs = commSync->commRecv_IBLT(myIBLT.size(), myIBLT.eltSize());
-//        mySyncStats.timerEnd(SyncStats::COMM_TIME);
-//
-//        mySyncStats.timerStart(SyncStats::COMP_TIME);
-//        std::vector<std::pair<ZZ, ZZ>> positive, negative;
-//        bool success = (theirs -= myIBLT).listEntries(positive, negative);
-//        mySyncStats.timerEnd(SyncStats::COMP_TIME);
-//
-//        mySyncStats.timerStart(SyncStats::COMM_TIME);
-//        commSync->commSend(success);
-//        mySyncStats.timerEnd(SyncStats::COMM_TIME);
-//
-//        if (success) {
-//            mySyncStats.timerStart(SyncStats::COMP_TIME);
-//            for (const auto& p : positive) {
-//                otherMinusSelf.push_back(std::make_shared<DataObject>(p.second));
-//            }
-//            for (const auto& p : negative) {
-//                selfMinusOther.push_back(std::make_shared<DataObject>(p.first));
-//            }
-//            mySyncStats.timerEnd(SyncStats::COMP_TIME);
-//
-//            commSync->commSend(selfMinusOther);
-//            commSync->commSend(otherMinusSelf);
-//            break;
-//        } else {
-//            // Sync失败，扩大IBLT
-//            currentExpectedEntries *= 2;
-//            rebuildIBLT();
-//        }
-//    }
-//
-//    return true;
-//}
 
 bool IBLTSync_Adaptive::addElem(shared_ptr<DataObject> datum) {
     return SyncMethod::addElem(datum);

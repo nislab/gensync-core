@@ -20,14 +20,14 @@ int main() {
     GenSync host1 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
             .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
-            .setExpNumElems(10)
+            .setExpNumElems(2)
             .setBits(8)
             .build();
 
     GenSync host2 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
             .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
-            .setExpNumElems(10)
+            .setExpNumElems(2)
             .setBits(8)
             .build();
     std::cout << "Both hosts generated." << std::endl;
