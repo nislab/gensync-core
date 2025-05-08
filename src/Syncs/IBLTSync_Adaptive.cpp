@@ -25,7 +25,7 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
     Logger::gLog(Logger::METHOD, "Entering IBLTSync_Adaptive::SyncClient");
 
     size_t currentExpected = initExpNumElems;
-    std::cout << "Entering SyncClient " << std::endl;
+    std::cout << "[Client]: Entering SyncClient" << std::endl;
 
     mySyncStats.timerStart(SyncStats::IDLE_TIME);
     commSync->commConnect();
@@ -38,12 +38,12 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
                 .setExpectedNumEntries(currentExpected)
                 .setValueSize(elementSize)
                 .build();
-        std::cout << "[Adaptive IBLT] Attempt with expectedNumEntries = " << currentExpected << std::endl;
+        std::cout << "[Client]: Attempt with expectedNumEntries = " << currentExpected << std::endl;
 
         for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
             myIBLT.insert((**iter).to_ZZ(), (**iter).to_ZZ());
         }
-        std::cout << "myIBLT.insert Done?" << std::endl;
+        std::cout << "[Client]: Insert Done" << std::endl;
 
 
 
@@ -80,7 +80,7 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                                    list<shared_ptr<DataObject>> &otherMinusSelf) {
     Logger::gLog(Logger::METHOD, "Entering IBLTSync_Adaptive::SyncServer");
     size_t currentExpected = initExpNumElems;
-    std::cout << "Entering Server side.." << std::endl;
+    std::cout << "[Server]: Entering SyncServer." << std::endl;
 
     mySyncStats.timerStart(SyncStats::IDLE_TIME);
     commSync->commListen();
@@ -93,15 +93,16 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                 .setExpectedNumEntries(currentExpected)
                 .setValueSize(elementSize)
                 .build();
+        std::cout << "[Server]: Attempt with expectedNumEntries = " << currentExpected << std::endl;
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         bool oneWay;
         if (!commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false)) {
             Logger::error_and_quit("IBLT parameter mismatch during SyncServer.");
         }
-        std::cout << "Server: size check passed" << std::endl;
+        std::cout << "[Server]: size check passed" << std::endl;
         IBLT clientIBLT = commSync->commRecv_IBLT(myIBLT.size(), myIBLT.eltSize());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
-        std::cout << "Server: clientIBLT received" << std::endl;
+        std::cout << "[Server]: clientIBLT received" << std::endl;
 
 
         for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
@@ -133,6 +134,10 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
             mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
             return true;
+        } else {
+            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
+            currentExpected *= 2;
+            commSync->commClose();
         }
     }
 }

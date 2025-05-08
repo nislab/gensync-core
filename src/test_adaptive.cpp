@@ -31,7 +31,7 @@ int main() {
             .setBits(8)
             .build();
     std::cout << "Both hosts generated." << std::endl;
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 30; ++i) {
         string elem = "e" + to_string(i);
         if (i < 20) {
             // insert [0,19] to both sides
