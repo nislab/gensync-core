@@ -66,6 +66,9 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
             selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
             mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
+            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+
             return true;
         } else {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
@@ -95,7 +98,6 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                 .build();
         std::cout << "[Server]: Attempt with expectedNumEntries = " << currentExpected << std::endl;
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        bool oneWay;
         if (!commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false)) {
             Logger::error_and_quit("IBLT parameter mismatch during SyncServer.");
         }
@@ -132,6 +134,9 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
             commSync->commSend(selfMinusOther);
             commSync->commSend(otherMinusSelf);
             mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
 
             return true;
         } else {

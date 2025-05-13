@@ -53,14 +53,28 @@ int main() {
         for (auto &i : host1.dumpElements())
             cout << i << " ";
         cout << endl;
+        std::cout << "==== Client Statistics ====" << std::endl;
+        std::cout << "Communication Time: " << host1.getCommTime(0) << " s" << std::endl;
+        std::cout << "Idle Time: " << host1.getIdleTime(0) << " s" << std::endl;
+        std::cout << "Computation Time: " << host1.getCompTime(0) << " s" << std::endl;
+        std::cout << "Communication Cost (bytes): "
+                  << host1.getXmitBytes(0) + host1.getRecvBytes(0) << std::endl;
     } else {
         host2.serverSyncBegin(0);
 
-        cout << "[Server] Host2 after sync: ";
+        std::cout << "[Server] Host2 after sync: ";
         for (auto &i : host2.dumpElements())
-            cout << i << " ";
-        cout << endl;
+            std::cout << i << " ";
+        std::cout << std::endl;
+
+        std::cout << "==== Server Statistics ====" << std::endl;
+        std::cout << "Communication Time: " << host2.getCommTime(0) << " s" << std::endl;
+        std::cout << "Idle Time: " << host2.getIdleTime(0) << " s" << std::endl;
+        std::cout << "Computation Time: " << host2.getCompTime(0) << " s" << std::endl;
+        std::cout << "Communication Cost (bytes): "
+                  << host2.getXmitBytes(0) + host2.getRecvBytes(0) << std::endl;
     }
+
 
     return 0;
 }
