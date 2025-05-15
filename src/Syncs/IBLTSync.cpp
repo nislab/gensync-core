@@ -52,10 +52,10 @@ bool IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shared_p
 
 
         if(!oneWay) {
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
+            //mySyncStats.timerStart(SyncStats::COMM_TIME);
             list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
             list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+            //mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
             mySyncStats.timerStart(SyncStats::COMP_TIME);
             otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
@@ -130,10 +130,10 @@ bool IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shared_p
 
 
         if(!oneWay) {
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
+            //mySyncStats.timerStart(SyncStats::COMM_TIME);
             commSync->commSend(selfMinusOther);
             commSync->commSend(otherMinusSelf);
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+            //mySyncStats.timerEnd(SyncStats::COMM_TIME);
         }
 
         stringstream msg;

@@ -62,10 +62,10 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
 
 
         if (success) {
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
+            //mySyncStats.timerStart(SyncStats::COMM_TIME);
             list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
             list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+            //mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
             mySyncStats.timerStart(SyncStats::COMP_TIME);
             otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
@@ -126,9 +126,9 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         bool peelSuccess = (clientIBLT -= myIBLT).listEntries(positive, negative);
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        //mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(peelSuccess);
-        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+        //mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         if (peelSuccess) {
             mySyncStats.timerStart(SyncStats::COMP_TIME);
@@ -140,10 +140,10 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
             }
             mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
+            //mySyncStats.timerStart(SyncStats::COMM_TIME);
             commSync->commSend(selfMinusOther);
             commSync->commSend(otherMinusSelf);
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+            //mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
             mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
             mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
