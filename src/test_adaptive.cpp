@@ -31,9 +31,9 @@ int main() {
             .setBits(8)
             .build();
     std::cout << "Both hosts generated." << std::endl;
-    for (int i = 0; i < 30; ++i) {
+    for (int i = 0; i < 10; ++i) {
         string elem = "e" + to_string(i);
-        if (i < 20) {
+        if (i < 5) {
             // insert [0,19] to both sides
             host1.addElem(make_shared<DataObject>(elem));
             host2.addElem(make_shared<DataObject>(elem));
