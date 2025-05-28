@@ -75,8 +75,8 @@ set(SOURCE_FILES
         ${SYNC_DIR}/Cuckoo.cpp
         ${SYNC_DIR}/CuckooSync.cpp
         ${SYNC_DIR}/FullSync.cpp
-	${SYNC_DIR}/BloomFilterSync.cpp
-	${SYNC_DIR}/BloomFilter.cpp
+	    ${SYNC_DIR}/BloomFilterSync.cpp
+	    ${SYNC_DIR}/BloomFilter.cpp
         ${SYNC_DIR}/MET_IBLTSync.cpp
         ${SYNC_DIR}/MET_IBLT.cpp
 
