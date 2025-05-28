@@ -44,11 +44,9 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
                 .setValueSize(elementSize)
                 .build();
 
-        std::cout << "[Client]: Attempt with expectedNumEntries = " << currentExpected << std::endl;
         for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
             myIBLT.insert((**iter).to_ZZ(), (**iter).to_ZZ());
         }
-        std::cout << "[Client]: Insert Done" << std::endl;
 
         // ensure that the IBLT size and eltSize equal those of the server otherwise fail and don't continue
         mySyncStats.timerStart(SyncStats::COMM_TIME);
@@ -92,7 +90,7 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                                    list<shared_ptr<DataObject>> &otherMinusSelf) {
     Logger::gLog(Logger::METHOD, "Entering IBLTSync_Adaptive::SyncServer");
     size_t currentExpected = initExpNumElems;
-    std::cout << "[Server]: Entering SyncServer." << std::endl;
+
 
     // call parent method for bookkeeping
     SyncMethod::SyncServer(commSync, selfMinusOther, otherMinusSelf);
@@ -110,7 +108,7 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                 .setExpectedNumEntries(currentExpected)
                 .setValueSize(elementSize)
                 .build();
-        std::cout << "[Server]: Attempt with expectedNumEntries = " << currentExpected << std::endl;
+
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         // ensure that the IBLT size and eltSize equal those of the client otherwise fail and don't continue
         if (!commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false)) {
