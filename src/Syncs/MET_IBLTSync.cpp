@@ -117,7 +117,7 @@ bool MET_IBLTSync::SyncClient(const shared_ptr<Communicant>& commSync, list<shar
 
     mySyncStats.increment(SyncStats::XMIT,commSync->getXmitBytes());
     mySyncStats.increment(SyncStats::RECV,commSync->getRecvBytes());
-	
+	std::cout << "Bytes: " << commSync->getXmitBytes() << std::endl;
     return true;
 }
 

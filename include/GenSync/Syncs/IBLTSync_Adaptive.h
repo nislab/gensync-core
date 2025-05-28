@@ -1,6 +1,15 @@
-//
-// Created by Xingyu Chen on 4/27/25.
-//
+/* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
+
+/*
+ * The IBLTSync_Adaptive method syncs with another IBLTSync_Adaptive method by sending an IBLT containing
+ * its set. Upon receiving this IBLT, the server performs a subtract operation on both IBLTs
+ * and uses the resulting IBLT to calculate the symmetric set difference. These differences
+ * are then sent back to the client. If the decoding process failed, we reconstruct an IBLT with doubled size and re-run the synchronization
+ * There is a small probability that most, but not all, of the differences will be uncovered as a result
+ * of this sync.
+ *
+ * Created by Xingyu Chen on 4/27/25.
+ */
 
 #ifndef GENSYNC_IBLTSYNC_ADAPTIVE_H
 #define GENSYNC_IBLTSYNC_ADAPTIVE_H
@@ -23,6 +32,7 @@ public:
 
     ~IBLTSync_Adaptive() override;
 
+    // Implemented parent class methods
     bool SyncClient(const shared_ptr<Communicant>& commSync,
                     list<shared_ptr<DataObject>> &selfMinusOther,
                     list<shared_ptr<DataObject>> &otherMinusSelf) override;
@@ -40,8 +50,13 @@ public:
     size_t getInitExpNumElems() const {return initExpNumElems;}
     size_t getElementSize() const {return elementSize;}
 private:
+    // IBLT instance variable for storing data
     IBLT myIBLT;
+
+    // Initial value of estimated number of difference
     size_t initExpNumElems;
+
+    // Size of elements
     size_t elementSize;
 };
 

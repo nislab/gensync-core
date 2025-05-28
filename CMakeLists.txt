@@ -190,6 +190,9 @@ target_link_libraries(TryMe2 gensync)
 add_executable(test_adaptive ${SRC_DIR}/test_adaptive.cpp)
 target_link_libraries(test_adaptive gensync)
 
+add_executable(test_met ${SRC_DIR}/test_met.cpp)
+target_link_libraries(test_met gensync)
+
 # Benchmarks
 add_executable(Benchmarks ${BENCH_DIR}/Runner.cpp)
 target_link_libraries(Benchmarks gensync)
