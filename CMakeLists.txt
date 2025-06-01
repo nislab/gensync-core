@@ -186,6 +186,10 @@ target_link_libraries(TryMe gensync)
 add_executable(TryMe2 ${SRC_DIR}/TryMe2.cpp)
 target_link_libraries(TryMe2 gensync)
 
+# for adaptive-iblt testing
+add_executable(test_adaptive ${SRC_DIR}/test_adaptive.cpp)
+target_link_libraries(test_adaptive gensync)
+
 # Benchmarks
 add_executable(Benchmarks ${BENCH_DIR}/Runner.cpp)
 target_link_libraries(Benchmarks gensync)

@@ -27,7 +27,7 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
     size_t currentExpected = initExpNumElems;
 
     // call parent method for bookkeeping
-    SyncMethod::SyncServer(commSync, selfMinusOther, otherMinusSelf);
+    SyncMethod::SyncClient(commSync, selfMinusOther, otherMinusSelf);
 
     // connect to server
     mySyncStats.timerStart(SyncStats::IDLE_TIME);
@@ -61,27 +61,50 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
         bool success = commSync->commRecv_int();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-        // insert the decoded elements and record Stats
-        if (success) {
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
-            list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
-            list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
+        list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-            mySyncStats.timerStart(SyncStats::COMP_TIME);
-            otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
-            selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
-            mySyncStats.timerEnd(SyncStats::COMP_TIME);
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
+        selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
 
-            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
-
-            return true;
-        } else {
-            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
-            currentExpected *= 2;
-//            commSync->commClose();
+        size_t totalDecoded = newOMS.size() + newSMO.size();
+        if (!success) {
+            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Adjusting IBLT size to " + toStr(currentExpected * 2 - totalDecoded));
+            currentExpected = currentExpected * 2 - totalDecoded;
         }
+
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
+        mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+        mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+
+        if (success) {
+            return true;
+        }
+        // insert the decoded elements and record Stats
+//        if (success) {
+//            mySyncStats.timerStart(SyncStats::COMM_TIME);
+//            list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
+//            list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
+//            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+//
+//            mySyncStats.timerStart(SyncStats::COMP_TIME);
+//            otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
+//            selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
+//            mySyncStats.timerEnd(SyncStats::COMP_TIME);
+//
+//            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+//            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+//
+//            return true;
+//        } else {
+//            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
+//            currentExpected *= 2;
+// //            commSync->commClose();
+//        }
     }
 }
 
@@ -109,6 +132,7 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                 .setValueSize(elementSize)
                 .build();
 
+        std::cout << "Current Size: " << currentExpected << std::endl;
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         // ensure that the IBLT size and eltSize equal those of the client otherwise fail and don't continue
         if (!commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false)) {
@@ -137,31 +161,56 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         commSync->commSend(peelSuccess);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-        // store decoded elements and record Stats
+
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        for (const auto& p : positive) {
+            otherMinusSelf.push_back(make_shared<DataObject>(p.second));
+        }
+        for (const auto& p : negative) {
+            selfMinusOther.push_back(make_shared<DataObject>(p.first));
+        }
+        size_t totalDecoded = positive.size() + negative.size();
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        commSync->commSend(selfMinusOther);
+        commSync->commSend(otherMinusSelf);
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+        mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+        mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+
         if (peelSuccess) {
-            mySyncStats.timerStart(SyncStats::COMP_TIME);
-            for (const auto& p : positive) {
-                otherMinusSelf.push_back(make_shared<DataObject>(p.second));
-            }
-            for (const auto& p : negative) {
-                selfMinusOther.push_back(make_shared<DataObject>(p.first));
-            }
-            mySyncStats.timerEnd(SyncStats::COMP_TIME);
-
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
-            commSync->commSend(selfMinusOther);
-            commSync->commSend(otherMinusSelf);
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
-
-            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
-
             return true;
         } else {
-            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
-            currentExpected *= 2;
-//            commSync->commClose();
+            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Adjusting IBLT size to " + toStr(currentExpected * 2 - totalDecoded));
+            currentExpected = currentExpected * 2 - totalDecoded;
         }
+//        // store decoded elements and record Stats
+//        if (peelSuccess) {
+//            mySyncStats.timerStart(SyncStats::COMP_TIME);
+//            for (const auto& p : positive) {
+//                otherMinusSelf.push_back(make_shared<DataObject>(p.second));
+//            }
+//            for (const auto& p : negative) {
+//                selfMinusOther.push_back(make_shared<DataObject>(p.first));
+//            }
+//            mySyncStats.timerEnd(SyncStats::COMP_TIME);
+//
+//            mySyncStats.timerStart(SyncStats::COMM_TIME);
+//            commSync->commSend(selfMinusOther);
+//            commSync->commSend(otherMinusSelf);
+//            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+//
+//            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+//            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+//
+//            return true;
+//        } else {
+//            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
+//            currentExpected *= 2;
+////            commSync->commClose();
+//        }
     }
 }
 
