@@ -25,6 +25,7 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
     Logger::gLog(Logger::METHOD, "Entering IBLTSync_Adaptive::SyncClient");
 
     size_t currentExpected = initExpNumElems;
+    list<shared_ptr<DataObject>> pendingOMS, pendingSMO;
 
     // call parent method for bookkeeping
     SyncMethod::SyncClient(commSync, selfMinusOther, otherMinusSelf);
@@ -36,6 +37,8 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
 
     // keep running until peeling succeed
     while (true) {
+        commSync->commSend(static_cast<int>(currentExpected));
+
         // construct new IBLT with updated size
         myIBLT = IBLT::Builder()
                 .setNumHashes(4)
@@ -62,28 +65,28 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
-        list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
+        pendingOMS = commSync->commRecv_DataObject_List();
+        pendingSMO = commSync->commRecv_DataObject_List();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-        mySyncStats.timerStart(SyncStats::COMP_TIME);
-        otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
-        selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
+        size_t totalDecoded = pendingOMS.size() + pendingSMO.size();
 
-        size_t totalDecoded = newOMS.size() + newSMO.size();
         if (!success) {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Adjusting IBLT size to " + toStr(currentExpected * 2 - totalDecoded));
             currentExpected = currentExpected * 2 - totalDecoded;
+            cout << "[Client]: Current Size: " << currentExpected << std::endl;
+        } else {
+            mySyncStats.timerStart(SyncStats::COMP_TIME);
+            otherMinusSelf.insert(otherMinusSelf.end(), pendingOMS.begin(), pendingOMS.end());
+            selfMinusOther.insert(selfMinusOther.end(), pendingSMO.begin(), pendingSMO.end());
+            mySyncStats.timerEnd(SyncStats::COMP_TIME);
+            return true;
         }
-
-        mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
         mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
-
-        if (success) {
-            return true;
-        }
+    }
+}
         // insert the decoded elements and record Stats
 //        if (success) {
 //            mySyncStats.timerStart(SyncStats::COMM_TIME);
@@ -105,8 +108,6 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
 //            currentExpected *= 2;
 // //            commSync->commClose();
 //        }
-    }
-}
 
 bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                                    list<shared_ptr<DataObject>> &selfMinusOther,
@@ -124,6 +125,8 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
     mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
     while (true) {
+        currentExpected = static_cast<size_t>(commSync->commRecv_int());
+
         // construct new IBLT with updated size
         myIBLT = IBLT::Builder()
                 .setNumHashes(4)
@@ -132,7 +135,7 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
                 .setValueSize(elementSize)
                 .build();
 
-        std::cout << "Current Size: " << currentExpected << std::endl;
+        std::cout << "[Server]: Current Size: " << currentExpected << std::endl;
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         // ensure that the IBLT size and eltSize equal those of the client otherwise fail and don't continue
         if (!commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false)) {
@@ -163,28 +166,30 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
 
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
+        list<shared_ptr<DataObject>> tempOMS, tempSMO;
         for (const auto& p : positive) {
-            otherMinusSelf.push_back(make_shared<DataObject>(p.second));
+            tempOMS.push_back(make_shared<DataObject>(p.second));
         }
         for (const auto& p : negative) {
-            selfMinusOther.push_back(make_shared<DataObject>(p.first));
+            tempSMO.push_back(make_shared<DataObject>(p.first));
         }
-        size_t totalDecoded = positive.size() + negative.size();
+        size_t totalDecoded = tempOMS.size() + tempSMO.size();
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        commSync->commSend(selfMinusOther);
-        commSync->commSend(otherMinusSelf);
+        commSync->commSend(tempSMO);
+        commSync->commSend(tempOMS);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
         mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
 
         if (peelSuccess) {
+            selfMinusOther.insert(selfMinusOther.end(), tempSMO.begin(), tempSMO.end());
+            otherMinusSelf.insert(otherMinusSelf.end(), tempOMS.begin(), tempOMS.end());
             return true;
         } else {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Adjusting IBLT size to " + toStr(currentExpected * 2 - totalDecoded));
-            currentExpected = currentExpected * 2 - totalDecoded;
         }
 //        // store decoded elements and record Stats
 //        if (peelSuccess) {

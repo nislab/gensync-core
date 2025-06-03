@@ -31,16 +31,16 @@ int main() {
             .setBits(8)
             .build();
 
-    for (int i = 0; i < 30; ++i) {
+    for (int i = 0; i < 100; ++i) {
         string elem = "e" + to_string(i);
-        if (i < 20) {
+        if (i < 5) {
             // insert [0,19] to both sides
             host1.addElem(make_shared<DataObject>(elem));
             host2.addElem(make_shared<DataObject>(elem));
         } else {
             // insert [20,29] to host1, [30,39] to host2
             host1.addElem(make_shared<DataObject>(elem));
-            host2.addElem(make_shared<DataObject>("e" + to_string(i+10)));
+            host2.addElem(make_shared<DataObject>("e" + to_string(i+95)));
         }
     }
     std::cout << "Elements added." << std::endl;
@@ -53,6 +53,7 @@ int main() {
         for (auto &i : host1.dumpElements())
             cout << i << " ";
         cout << endl;
+        cout << "[Client] Host1 element count after sync: " << host1.dumpElements().size() << endl;
         std::cout << "==== Client Statistics ====" << std::endl;
         std::cout << "Communication Time: " << host1.getCommTime(0) << " s" << std::endl;
         std::cout << "Idle Time: " << host1.getIdleTime(0) << " s" << std::endl;
@@ -66,7 +67,7 @@ int main() {
         for (auto &i : host2.dumpElements())
             std::cout << i << " ";
         std::cout << std::endl;
-
+        cout << "[Client] Host2 element count after sync: " << host2.dumpElements().size() << endl;
         std::cout << "==== Server Statistics ====" << std::endl;
         std::cout << "Communication Time: " << host2.getCommTime(0) << " s" << std::endl;
         std::cout << "Idle Time: " << host2.getIdleTime(0) << " s" << std::endl;
