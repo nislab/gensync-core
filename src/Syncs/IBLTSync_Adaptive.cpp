@@ -71,8 +71,8 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
 
         size_t totalDecoded = static_cast<size_t>(commSync->commRecv_int());
 
-        mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-        mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+//        mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+//        mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
 
         if (!success) {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Adjusting IBLT size to " + toStr(currentExpected * 2 - totalDecoded));
@@ -190,8 +190,8 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         commSync->commSend(static_cast<int>(totalDecoded));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-        mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-        mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+//        mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+//        mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
 
         if (peelSuccess) {
             mySyncStats.timerStart(SyncStats::COMM_TIME);
