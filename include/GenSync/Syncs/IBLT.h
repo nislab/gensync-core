@@ -140,7 +140,7 @@ public:
     IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize);
 
 
-    bool listEntries(vector<pair<ZZ, ZZ>> &positive,
+    bool listEntriesandKeys(vector<pair<ZZ, ZZ>> &positive,
                      vector<pair<ZZ, ZZ>> &negative,
                      vector<ZZ> &OMSKeys,
                      vector<ZZ> &SMOKeys);

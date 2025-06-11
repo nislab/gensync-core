@@ -26,7 +26,7 @@ IBLT::IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t 
     hashTable.resize(nEntries + nEntries % numHashes);
 }
 
-bool IBLT::listEntries(vector<pair<ZZ, ZZ>> &positive,
+bool IBLT::listEntriesandKeys(vector<pair<ZZ, ZZ>> &positive,
                        vector<pair<ZZ, ZZ>> &negative,
                        vector<ZZ> &OMSKeys,
                        vector<ZZ> &SMOKeys) {

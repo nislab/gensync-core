@@ -194,7 +194,7 @@ bool IBLTSync_Adaptive_PartialDecode::SyncServer(const shared_ptr<Communicant>& 
         vector<pair<ZZ, ZZ>> positive, negative;
         vector<ZZ> OMSKeys, SMOKeys;
         clientIBLT -= myIBLT;
-        bool peelSuccess = clientIBLT.listEntries(positive, negative, OMSKeys, SMOKeys);
+        bool peelSuccess = clientIBLT.listEntriesandKeys(positive, negative, OMSKeys, SMOKeys);
         peeledKeys.insert(SMOKeys.begin(), SMOKeys.end());
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
