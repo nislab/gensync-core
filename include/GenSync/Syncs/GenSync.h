@@ -330,6 +330,7 @@ public:
         BloomFilterSync,
         MET_IBLTSync,
         IBLTSync_Adaptive,
+        IBLTSync_Adaptive_PartialDecode,
         END     // one after the end of iterable options
     };
 

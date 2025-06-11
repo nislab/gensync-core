@@ -264,6 +264,12 @@ public:
     void commSend(const Cuckoo &cf);
 
     /**
+     * Sends list of size_t.
+     * @param The list of size_t to send.
+     */
+    void commSend(const vector<ZZ> &vec);
+
+    /**
      * Receives up to MAX_BUF_SIZE characters from the socket.
      * This is the primitive receive method that all other methods call.
      * @require: Must have called either commListen or commConnect already.
@@ -333,6 +339,8 @@ public:
     double commRecv_double();
 
     byte commRecv_byte();
+
+    vector<ZZ> commRecv_vector_ZZ();
 
     /**
      * Receives a GenIBLT.

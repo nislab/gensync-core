@@ -345,6 +345,14 @@ void Communicant::commSend(const ZZ& num, Nullable<size_t> size) {
 
 }
 
+void Communicant::commSend(const std::vector<ZZ> &vec) {
+    long len = vec.size();
+    commSend(len);
+    for (const auto &zz : vec) {
+        commSend(zz);
+    }
+}
+
 void Communicant::commSendIBLTNHash(const IBLT &iblt, bool sync)
 {
     if (!sync)
@@ -643,4 +651,14 @@ Cuckoo Communicant::commRecv_Cuckoo() {
         filter.push_back(commRecv_byte());
 
     return Cuckoo(fngprtS, bucketS, filterSize, kicks, filter, itemsC);
+}
+
+vector<NTL::ZZ> Communicant::commRecv_vector_ZZ() {
+    long len = commRecv_long();
+    vector<ZZ> result;
+    result.reserve(len);
+    for (long i = 0; i < len; ++i) {
+        result.push_back(commRecv_ZZ());
+    }
+    return result;
 }

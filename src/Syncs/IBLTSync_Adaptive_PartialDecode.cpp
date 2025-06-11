@@ -1,11 +1,16 @@
 //
-// Created by Xingyu Chen on 4/27/25.
+// Created by ChenXingyu on 6/5/25.
 //
 
-#include <GenSync/Syncs/IBLTSync_Adaptive.h>
+#include <GenSync/Syncs/IBLT.h>
+#include <GenSync/Syncs/Adaptive_IBLT.h>
+#include <GenSync/Syncs/IBLTSync_Adaptive_PartialDecode.h>
 #include <GenSync/Aux/Exceptions.h>
+#include <NTL/ZZ.h>
+#include <functional>
+#include <unordered_set>
 
-IBLTSync_Adaptive::IBLTSync_Adaptive(size_t initExpected, size_t eltSize) {
+IBLTSync_Adaptive_PartialDecode::IBLTSync_Adaptive_PartialDecode(size_t initExpected, size_t eltSize) {
     initExpNumElems = initExpected;
     elementSize = eltSize;
 
@@ -17,14 +22,15 @@ IBLTSync_Adaptive::IBLTSync_Adaptive(size_t initExpected, size_t eltSize) {
             build();
 }
 
-IBLTSync_Adaptive::~IBLTSync_Adaptive() = default;
+IBLTSync_Adaptive_PartialDecode::~IBLTSync_Adaptive_PartialDecode() = default;
 
-bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
+bool IBLTSync_Adaptive_PartialDecode::SyncClient(const shared_ptr<Communicant>& commSync,
                                    list<shared_ptr<DataObject>> &selfMinusOther,
                                    list<shared_ptr<DataObject>> &otherMinusSelf) {
     Logger::gLog(Logger::METHOD, "Entering IBLTSync_Adaptive::SyncClient");
 
     size_t currentExpected = initExpNumElems;
+    unordered_set<ZZ> peeledKeys;
 
     // call parent method for bookkeeping
     SyncMethod::SyncClient(commSync, selfMinusOther, otherMinusSelf);
@@ -46,8 +52,21 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
                 .setValueSize(elementSize)
                 .build();
 
+//        for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
+//  //            myIBLT.insert((**iter).to_ZZ(), (**iter).to_ZZ());
+//            ZZ key = (**iter).to_ZZ();
+//            if (peeledKeys.find(key) == peeledKeys.end()) {
+//                myIBLT.insert(key, key);
+//            }
+//        }
         for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
-            myIBLT.insert((**iter).to_ZZ(), (**iter).to_ZZ());
+            ZZ key = (**iter).to_ZZ();
+
+            if (peeledKeys.find(key) != peeledKeys.end()) {
+                std::cout << "[Client] Skip inserting already peeled key: " << key << std::endl;
+                continue;
+            }
+            myIBLT.insert(key, key);
         }
 
         // ensure that the IBLT size and eltSize equal those of the server otherwise fail and don't continue
@@ -75,7 +94,24 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
 
         if (!success) {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Adjusting IBLT size to " + toStr(currentExpected * 2 - totalDecoded));
-            currentExpected = currentExpected * 2 - totalDecoded;
+            vector<ZZ> newPeeledKeys = commSync->commRecv_vector_ZZ();
+            peeledKeys.insert(newPeeledKeys.begin(), newPeeledKeys.end());
+//            vector<pair<ZZ, ZZ>> decodedFromCells;
+//            bool recoverSuccess = myIBLT.partialPeelFromCells(peeledIndices, decodedFromCells);
+//            if (!recoverSuccess) {
+//                cout << "[Client] Recover Failed!" << endl;
+//            }
+//            for (const auto& p : decodedFromCells) {
+//                peeledKeys.insert(p.first);
+//            }
+            // For test
+            std::cout << "[Client] Keys peeled from server response: ";
+            for (const auto& key : newPeeledKeys) {
+                std::cout << key << " ";
+            }
+            std::cout << std::endl;
+            //
+            currentExpected = (currentExpected - totalDecoded) * 2;
             cout << "[Client]: Current Size: " << currentExpected << std::endl;
         } else {
             mySyncStats.timerStart(SyncStats::COMM_TIME);
@@ -84,6 +120,14 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
             mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
             mySyncStats.timerStart(SyncStats::COMP_TIME);
+//            for (const auto& obj : newOMS) peeledKeys.insert(obj->to_ZZ());
+//            for (const auto& obj : newSMO) peeledKeys.insert(obj->to_ZZ());
+
+            for (const auto& key : peeledKeys) {
+                auto dataPtr = make_shared<DataObject>(key);
+                newOMS.push_back(dataPtr);
+            }
+
             otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
             selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
             mySyncStats.timerEnd(SyncStats::COMP_TIME);
@@ -94,34 +138,13 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
         }
     }
 }
-        // insert the decoded elements and record Stats
-//        if (success) {
-//            mySyncStats.timerStart(SyncStats::COMM_TIME);
-//            list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
-//            list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
-//            mySyncStats.timerEnd(SyncStats::COMM_TIME);
-//
-//            mySyncStats.timerStart(SyncStats::COMP_TIME);
-//            otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
-//            selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
-//            mySyncStats.timerEnd(SyncStats::COMP_TIME);
-//
-//            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-//            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
-//
-//            return true;
-//        } else {
-//            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
-//            currentExpected *= 2;
-// //            commSync->commClose();
-//        }
 
-bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
+bool IBLTSync_Adaptive_PartialDecode::SyncServer(const shared_ptr<Communicant>& commSync,
                                    list<shared_ptr<DataObject>> &selfMinusOther,
                                    list<shared_ptr<DataObject>> &otherMinusSelf) {
     Logger::gLog(Logger::METHOD, "Entering IBLTSync_Adaptive::SyncServer");
     size_t currentExpected = initExpNumElems;
-
+    unordered_set<ZZ> peeledKeys;
 
     // call parent method for bookkeeping
     SyncMethod::SyncServer(commSync, selfMinusOther, otherMinusSelf);
@@ -135,7 +158,7 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         currentExpected = static_cast<size_t>(commSync->commRecv_int());
 
         // construct new IBLT with updated size
-        myIBLT = IBLT::Builder()
+        myIBLT = Adaptive_IBLT::Builder()
                 .setNumHashes(4)
                 .setNumHashCheck(11)
                 .setExpectedNumEntries(currentExpected)
@@ -157,15 +180,30 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         IBLT clientIBLT = commSync->commRecv_IBLT(myIBLT.size(), myIBLT.eltSize());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-
         for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
-            myIBLT.insert((**iter).to_ZZ(), (**iter).to_ZZ());
+            ZZ key = (**iter).to_ZZ();
+
+            if (peeledKeys.find(key) != peeledKeys.end()) {
+                std::cout << "[Server] Skip inserting already peeled key: " << key << std::endl;
+                continue;
+            }
+            myIBLT.insert(key, key);
         }
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         vector<pair<ZZ, ZZ>> positive, negative;
-        bool peelSuccess = (clientIBLT -= myIBLT).listEntries(positive, negative);
+        vector<ZZ> OMSKeys, SMOKeys;
+        clientIBLT -= myIBLT;
+        bool peelSuccess = clientIBLT.listEntries(positive, negative, OMSKeys, SMOKeys);
+        peeledKeys.insert(SMOKeys.begin(), SMOKeys.end());
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
+        // For test
+//        std::cout << "[Server] Peeled Keys: ";
+//        for (ZZ i : peeledKeys) {
+//            std::cout << i << " ";
+//        }
+        //
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(peelSuccess);
@@ -173,82 +211,60 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
 
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        list<shared_ptr<DataObject>> tempOMS, tempSMO;
+        list<shared_ptr<DataObject>> newOMS, newSMO;
         for (const auto& p : positive) {
-            tempOMS.push_back(make_shared<DataObject>(p.second));
+            newOMS.push_back(make_shared<DataObject>(p.second));
         }
         for (const auto& p : negative) {
-            tempSMO.push_back(make_shared<DataObject>(p.first));
+            newSMO.push_back(make_shared<DataObject>(p.first));
         }
-        size_t totalDecoded = tempOMS.size() + tempSMO.size();
+
+        size_t totalDecoded = newOMS.size() + newSMO.size();
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-//        commSync->commSend(tempSMO);
-//        commSync->commSend(tempOMS);
         commSync->commSend(static_cast<int>(totalDecoded));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-//        mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-//        mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
 
         if (peelSuccess) {
             mySyncStats.timerStart(SyncStats::COMM_TIME);
-            commSync->commSend(tempSMO);
-            commSync->commSend(tempOMS);
+            commSync->commSend(newSMO);
+            commSync->commSend(newOMS);
             mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-            selfMinusOther.insert(selfMinusOther.end(), tempSMO.begin(), tempSMO.end());
-            otherMinusSelf.insert(otherMinusSelf.end(), tempOMS.begin(), tempOMS.end());
+//            for (const auto& key : peeledKeys) {
+//                auto dataPtr = make_shared<DataObject>(key);
+//                newOMS.push_back(dataPtr);
+//            }
+            selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
+            otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
 
             mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
             mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
             return true;
         } else {
             Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Adjusting IBLT size to " + toStr(currentExpected * 2 - totalDecoded));
+            mySyncStats.timerStart(SyncStats::COMM_TIME);
+            commSync->commSend(SMOKeys);
+            mySyncStats.timerEnd(SyncStats::COMM_TIME);
         }
-//        // store decoded elements and record Stats
-//        if (peelSuccess) {
-//            mySyncStats.timerStart(SyncStats::COMP_TIME);
-//            for (const auto& p : positive) {
-//                otherMinusSelf.push_back(make_shared<DataObject>(p.second));
-//            }
-//            for (const auto& p : negative) {
-//                selfMinusOther.push_back(make_shared<DataObject>(p.first));
-//            }
-//            mySyncStats.timerEnd(SyncStats::COMP_TIME);
-//
-//            mySyncStats.timerStart(SyncStats::COMM_TIME);
-//            commSync->commSend(selfMinusOther);
-//            commSync->commSend(otherMinusSelf);
-//            mySyncStats.timerEnd(SyncStats::COMM_TIME);
-//
-//            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-//            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
-//
-//            return true;
-//        } else {
-//            Logger::gLog(Logger::METHOD_DETAILS, "Sync failed. Doubling IBLT size to " + toStr(currentExpected * 2));
-//            currentExpected *= 2;
-////            commSync->commClose();
-//        }
     }
 }
 
-bool IBLTSync_Adaptive::addElem(shared_ptr<DataObject> datum) {
+bool IBLTSync_Adaptive_PartialDecode::addElem(shared_ptr<DataObject> datum) {
     SyncMethod::addElem(datum);
     myIBLT.insert(datum->to_ZZ(), datum->to_ZZ());
     return true;
 }
 
-bool IBLTSync_Adaptive::delElem(shared_ptr<DataObject> datum) {
+bool IBLTSync_Adaptive_PartialDecode::delElem(shared_ptr<DataObject> datum) {
     SyncMethod::delElem(datum);
     myIBLT.erase(datum->to_ZZ(), datum->to_ZZ());
     return true;
 }
 
-string IBLTSync_Adaptive::getName() {
+string IBLTSync_Adaptive_PartialDecode::getName() {
     return "IBLTSync_Adaptive\n   * initial expected elements = " + toStr(initExpNumElems) +
            "\n   * element size = " + toStr(elementSize) + '\n';
 }
-

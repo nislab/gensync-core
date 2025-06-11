@@ -70,6 +70,7 @@ set(SOURCE_FILES
         ${SYNC_DIR}/IBLTSync.cpp
         ${SYNC_DIR}/IBLTSync_Multiset.cpp
         ${SYNC_DIR}/IBLTSync_Adaptive.cpp
+        ${SYNC_DIR}/IBLTSync_Adaptive_PartialDecode.cpp
         ${SYNC_DIR}/IBLTSetOfSets.cpp
         ${SYNC_DIR}/Compact2DBitArray.cpp
         ${SYNC_DIR}/Cuckoo.cpp
@@ -122,6 +123,7 @@ set(HEADERS
         ${SYNC_DIR_INC}/IBLTSync_HalfRound.h
         ${SYNC_DIR_INC}/IBLTSync_Multiset.h
         ${SYNC_DIR_INC}/IBLTSync_Adaptive.h
+        ${SYNC_DIR_INC}/IBLTSync_Adaptive_PartialDecode.h
         ${SYNC_DIR_INC}/Compact2DBitArray.h
         ${SYNC_DIR_INC}/Cuckoo.h
         ${SYNC_DIR_INC}/CuckooSync.h
