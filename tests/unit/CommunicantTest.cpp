@@ -324,3 +324,31 @@ void CommunicantTest::testCommZZNoArgs(){
         CPPUNIT_ASSERT_EQUAL(exp, cRecv.commRecv_ZZ());
     }
 }
+//
+//void CommunicantTest::testCommCodedSymbol() {
+//    queue<char> qq;
+//    CommDummy cSend(&qq);
+//    CommDummy cRecv(&qq);
+//
+//    for (int ii = 0; ii < TIMES; ii++) {
+//        // 构造 DataObject 和 Symbol
+//        ZZ val = randZZ();
+//        auto dataObj = make_shared<DataObject>(val);
+//        auto symbol = make_shared<DataObjectSymbolWrapper>(dataObj);
+//
+//        uint64_t hash = symbol->hash();
+//        int64_t count = rand() % 5 + 1;
+//        HashedSymbol<Symbol> hs(symbol, hash);
+//        CodedSymbol<Symbol> exp(hs, count);
+//
+//        cSend.commSend(exp);
+//        CodedSymbol<Symbol> res = cRecv.commRecv_CodedSymbol();
+//
+//        auto expWrapper = dynamic_pointer_cast<DataObjectSymbolWrapper>(exp.getSymbol());
+//        auto resWrapper = dynamic_pointer_cast<DataObjectSymbolWrapper>(res.getSymbol());
+//        CPPUNIT_ASSERT(expWrapper && resWrapper);
+//        CPPUNIT_ASSERT_EQUAL(expWrapper->to_ZZ(), resWrapper->to_ZZ());
+//        CPPUNIT_ASSERT_EQUAL(exp.getHash(), res.getHash());
+//        CPPUNIT_ASSERT_EQUAL(exp.getCount(), res.getCount());
+//    }
+//}

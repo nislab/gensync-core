@@ -20,6 +20,7 @@
 #include <GenSync/Syncs/CuckooSync.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <GenSync/Syncs/MET_IBLTSync.h>
+#include <GenSync/Syncs/RIBLTSync.h>
 
 const char BenchParams::KEYVAL_SEP = ':';
 const string BenchParams::FILEPATH_SEP = "/"; // TODO: we currently don't compile for _WIN32!
@@ -166,6 +167,22 @@ void CuckooParams::apply(GenSync::Builder& gsb) const {
     gsb.setMaxKicks(maxKicks);
 }
 
+ostream& RIBLTParams::serialize(ostream& os) const {
+    os << "eltSize: " << eltSize;
+
+    return os;
+}
+
+istream& RIBLTParams::unserialize(istream& is) {
+    getVal<decltype(eltSize)>(is, eltSize);
+
+    return is;
+}
+
+void RIBLTParams::apply(GenSync::Builder& gsb) const {
+    gsb.setBits(eltSize);
+}
+
 /**
  * Makes the correct Params specialization using the data in the input stream.
  */
@@ -201,6 +218,10 @@ inline shared_ptr<Params> decideBenchParams(GenSync::SyncProtocol syncProtocol, 
         return par;
     } else if (syncProtocol == GenSync::SyncProtocol::FullSync) {
         auto par = make_shared<FullSyncParams>();
+        is >> *par;
+        return par;
+    } else if (syncProtocol == GenSync::SyncProtocol::RIBLTSync) {
+        auto par = make_shared<RIBLTParams>();
         is >> *par;
         return par;
     } else {
@@ -374,6 +395,13 @@ BenchParams::BenchParams(SyncMethod& meth) :
     if (met_iblt) {
         syncProtocol = GenSync::SyncProtocol::MET_IBLTSync;
         syncParams = make_shared<MET_IBLTParams>(met_iblt->getElementSize());
+        return;
+    }
+
+    auto riblt = dynamic_cast<RIBLTSync*>(&meth);
+    if (riblt) {
+        syncProtocol = GenSync::SyncProtocol::RIBLTSync;
+        syncParams = make_shared<RIBLTParams>(riblt->getElementSize());
         return;
     }
 

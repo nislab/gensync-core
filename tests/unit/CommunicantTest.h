@@ -3,7 +3,7 @@
  * File:   CommunicantTest.h
  * Author: Eliezer Pearl
  *
- * Created on May 24, 2018, 10:08:52 AM
+ * Created on May 24, 2018, 10:08:52 AM``````````````````````````````````````````````````````````````````````````````````````````````````````````````````
  */
 
 #ifndef COMMUNICANTTEST_H
@@ -30,6 +30,7 @@ class CommunicantTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testCommVec_ZZ_p);
     CPPUNIT_TEST(testCommZZ);
     CPPUNIT_TEST(testCommZZNoArgs);
+//    CPPUNIT_TEST(testCommCodedSymbol);
     
     CPPUNIT_TEST_SUITE_END();
 
@@ -127,6 +128,10 @@ private:
  	*/
     void testCommZZNoArgs();
 
+        /**
+            * Tests commSend and Recv for Coded Symbol
+         */
+    void testCommCodedSymbol();
     
 
 };

@@ -329,6 +329,7 @@ public:
         CuckooSync,
         BloomFilterSync,
         MET_IBLTSync,
+        RIBLTSync,
         END     // one after the end of iterable options
     };
 
