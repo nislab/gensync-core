@@ -65,7 +65,7 @@ public:
    * @param *pGenSync pointer to current genSync object.
    */
   template <class T>
-  static void postProcessing_IBLTSetOfSets(list<shared_ptr<DataObject>> otherMinusSelf, list<shared_ptr<DataObject>> myData, void (T::*add)(shared_ptr<DataObject>), bool (T::*del)(shared_ptr<DataObject>), T *pGenSync)
+  static void postProcessing_IBLTSetOfSets(list<shared_ptr<DataObject>> otherMinusSelf, DataContainer& myData, void (T::*add)(shared_ptr<DataObject>), bool (T::*del)(shared_ptr<DataObject>), T *pGenSync)
   {
     list<shared_ptr<DataObject>>::iterator itDO;
     vector<long> toErase;

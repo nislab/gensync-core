@@ -53,6 +53,8 @@ set(SOURCE_FILES
         ${AUX_DIR}/Sketches.cpp
 
         ${DATA_DIR}/DataObject.cpp
+        ${DATA_DIR}/InMemContainer.cpp
+        
 
         ${COMM_DIR}/CommSocket.cpp
         ${COMM_DIR}/CommString.cpp
@@ -74,8 +76,8 @@ set(SOURCE_FILES
         ${SYNC_DIR}/Cuckoo.cpp
         ${SYNC_DIR}/CuckooSync.cpp
         ${SYNC_DIR}/FullSync.cpp
-	${SYNC_DIR}/BloomFilterSync.cpp
-	${SYNC_DIR}/BloomFilter.cpp
+	    ${SYNC_DIR}/BloomFilterSync.cpp
+	    ${SYNC_DIR}/BloomFilter.cpp
         ${SYNC_DIR}/MET_IBLTSync.cpp
         ${SYNC_DIR}/MET_IBLT.cpp
 
@@ -99,6 +101,8 @@ set(HEADERS
         ${DATA_DIR_INC}/DataObjC.h
         ${DATA_DIR_INC}/DataObject.h
         ${DATA_DIR_INC}/DataPriorityObject.h
+        ${DATA_DIR_INC}/DataContainer.h
+        ${DATA_DIR_INC}/InMemContainer.h
 
         ${COMM_DIR_INC}/CommSocket.h
         ${COMM_DIR_INC}/CommString.h
@@ -126,8 +130,8 @@ set(HEADERS
         ${SYNC_DIR_INC}/InterCPISync.h
         ${SYNC_DIR_INC}/PrioCPISync.h
         ${SYNC_DIR_INC}/ProbCPISync.h
-	${SYNC_DIR_INC}/BloomFilterSync.h
-	${SYNC_DIR_INC}/BloomFilter.h
+	    ${SYNC_DIR_INC}/BloomFilterSync.h
+	    ${SYNC_DIR_INC}/BloomFilter.h
         ${SYNC_DIR_INC}/MET_IBLTSync.h
         ${SYNC_DIR_INC}/MET_IBLT.h
 
@@ -146,14 +150,14 @@ target_compile_definitions(gensync PUBLIC DEFAULT_LOGLEVEL=${DEFAULT_LOG_LEVEL})
 
 # include Apache Data Sketches as a header-only library
 target_link_libraries(gensync PUBLIC ntl pthread gmp)
+link_directories(/usr/local/lib)
 target_include_directories(gensync PUBLIC
+                    /usr/local/include  
                     incubator-datasketches-cpp/common/include
                     incubator-datasketches-cpp/hll/include
                     incubator-datasketches-cpp/fi/include
     )
 
-install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_INCLUDEDIR}/gensync)") #Remove the existing GenSync library data and reinstall
-install(CODE "FILE(REMOVE_RECURSE ${CMAKE_INSTALL_LIBDIR}/libgensync.a)") #Remove the existing GenSync library data and reinstall
 install(TARGETS gensync LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GenSync) #create a new folder for GenSync inside of the system include directory
 install(DIRECTORY ${AUX_DIR_INC} ${DATA_DIR_INC} ${COMM_DIR_INC} ${SYNC_DIR_INC} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GenSync COMPONENT devel) #copy the contents of the include folder into the system include directory

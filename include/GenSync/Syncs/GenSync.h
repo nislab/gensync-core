@@ -13,6 +13,7 @@
 
 #include <GenSync/Communicants/Communicant.h>
 #include <GenSync/Data/DataObject.h>
+#include <GenSync/Data/InMemContainer.h>
 #include <GenSync/Aux/Auxiliary.h>
 #include <GenSync/Aux/SyncMethod.h>
 
@@ -72,7 +73,7 @@ public:
             const vector<shared_ptr<SyncMethod>> &mVec,
             void (*postProcessing)(
                     list<shared_ptr<DataObject>>,
-                    list<shared_ptr<DataObject>>,
+                    DataContainer&,
                     void (GenSync::*add)(shared_ptr<DataObject>),
                     bool (GenSync::*del)(shared_ptr<DataObject>),
                     GenSync *pGenSync)
@@ -350,12 +351,12 @@ private:
     GenSync();
 
     /** A pointer to the postprocessing function **/
-    void (*_PostProcessing)(list<shared_ptr<DataObject>>, list<shared_ptr<DataObject>>, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync){};
+    void (*_PostProcessing)(list<shared_ptr<DataObject>>, DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync){};
 
 
     // FIELDS
     /** A container for the data stored by this GenSync object. */
-    list<shared_ptr<DataObject>> myData;
+    shared_ptr<DataContainer> myData;
 
     /** A vector of communicants registered to be able to sync with this GenSync object. */
     vector<shared_ptr<Communicant>> myCommVec;
@@ -617,7 +618,7 @@ private:
     shared_ptr<Communicant> myComm;
     shared_ptr<SyncMethod> myMeth;
     // bookkeeping postprocessing function pointer
-    void (*_postProcess)(list<shared_ptr<DataObject>>, list<shared_ptr<DataObject>>, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync);
+    void (*_postProcess)(list<shared_ptr<DataObject>>, DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync);
     // DEFAULT constants
     static const bool HASHES = false;
     static const SyncProtocol DFT_PROTO = SyncProtocol::UNDEFINED;

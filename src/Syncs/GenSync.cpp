@@ -42,14 +42,14 @@ GenSync::GenSync() = default;
 GenSync::GenSync(
                  const vector<shared_ptr<Communicant>> &cVec,
                  const vector<shared_ptr<SyncMethod>> &mVec,
-                 void (*postProcessing)(list<shared_ptr<DataObject>>,list<shared_ptr<DataObject>>,void (GenSync::*add)(shared_ptr<DataObject>),bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync),
+                 void (*postProcessing)(list<shared_ptr<DataObject>>, DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>),bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync),
                  const list<shared_ptr<DataObject>> &data)
 {
     myCommVec = cVec;
     mySyncVec = mVec;
+    myData = make_shared<InMemContainer>();
     outFile = nullptr; // no output file is being used
     _PostProcessing = postProcessing;
-
     // add each datum one by one
     auto itData = data.begin();
     for (; itData != data.end(); itData++)
@@ -59,6 +59,7 @@ GenSync::GenSync(
 GenSync::GenSync(const vector<shared_ptr<Communicant>> &cVec, const vector<shared_ptr<SyncMethod>> &mVec, const string& fileName) {
     myCommVec = cVec;
     mySyncVec = mVec;
+    myData = make_shared<InMemContainer>();
     outFile = nullptr; // add elements without writing to the file at first
     Logger::gLog(Logger::METHOD, "Entering GenSync::GenSync");
     // read data from a file
@@ -79,9 +80,6 @@ GenSync::GenSync(const vector<shared_ptr<Communicant>> &cVec, const vector<share
 // destruct a gensync object
 
 GenSync::~GenSync() {
-    // clear out memory
-    myData.clear();
-
     //    vector<shared_ptr<SyncMethod>>::iterator itAgt = mySyncVec.begin();
     //    for (; itAgt != mySyncVec.end(); itAgt++) {
     //        delete *itAgt;
@@ -108,7 +106,7 @@ GenSync::~GenSync() {
 void GenSync::addElem(shared_ptr<DataObject> newDatum) {
     Logger::gLog(Logger::METHOD, "Entering GenSync::addElem");
     // store locally
-    myData.push_back(newDatum);
+    myData->push_back(newDatum);
 
     // update sync methods' metadata
     vector<shared_ptr<SyncMethod>>::iterator itAgt;
@@ -125,7 +123,7 @@ void GenSync::addElem(shared_ptr<DataObject> newDatum) {
 // delete element
 bool GenSync::delElem(shared_ptr<DataObject> delPtr) {
     Logger::gLog(Logger::METHOD, "Entering GenSync::delElem");
-    if (!myData.empty()) {
+    if (!myData->empty()) {
         //Iterate through mySyncVec and call that sync's delElem method
         for (const auto& itAgt : mySyncVec) {
             if (!itAgt->delElem(delPtr)) {
@@ -135,9 +133,9 @@ bool GenSync::delElem(shared_ptr<DataObject> delPtr) {
         }
 
         //Remove data from GenSync object meta-data and report success of delete
-        unsigned long before = myData.size();
-        myData.remove(delPtr); //Does not have a return value so check size difference
-        return myData.size() < before;
+        unsigned long before = myData->size();
+        myData->remove(delPtr); //Does not have a return value so check size difference
+        return myData->size() < before;
     }
     else{
         Logger::error("genSync is empty");
@@ -149,17 +147,17 @@ bool GenSync::delElem(shared_ptr<DataObject> delPtr) {
 bool GenSync::clearData(){
     bool success = true;
 
-    auto itr = myData.begin();
-    while (itr != myData.end()) {
+    auto itr = myData->begin();
+    while (itr != myData->end()) {
         success &= delElem(*itr++);
     }
 
-    return success && myData.empty();
+    return success && myData->empty();
 }
 
 const list<string> GenSync::dumpElements() {
     list<string> dump;
-    for(const auto& itr : myData){
+    for(const auto& itr : *myData){
         dump.push_back(base64_decode(itr->print()));
     }
     return dump;
@@ -167,7 +165,7 @@ const list<string> GenSync::dumpElements() {
 
 const list<string> GenSync::dumpElements64() {
     list<string> dump;
-    for(const auto& itr : myData){
+    for(const auto& itr : *myData){
         dump.push_back(itr->print());
     }
     return dump;
@@ -217,8 +215,7 @@ int GenSync::numComm() {
 void GenSync::addSyncAgt(const shared_ptr<SyncMethod>& newAgt, int index) {
     Logger::gLog(Logger::METHOD, "Entering GenSync::addSyncAgt");
     // create and populate the new agent
-    list<shared_ptr<DataObject>>::iterator itData;
-    for (itData = myData.begin(); itData != myData.end(); itData++)
+    for (auto itData = myData->begin(); itData != myData->end(); itData++)
         if (!newAgt->addElem(*itData))
             Logger::error_and_quit("Was not able to add an item to the next syncagent.");
 
@@ -289,13 +286,13 @@ void GenSync::writeSyncLog(shared_ptr<Communicant> comm,
     paramsF << params;
 
     if (dataFile.empty()) {
-        for (auto dob : myData)
+        for (auto dob : *myData)
             paramsF << base64_encode(dob->to_string().c_str(), dob->to_string().length()) << "\n";
 
         paramsF << FromFileGen::DELIM_LINE << "\n";
 
         // The other set is equal to ours - (ours - theirs)
-        for (auto my: myData) {
+        for (auto my: *myData) {
           bool inSelfMinuOther = false;
           for (auto smo: selfMinusOther)
               if (my->to_ZZ() == smo->to_ZZ()) {
@@ -351,7 +348,7 @@ bool GenSync::serverSyncBegin(int sync_num) {
 #endif
 
         // post process and add any items that were found in the reconciliation
-        _PostProcessing(otherMinusSelf, myData, &GenSync::addElem, &GenSync::delElem, this);
+        _PostProcessing(otherMinusSelf, *myData, &GenSync::addElem, &GenSync::delElem, this);
     }
 
     return syncSuccess;
@@ -391,7 +388,7 @@ bool GenSync::clientSyncBegin(int sync_num) {
 #endif
 
         // add any items that were found in the reconciliation
-        _PostProcessing(otherMinusSelf, myData, &GenSync::addElem, &GenSync::delElem, this);
+        _PostProcessing(otherMinusSelf, *myData, &GenSync::addElem, &GenSync::delElem, this);
     }
 
     Logger::gLog(Logger::METHOD, "Sync succeeded:  " + toStr(syncSuccess));
