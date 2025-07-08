@@ -8,9 +8,6 @@ void InMemContainerTest::setUp(){
     srand(1029);
 }
 
-/*
-Tests General Purpose Public Facing Functions
-*/
 void InMemContainerTest::functionalityTest() {
     //Use a list to compare to the container, as in memory container should function exactly the same.
     list<shared_ptr<DataObject>> objList;
