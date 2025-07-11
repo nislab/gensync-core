@@ -131,8 +131,9 @@ public:
 };
 
 /**
- * Generic container class to represent the method in which DataObjects are held.
- * Has capabilities to be iterated into and certain other features similar to the list type.
+ * Implements a generic container that stores DataObject information. 
+ * The manner in which data is stored is dependent on the subclass implementation.
+ * DataContainers have their own iterator allowing for looping and indexing.
  */
 class DataContainer{
     public:

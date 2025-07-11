@@ -4,7 +4,8 @@
 #include <GenSync/Data/DataContainer.h>
  
 /**
- * In-Memory Container that uses a list structure to store information.
+ * Implements an In-Memory Container that stores DataObject information
+ * in the internal form of a list. 
  */
 class InMemContainer : public DataContainer{
     public:
