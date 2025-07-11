@@ -1,3 +1,4 @@
+/* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
 #ifndef INMEMCONTAINER_H
 #define INMEMCONTAINER_H
 #include <GenSync/Data/DataContainer.h>
@@ -136,54 +137,72 @@ class InMemContainer : public DataContainer{
      * Returns an iterator that points to the beginning of the container.
      * @return An iterator that points to the beginning of the container.
      */
-    iterator begin() override;
+    iterator begin() override{
+        return DataIterator(std::unique_ptr<DataIteratorBase>(new InMemIterator(myData.begin())));
+    }
 
     /**
      * Returns an iterator that points past the final item of the container.
      * @return An iterator that points past the final item of the container.
      */
-    iterator end() override;
+    iterator end() override{
+        return DataIterator(std::unique_ptr<DataIteratorBase>(new InMemIterator(myData.end())));
+    }
 
      /**
      * Returns a const iterator that points to the beginning of the container.
      * @return A const iterator that points to the beginning of the container.
      */
-    const_iterator begin() const override;
+    const_iterator begin() const override{
+        return DataIterator(std::unique_ptr<DataIteratorBase>(new ConstInMemIterator(myData.cbegin())));
+    }
 
      /**
      * Returns a const iterator that points to the beginning of the container.
      * @return A const iterator that points to the beginning of the container.
      */
-    const_iterator end() const override;
+    const_iterator end() const override{
+        return DataIterator(std::unique_ptr<DataIteratorBase>(new ConstInMemIterator(myData.cend())));
+    }
     
     /**
      * Returns the amount of items inside the container.
      * @return The number of items inside the container.
      */
-    size_type size() const override;
+    size_type size() const override{
+        return myData.size();
+    }
 
     /**
      * Returns whether the container has no items.
      * @return Whether the container has no items.
      */
-    bool empty() const override;
+    bool empty() const override{
+        return myData.empty();
+    }
     
     /**
      * Removes all items from the container.
      */
-    void clear() override;
+    void clear() override{
+         myData.clear();
+    }
 
     /**
      * Removes all items that have the same data as the given DataObject inside the container.
      * @param val The given DataObject.
      */
-    void remove (const shared_ptr<DataObject>& val) override;
+    void remove (const shared_ptr<DataObject>& val) override{
+         myData.remove(val);
+    }
 
      /**
      * Pushes a given DataObject into the container for storage.
      * @param val The given DataObject to store.
      */
-    void push_back (const shared_ptr<DataObject>& val) override;
+    void push_back (const shared_ptr<DataObject>& val) override{
+        myData.push_back(val);
+    }
 
     private:
     /** The container in which the data is stored in. */
