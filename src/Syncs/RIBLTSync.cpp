@@ -46,15 +46,9 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
         auto symbol = encoder.produceNextCell();
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-        cout << "[Client] Sending symbol hash=" << symbol.getHash() << " count=" << symbol.getCount() << endl;
-
-        if (symbol.getCount() == 0) {
-            commSync->commSend(symbol);
-        } else {
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
-            commSync->commSend(symbol);
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
-        }
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
+        commSync->commSend(symbol);
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         bool success = commSync->commRecv_int();
 
@@ -104,9 +98,9 @@ bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
     list<shared_ptr<DataObject>> OMS, SMO;
 
     while (true) {
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
         auto symbol = commSync->commRecv_CodedSymbol();
-
-        cout << "[Server] Received symbol hash=" << symbol.getHash() << " count=" << symbol.getCount() << endl;
+        mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         decoder.addCodedSymbol(symbol);
