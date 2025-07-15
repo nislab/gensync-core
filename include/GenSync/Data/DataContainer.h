@@ -54,8 +54,7 @@ class DataContainer{
             virtual unique_ptr<DataIteratorBase> clone() const = 0;
         };
 
-    public:
-        /**
+         /**
          * Wrapper for DataContainer iterator operations.
          * Allows DataIteratorBase implementations to be called until a general class.
          */
@@ -143,6 +142,7 @@ class DataContainer{
             unique_ptr<DataIteratorBase> _impl;
         };
 
+    public:
         //namespaces
         using iterator = DataIterator;
         using const_iterator = DataIterator;
