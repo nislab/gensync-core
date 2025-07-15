@@ -10,28 +10,31 @@
 class InMemContainer : public DataContainer{
     public:
     /**
-     * Specific in-memory iterator. 
+     * Generic Iterator for In-Memory Containers
+     * This uses an existing in-memory container's iterator 
+     * as its internal implementation.
+     * @tparam IterType The type of iterator this class uses for its internal implementation.
      */
-    class InMemIterator : public DataIteratorBase {
+    template <typename IterType>
+    class InMemIteratorBase : public DataIteratorBase {
         public:
-            //Uses the iterator of a list internally
-            using InnerIter = list<std::shared_ptr<DataObject>>::iterator;
-
             /**
-             * Constructs an iterator with a given iterator.
-             * @param it The existing iterator.
+             * Constructs a iterator based off another iterator.
+             * @param it The other iterator.
              */
-            InMemIterator(InnerIter it) : it_(it) {}
+            explicit InMemIteratorBase(IterType it) : it_(it) {}
 
             /**
-             * Returns the DataObject pointer the iterator is pointing at.
              * @return The DataObject pointer the iterator is pointing at.
              */
-            shared_ptr<DataObject> operator*() const override { return *it_; }
-
+            shared_ptr<DataObject> operator*() const override {
+                return *it_;
+            }
+            
             /**
-             * Increments the iterator up one element in memory.
-             * @return The iterator before the incrementation.
+             * Moves the iterator up in the container's memory.
+             * Returns the iterator after it has moved positions.
+             * @return The iterator after it has moved positions in the container.
              */
             DataIteratorBase& operator++() override {
                 ++it_;
@@ -39,91 +42,44 @@ class InMemContainer : public DataContainer{
             }
             
             /**
-             * Compares two DataIterators by their implementations.
-             * @return Whether the iterators point to the same memory address or database position.
+             * Compares two iterators.
+             * Returns true if they point to the same object.
+             * @return Whether the two iterators point to the same object in the container.
              */
             bool operator==(const DataIteratorBase& other) const override {
-                // Use dynamic_cast to check type and compare underlying iterators
-                auto otherPtr = dynamic_cast<const InMemIterator*>(&other);
-                if (!otherPtr) return false;
-                return it_ == otherPtr->it_;
+                auto otherPtr = dynamic_cast<const InMemIteratorBase<IterType>*>(&other);
+                return otherPtr && (it_ == otherPtr->it_);
             }
-
+            
             /**
-             *  Compares two DataIterators by their implementations.
-             *  @return Whether the iterators do not point to the same memory address or database position.
+             * Compares two iterators. 
+             * Returns true if they do not point to the same object.
+             * @return Whether the two iterators do not point to the same object in the container.
              */
             bool operator!=(const DataIteratorBase& other) const override {
                 return !(*this == other);
             }
-
+            
             /**
-             * Returns a pointer to a new iterator that references the same point.
-             * @return A copy of a given iterator.
+             * Creates a new iterator that points to the same object in the container.
+             * The iterator is destroyed when the pointer referring to it is moved or destroyed.
+             * @return A new iterator that is identical to this one.
              */
             unique_ptr<DataIteratorBase> clone() const override {
-                return unique_ptr<DataIteratorBase>(new InMemIterator(it_));
+                return unique_ptr<DataIteratorBase>(new InMemIteratorBase<IterType>(it_));
             }
 
         private:
-            /**Internal Iterator Object*/
-            InnerIter it_;
+            /**
+             * The implementation of the iterator.
+             */
+            IterType it_;
     };
 
-    /**
-     * Specific in-memory constant iterator. 
-     */
-    class ConstInMemIterator : public DataIteratorBase {
-        public:
-            //Uses the iterator of a list internally
-            using InnerIter = list<shared_ptr<DataObject>>::const_iterator;
+    //Namespaces
+    using InMemIterator = InMemIteratorBase<list<shared_ptr<DataObject>>::iterator>;
+    using ConstInMemIterator = InMemIteratorBase<list<shared_ptr<DataObject>>::const_iterator>;
 
-            /**
-             * Constructs an iterator with a given iterator.
-             * @param it The existing iterator.
-             */
-            explicit ConstInMemIterator(InnerIter it) : it_(it) {}
-
-             /**
-             * Returns the DataObject pointer the iterator is pointing at.
-             * @return The DataObject pointer the iterator is pointing at.
-             */
-            shared_ptr<DataObject> operator*() const override { return *it_; }
-
-            /**
-             * Increments the iterator up one element in memory.
-             * @return The iterator before the incrementation.
-             */
-            DataIteratorBase& operator++() override { ++it_; return *this; }
-
-            /**
-             * Compares two DataIterators by their implementations.
-             * @return Whether the iterators point to the same memory address or database position.
-             */
-            bool operator==(const DataIteratorBase& other) const override {
-                auto o = dynamic_cast<const ConstInMemIterator*>(&other);
-                return o && (it_ == o->it_);
-            }
-            
-            /**
-             *  Compares two DataIterators by their implementations.
-             *  @return Whether the iterators do not point to the same memory address or database position.
-             */
-            bool operator!=(const DataIteratorBase& other) const override { return !(*this == other); }
-            
-            /**
-             * Returns a pointer to a new iterator that references the same point.
-             * @return A copy of a given iterator.
-             */
-            unique_ptr<DataIteratorBase> clone() const override {
-                return unique_ptr<DataIteratorBase>(new ConstInMemIterator(it_));
-            }
-
-        private:
-            /**Internal Iterator Object*/
-            InnerIter it_;
-        };
-    
     /**
      * Constructs a default In Memory Container
      */
@@ -132,78 +88,55 @@ class InMemContainer : public DataContainer{
     /**
      * Default Destructor. Clears items to free memory.
      */
-    ~InMemContainer(){clear();}
+    ~InMemContainer();
     
     /**
-     * Returns an iterator that points to the beginning of the container.
      * @return An iterator that points to the beginning of the container.
      */
-    iterator begin() override{
-        return DataIterator(std::unique_ptr<DataIteratorBase>(new InMemIterator(myData.begin())));
-    }
+    iterator begin() override;
 
     /**
-     * Returns an iterator that points past the final item of the container.
-     * @return An iterator that points past the final item of the container.
+     * @return An iterator that points to the end of the container.
      */
-    iterator end() override{
-        return DataIterator(std::unique_ptr<DataIteratorBase>(new InMemIterator(myData.end())));
-    }
+    iterator end() override;
 
      /**
-     * Returns a const iterator that points to the beginning of the container.
      * @return A const iterator that points to the beginning of the container.
      */
-    const_iterator begin() const override{
-        return DataIterator(std::unique_ptr<DataIteratorBase>(new ConstInMemIterator(myData.cbegin())));
-    }
+    const_iterator begin() const override;
 
      /**
-     * Returns a const iterator that points to the beginning of the container.
-     * @return A const iterator that points to the beginning of the container.
+     * @return A const iterator that points to the end of the container.
      */
-    const_iterator end() const override{
-        return DataIterator(std::unique_ptr<DataIteratorBase>(new ConstInMemIterator(myData.cend())));
-    }
+    const_iterator end() const override;
     
     /**
-     * Returns the amount of items inside the container.
      * @return The number of items inside the container.
      */
-    size_type size() const override{
-        return myData.size();
-    }
+    size_type size() const override;
 
     /**
-     * Returns whether the container has no items.
      * @return Whether the container has no items.
      */
-    bool empty() const override{
-        return myData.empty();
-    }
+    bool empty() const override;
     
     /**
      * Removes all items from the container.
      */
-    void clear() override{
-         myData.clear();
-    }
+    void clear() override;
 
     /**
-     * Removes all items that have the same data as the given DataObject inside the container.
+     * Removes all DataObjects that contain the internal data as the given DataObject.
+     * The internal data refers to the information that the DataObject represents.
      * @param val The given DataObject.
      */
-    void remove (const shared_ptr<DataObject>& val) override{
-         myData.remove(val);
-    }
+    void remove (const shared_ptr<DataObject>& val) override;
 
      /**
      * Pushes a given DataObject into the container for storage.
      * @param val The given DataObject to store.
      */
-    void push_back (const shared_ptr<DataObject>& val) override{
-        myData.push_back(val);
-    }
+    void push_back (const shared_ptr<DataObject>& val) override;
 
     private:
     /** The container in which the data is stored in. */

@@ -4,139 +4,145 @@
 #include <GenSync/Data/DataObject.h>
 
 /**
- * Custom iterator built for both in memory and database operations. 
- */
-class DataIteratorBase {
-
-    public:
-    /**
-     * Constructs a default iterator.
-     */
-    virtual ~DataIteratorBase() = default;
-
-    /**
-     * Dereferences iterator to the DataObject pointer it refers to.
-     * @return Returns the DataObject pointer the iterator is referencing.
-     */
-    virtual shared_ptr<DataObject> operator*() const = 0;
-
-    /**
-     * Moves the iterator up one element in either memory or in database position.
-     * Returns the pointer after the incrementation.
-     * @return A pointer after the incrementation is done.
-     */
-    virtual DataIteratorBase& operator++() = 0;
-
-    /**
-     * Compares two DataIteratorBases
-     * @param other The other iterator.
-     * @return Whether the two DataIteratorBases point to the same memory address.
-     */
-    virtual bool operator==(const DataIteratorBase& other) const = 0;
-
-    /**
-     * Returns true if another iterator does NOT share the same reference.
-     * @param other The other iterator.
-     * @return Whether the two DataIteratorbases do NOT point to the same memory address.
-     */
-    virtual bool operator!=(const DataIteratorBase& other) const = 0;
-
-    /**
-     * Returns a pointer to a new iterator that references the same point.
-     * @return A copy of a given iterator.
-     */
-    virtual unique_ptr<DataIteratorBase> clone() const = 0;
-};
-
-/**
- * Wrapper for DataContainer iterator operations.
- * Maintains some functionalities of built-in in-memory iterator.
- */
-class DataIterator {
-public:
-    //namespaces
-    using difference_type = ptrdiff_t;
-    using value_type = shared_ptr<DataObject>;
-    using pointer = shared_ptr<DataObject>*;
-    using reference = shared_ptr<DataObject>&;
-    using iterator_category = input_iterator_tag;
-
-    /**
-     * Constructs a new DataIterator by moving the reference from the given pointer.
-     * @param impl The original pointer.
-     */
-    DataIterator(unique_ptr<DataIteratorBase> impl) : impl_(std::move(impl)) {}
-
-    /**
-     * Constructs a new DataIterator by cloning another Dataiterator's pointer.
-     * @param other The DataIterator to copy.
-     */
-    DataIterator(const DataIterator& other) : impl_(other.impl_ ? other.impl_->clone() : nullptr) {}
-
-    /**
-     * Replaces the current pointer as the copy of another DataIterator's pointer.
-     * @param other The DataIterator to copy.
-     * @return The new copied iterator.
-     */
-    DataIterator& operator=(const DataIterator& other) {
-        if (&other != this) {
-            impl_ = other.impl_ ? other.impl_->clone() : nullptr;
-        }
-        return *this;
-    }
-
-    /**
-     * Moves the iterator up one element in either memory or in database position.
-     * @return The iterator BEFORE the incrementation.
-     */
-    DataIterator operator++(int) {
-        DataIterator temp(*this); 
-        ++(*this);              
-        return temp;           
-    }
-    
-    /**
-     * Returns the DataObject pointer the iterator is pointing at.
-     * @return The DataObject pointer the iterator is pointing at.
-     */
-    shared_ptr<DataObject> operator*() const { return **impl_; }
-
-    /**
-     * Increments the iterator up one element in either memory or in database position.
-     * @return The iterator AFTER the incrementation.
-     */
-    DataIterator& operator++() { ++(*impl_); return *this; }
-
-    /**
-     * Compares two DataIterators by their implementations.
-     * @return Whether the iterators point to the same memory address or database position.
-     */
-    bool operator==(const DataIterator& other) const {
-        if (!impl_ || !other.impl_) return impl_ == other.impl_;
-        return *impl_ == *other.impl_;
-    }
-
-    /**
-     *  Compares two DataIterators by their implementations.
-     *  @return Whether the iterators do not point to the same memory address or database position.
-     */
-    bool operator!=(const DataIterator& other) const { return !(*this == other); }
-
-    private:
-    /**
-     * The implementation of the pointer.
-     */
-    unique_ptr<DataIteratorBase> impl_;
-    friend class InMemContainer;
-};
-
-/**
  * Implements a generic container that stores DataObject information. 
  * The manner in which data is stored is dependent on the subclass implementation.
- * DataContainers have their own iterator allowing for looping and indexing.
+ * DataContainers have their own iterator based off of DataIteratorBase allowing for looping and indexing.
  */
 class DataContainer{
+    protected:
+        /**
+         * Custom iterator built for all DataContainers.
+         */
+        class DataIteratorBase {
+            public:
+            /**
+             * Default Iterator Base Destructor
+             */
+            virtual ~DataIteratorBase() = default;
+
+            /**
+             * Dereferences iterator to the DataObject pointer it refers to.
+             * @return Returns the DataObject pointer the iterator is referencing.
+             */
+            virtual shared_ptr<DataObject> operator*() const = 0;
+
+            /**
+             * Moves the iterator up one element in the container's position.
+             * Returns the pointer after it has moved position.
+             * @return A pointer after the it has moved one position in the container.
+             */
+            virtual DataIteratorBase& operator++() = 0;
+
+            /**
+             * Compares two DataIteratorBases
+             * @param other The other iterator.
+             * @return Whether the two DataIteratorBases point to the same object in the DataContainer.
+             */
+            virtual bool operator==(const DataIteratorBase& other) const = 0;
+
+            /**
+             * Compares two DataIteratorBases, returns true if they do not point to the same object in the DataContainer.
+             * @param other The other iterator.
+             * @return Whether the two DataIteratorbases do not point to the same object in the DataContainer.
+             */
+            virtual bool operator!=(const DataIteratorBase& other) const = 0;
+
+            /**
+             * Returns a pointer to a new iterator that references the same point.
+             * @return A copy of a given iterator.
+             */
+            virtual unique_ptr<DataIteratorBase> clone() const = 0;
+        };
+
     public:
+        /**
+         * Wrapper for DataContainer iterator operations.
+         * Allows DataIteratorBase implementations to be called until a general class.
+         */
+        class DataIterator {
+            public:
+            //namespaces
+            using difference_type = ptrdiff_t;
+            using value_type = shared_ptr<DataObject>;
+            using pointer = shared_ptr<DataObject>*;
+            using reference = shared_ptr<DataObject>&;
+            using iterator_category = input_iterator_tag;
+
+            /**
+             * Constructs a new DataIterator by moving the reference from the given pointer.
+             * @param impl The original pointer.
+             */
+            DataIterator(unique_ptr<DataContainer::DataIteratorBase> impl) : _impl(std::move(impl)) {}
+
+            /**
+             * Constructs a new DataIterator by cloning another Dataiterator's pointer.
+             * @param other The DataIterator to copy.
+             */
+            DataIterator(const DataIterator& other) : _impl(other._impl ? other._impl->clone() : nullptr) {}
+
+            /**
+             * Replaces the current pointer as the copy of another DataIterator's pointer.
+             * @param other The DataIterator to copy.
+             * @return The new copied iterator.
+             */
+            DataIterator& operator=(const DataIterator& other) {
+                if (&other != this) {
+                    _impl = other._impl ? other._impl->clone() : nullptr;
+                }
+                return *this;
+            }
+
+            /**
+             * Moves the iterator up one element in the container's position.
+             * Returns the iterator before its position is changed. 
+             * @return The iterator before it moves position.
+             */
+            DataIterator operator++(int) {
+                DataIterator temp(*this); 
+                ++(*this);              
+                return temp;           
+            }
+            
+            /**
+             * @return The DataObject pointer the iterator is pointing at.
+             */
+            shared_ptr<DataObject> operator*() const { return **_impl; }
+
+            /**
+             * Moves the iterator up one element in the container's position.
+             * Returns the iterator after it moves position in the container. 
+             * @return The iterator after it moves position in the container.
+             */
+            DataIterator& operator++() { ++(*_impl); return *this; }
+
+            /**
+             * Compares two DataIterators. 
+             * Returns true if they point to the same object.
+             * If the iterators have different DataContainer types they refer to, 
+             * returns false by default as they are not able to point towards the same object.
+             * @return Whether the iterators point to the same object in the container. If the the pointer types are different, returns false by default.
+             */
+            bool operator==(const DataIterator& other) const {
+                if (!_impl || !other._impl) return _impl == other._impl;
+                return *_impl == *other._impl;
+            }
+
+            /**
+             *  Compares two DataIterators.
+             *  Returns true if they do not point to the same object.
+             *  If the iterators have different DataContainer types they refer to, 
+             *  returns true by default as they are not able to point towards the same object.
+             *  @return Whether the iterators do not point to the same object in the container. If the the pointer types are different, returns true by default.
+             */
+            bool operator!=(const DataIterator& other) const { return !(*this == other); }
+
+            private:
+            /**
+             * The implementation of the pointer.
+             */
+            unique_ptr<DataIteratorBase> _impl;
+        };
+
         //namespaces
         using iterator = DataIterator;
         using const_iterator = DataIterator;
@@ -148,48 +154,43 @@ class DataContainer{
         virtual ~DataContainer() = default;
 
         /**
-         * Returns an iterator that points to the beginning of the container.
          * @return An iterator that points to the beginning of the container.
          */
         virtual iterator begin() = 0;
 
         /**
-         * Returns an iterator that points past the final item of the container.
          * @return An iterator that points past the final item of the container.
          */
         virtual iterator end() = 0;
 
         /**
-         * Returns a const iterator that points to the beginning of the container.
          * @return A const iterator that points to the beginning of the container.
          */
         virtual const_iterator begin() const = 0;
 
         /**
-         * Returns a const iterator that points to the beginning of the container.
          * @return A const iterator that points to the beginning of the container.
          */
         virtual const_iterator end() const = 0;
 
         /**
-         * Returns the amount of items inside the container.
          * @return The number of items inside the container.
          */
         virtual size_type size() const = 0;
 
         /**
-         * Returns whether the container has no items.
-         * @return Whether the container has no items.
+         * @return Whether the container has no DataObjects.
          */
         virtual bool empty() const = 0;
 
         /**
-         * Removes all items from the container.
+         * Removes all DataObjects from the container.
          */
         virtual void clear() = 0;
 
         /**
-         * Removes all items that have the same data as the given DataObject inside the container.
+         * Removes all DataObjects that contain the internal data as the given DataObject.
+         * The internal data refers to the information that the DataObject represents.
          * @param val The given DataObject.
          */
         virtual void remove (const shared_ptr<DataObject>& val) = 0;

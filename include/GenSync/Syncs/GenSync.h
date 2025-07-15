@@ -73,7 +73,7 @@ public:
             const vector<shared_ptr<SyncMethod>> &mVec,
             void (*postProcessing)(
                     list<shared_ptr<DataObject>>,
-                    DataContainer&,
+                    const DataContainer&,
                     void (GenSync::*add)(shared_ptr<DataObject>),
                     bool (GenSync::*del)(shared_ptr<DataObject>),
                     GenSync *pGenSync)
@@ -351,7 +351,7 @@ private:
     GenSync();
 
     /** A pointer to the postprocessing function **/
-    void (*_PostProcessing)(list<shared_ptr<DataObject>>, DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync){};
+    void (*_PostProcessing)(list<shared_ptr<DataObject>>, const DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync){};
 
 
     // FIELDS
@@ -618,7 +618,7 @@ private:
     shared_ptr<Communicant> myComm;
     shared_ptr<SyncMethod> myMeth;
     // bookkeeping postprocessing function pointer
-    void (*_postProcess)(list<shared_ptr<DataObject>>, DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync);
+    void (*_postProcess)(list<shared_ptr<DataObject>>, const DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync);
     // DEFAULT constants
     static const bool HASHES = false;
     static const SyncProtocol DFT_PROTO = SyncProtocol::UNDEFINED;

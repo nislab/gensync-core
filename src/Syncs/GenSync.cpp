@@ -42,7 +42,7 @@ GenSync::GenSync() = default;
 GenSync::GenSync(
                  const vector<shared_ptr<Communicant>> &cVec,
                  const vector<shared_ptr<SyncMethod>> &mVec,
-                 void (*postProcessing)(list<shared_ptr<DataObject>>, DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>),bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync),
+                 void (*postProcessing)(list<shared_ptr<DataObject>>, const DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>),bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync),
                  const list<shared_ptr<DataObject>> &data)
 {
     myCommVec = cVec;
@@ -138,7 +138,7 @@ bool GenSync::delElem(shared_ptr<DataObject> delPtr) {
         return myData->size() < before;
     }
     else{
-        Logger::error("genSync is empty");
+        Logger::error("GenSync is empty");
         return false;
     }
 }
