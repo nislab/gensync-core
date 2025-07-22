@@ -10,15 +10,16 @@
  */
 class DataContainer{
     protected:
+
         /**
          * Custom iterator built for all DataContainers.
          */
-        class DataIteratorBase {
+        class DataIterator {
             public:
             /**
              * Default Iterator Base Destructor
              */
-            virtual ~DataIteratorBase() = default;
+            virtual ~DataIterator() = default;
 
             /**
              * Dereferences iterator to the DataObject pointer it refers to.
@@ -31,34 +32,34 @@ class DataContainer{
              * Returns the pointer after it has moved position.
              * @return A pointer after the it has moved one position in the container.
              */
-            virtual DataIteratorBase& operator++() = 0;
+            virtual DataIterator& operator++() = 0;
 
             /**
              * Compares two DataIteratorBases
              * @param other The other iterator.
              * @return Whether the two DataIteratorBases point to the same object in the DataContainer.
              */
-            virtual bool operator==(const DataIteratorBase& other) const = 0;
+            virtual bool operator==(const DataIterator& other) const = 0;
 
             /**
              * Compares two DataIteratorBases, returns true if they do not point to the same object in the DataContainer.
              * @param other The other iterator.
              * @return Whether the two DataIteratorbases do not point to the same object in the DataContainer.
              */
-            virtual bool operator!=(const DataIteratorBase& other) const = 0;
+            virtual bool operator!=(const DataIterator& other) const = 0;
 
             /**
              * Returns a pointer to a new iterator that references the same point.
              * @return A copy of a given iterator.
              */
-            virtual unique_ptr<DataIteratorBase> clone() const = 0;
+            virtual unique_ptr<DataIterator> clone() const = 0;
         };
 
-         /**
+        /**
          * Wrapper for DataContainer iterator operations.
          * Allows DataIteratorBase implementations to be called until a general class.
          */
-        class DataIterator {
+        class DataIteratorWrapper {
             public:
             //namespaces
             using difference_type = ptrdiff_t;
@@ -71,20 +72,20 @@ class DataContainer{
              * Constructs a new DataIterator by moving the reference from the given pointer.
              * @param impl The original pointer.
              */
-            DataIterator(unique_ptr<DataContainer::DataIteratorBase> impl) : _impl(std::move(impl)) {}
+            DataIteratorWrapper(unique_ptr<DataContainer::DataIterator> impl) : _impl(std::move(impl)) {}
 
             /**
              * Constructs a new DataIterator by cloning another Dataiterator's pointer.
              * @param other The DataIterator to copy.
              */
-            DataIterator(const DataIterator& other) : _impl(other._impl ? other._impl->clone() : nullptr) {}
+            DataIteratorWrapper(const DataIteratorWrapper& other) : _impl(other._impl ? other._impl->clone() : nullptr) {}
 
             /**
              * Replaces the current pointer as the copy of another DataIterator's pointer.
              * @param other The DataIterator to copy.
              * @return The new copied iterator.
              */
-            DataIterator& operator=(const DataIterator& other) {
+            DataIteratorWrapper& operator=(const DataIteratorWrapper& other) {
                 if (&other != this) {
                     _impl = other._impl ? other._impl->clone() : nullptr;
                 }
@@ -96,8 +97,8 @@ class DataContainer{
              * Returns the iterator before its position is changed. 
              * @return The iterator before it moves position.
              */
-            DataIterator operator++(int) {
-                DataIterator temp(*this); 
+            DataIteratorWrapper operator++(int) {
+                DataIteratorWrapper temp(*this); 
                 ++(*this);              
                 return temp;           
             }
@@ -112,7 +113,7 @@ class DataContainer{
              * Returns the iterator after it moves position in the container. 
              * @return The iterator after it moves position in the container.
              */
-            DataIterator& operator++() { ++(*_impl); return *this; }
+            DataIteratorWrapper& operator++() { ++(*_impl); return *this; }
 
             /**
              * Compares two DataIterators. 
@@ -121,7 +122,7 @@ class DataContainer{
              * returns false by default as they are not able to point towards the same object.
              * @return Whether the iterators point to the same object in the container. If the the pointer types are different, returns false by default.
              */
-            bool operator==(const DataIterator& other) const {
+            bool operator==(const DataIteratorWrapper& other) const {
                 if (!_impl || !other._impl) return _impl == other._impl;
                 return *_impl == *other._impl;
             }
@@ -133,19 +134,19 @@ class DataContainer{
              *  returns true by default as they are not able to point towards the same object.
              *  @return Whether the iterators do not point to the same object in the container. If the the pointer types are different, returns true by default.
              */
-            bool operator!=(const DataIterator& other) const { return !(*this == other); }
+            bool operator!=(const DataIteratorWrapper& other) const { return !(*this == other); }
 
             private:
             /**
              * The implementation of the pointer.
              */
-            unique_ptr<DataIteratorBase> _impl;
+            unique_ptr<DataIterator> _impl;
         };
 
     public:
         //namespaces
-        using iterator = DataIterator;
-        using const_iterator = DataIterator;
+        using iterator = DataIteratorWrapper;
+        using const_iterator = DataIteratorWrapper;
         using size_type = list<shared_ptr<DataObject>>::size_type;
 
         /**

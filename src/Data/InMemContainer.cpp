@@ -3,19 +3,19 @@
 InMemContainer::~InMemContainer(){clear();}
 
 DataContainer::iterator InMemContainer::begin(){
-    return DataIterator(std::unique_ptr<DataIteratorBase>(new InMemIterator(myData.begin())));
+    return DataIteratorWrapper(std::unique_ptr<DataIterator>(new InMemIterator(myData.begin())));
 }
 
 DataContainer::iterator InMemContainer::end(){
-    return DataIterator(std::unique_ptr<DataIteratorBase>(new InMemIterator(myData.end())));
+    return DataIteratorWrapper(std::unique_ptr<DataIterator>(new InMemIterator(myData.end())));
 }
 
 DataContainer::const_iterator InMemContainer::begin() const{
-    return DataIterator(std::unique_ptr<DataIteratorBase>(new ConstInMemIterator(myData.cbegin())));
+    return DataIteratorWrapper(std::unique_ptr<DataIterator>(new ConstInMemIterator(myData.cbegin())));
 }
 
 DataContainer::const_iterator InMemContainer::end() const{
-    return DataIterator(std::unique_ptr<DataIteratorBase>(new ConstInMemIterator(myData.cend())));
+    return DataIteratorWrapper(std::unique_ptr<DataIterator>(new ConstInMemIterator(myData.cend())));
 }
 
 DataContainer::size_type InMemContainer::size() const{

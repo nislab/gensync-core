@@ -8,7 +8,7 @@
  * in the internal form of a list. 
  */
 class InMemContainer : public DataContainer{
-    public:
+    private:
     /**
      * Generic Iterator for In-Memory Containers
      * This uses an existing in-memory container's iterator 
@@ -16,7 +16,7 @@ class InMemContainer : public DataContainer{
      * @tparam IterType The type of iterator this class uses for its internal implementation.
      */
     template <typename IterType>
-    class InMemIteratorBase : public DataIteratorBase {
+    class InMemIteratorBase : public DataIterator {
         public:
             /**
              * Constructs a iterator based off another iterator.
@@ -36,7 +36,7 @@ class InMemContainer : public DataContainer{
              * Returns the iterator after it has moved positions.
              * @return The iterator after it has moved positions in the container.
              */
-            DataIteratorBase& operator++() override {
+            DataIterator& operator++() override {
                 ++it_;
                 return *this;
             }
@@ -46,7 +46,7 @@ class InMemContainer : public DataContainer{
              * Returns true if they point to the same object.
              * @return Whether the two iterators point to the same object in the container.
              */
-            bool operator==(const DataIteratorBase& other) const override {
+            bool operator==(const DataIterator& other) const override {
                 auto otherPtr = dynamic_cast<const InMemIteratorBase<IterType>*>(&other);
                 return otherPtr && (it_ == otherPtr->it_);
             }
@@ -56,7 +56,7 @@ class InMemContainer : public DataContainer{
              * Returns true if they do not point to the same object.
              * @return Whether the two iterators do not point to the same object in the container.
              */
-            bool operator!=(const DataIteratorBase& other) const override {
+            bool operator!=(const DataIterator& other) const override {
                 return !(*this == other);
             }
             
@@ -65,8 +65,8 @@ class InMemContainer : public DataContainer{
              * The iterator is destroyed when the pointer referring to it is moved or destroyed.
              * @return A new iterator that is identical to this one.
              */
-            unique_ptr<DataIteratorBase> clone() const override {
-                return unique_ptr<DataIteratorBase>(new InMemIteratorBase<IterType>(it_));
+            unique_ptr<DataIterator> clone() const override {
+                return unique_ptr<DataIterator>(new InMemIteratorBase<IterType>(it_));
             }
 
         private:
@@ -76,6 +76,7 @@ class InMemContainer : public DataContainer{
             IterType it_;
     };
 
+    public:
     //Namespaces
     using InMemIterator = InMemIteratorBase<list<shared_ptr<DataObject>>::iterator>;
     using ConstInMemIterator = InMemIteratorBase<list<shared_ptr<DataObject>>::const_iterator>;
