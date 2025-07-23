@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <chrono>
+#include <GenSync/Data/InMemContainer.h>
 #include <GenSync/Communicants/Communicant.h>
 
 #if defined (RECORD)
@@ -113,7 +114,7 @@ public:
      * @param myData list of dataObjects, containing all elems saved in the data structure
      **/
     template <class T>
-    static void postProcessing_SET(list<shared_ptr<DataObject>> otherMinusSelf, list<shared_ptr<DataObject>> myData, void (T::*add)(shared_ptr<DataObject>), bool (T::*del)(shared_ptr<DataObject>), T *pGenSync)
+    static void postProcessing_SET(list<shared_ptr<DataObject>> otherMinusSelf, const DataContainer& myData, void (T::*add)(shared_ptr<DataObject>), bool (T::*del)(shared_ptr<DataObject>), T *pGenSync)
     {
         for (auto elem : otherMinusSelf)
         {

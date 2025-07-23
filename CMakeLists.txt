@@ -53,6 +53,7 @@ set(SOURCE_FILES
         ${AUX_DIR}/Sketches.cpp
 
         ${DATA_DIR}/DataObject.cpp
+        ${DATA_DIR}/InMemContainer.cpp
 
         ${COMM_DIR}/CommSocket.cpp
         ${COMM_DIR}/CommString.cpp
@@ -74,8 +75,8 @@ set(SOURCE_FILES
         ${SYNC_DIR}/Cuckoo.cpp
         ${SYNC_DIR}/CuckooSync.cpp
         ${SYNC_DIR}/FullSync.cpp
-	${SYNC_DIR}/BloomFilterSync.cpp
-	${SYNC_DIR}/BloomFilter.cpp
+	    ${SYNC_DIR}/BloomFilterSync.cpp
+	    ${SYNC_DIR}/BloomFilter.cpp
         ${SYNC_DIR}/MET_IBLTSync.cpp
         ${SYNC_DIR}/MET_IBLT.cpp
 
@@ -99,6 +100,8 @@ set(HEADERS
         ${DATA_DIR_INC}/DataObjC.h
         ${DATA_DIR_INC}/DataObject.h
         ${DATA_DIR_INC}/DataPriorityObject.h
+        ${DATA_DIR_INC}/DataContainer.h
+        ${DATA_DIR_INC}/InMemContainer.h
 
         ${COMM_DIR_INC}/CommSocket.h
         ${COMM_DIR_INC}/CommString.h
@@ -126,8 +129,8 @@ set(HEADERS
         ${SYNC_DIR_INC}/InterCPISync.h
         ${SYNC_DIR_INC}/PrioCPISync.h
         ${SYNC_DIR_INC}/ProbCPISync.h
-	${SYNC_DIR_INC}/BloomFilterSync.h
-	${SYNC_DIR_INC}/BloomFilter.h
+	    ${SYNC_DIR_INC}/BloomFilterSync.h
+	    ${SYNC_DIR_INC}/BloomFilter.h
         ${SYNC_DIR_INC}/MET_IBLTSync.h
         ${SYNC_DIR_INC}/MET_IBLT.h
 
