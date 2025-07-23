@@ -7,7 +7,7 @@
 
 class InMemContainerTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(InMemContainerTest);
-    CPPUNIT_TEST(addIterateTest);
+    CPPUNIT_TEST(addTest);
     CPPUNIT_TEST(clearTest);
     CPPUNIT_TEST(emptyTest);
     CPPUNIT_TEST(sizeTest);
@@ -51,7 +51,7 @@ class InMemContainerTest : public CppUnit::TestFixture {
      * Adds elements to a container and iterates through them using a list
      * as comparison to ensure values have been successfully inserted.
      */
-    void addIterateTest();
+    void addTest();
 
     /**
      * Tests the clear function by repeatedly filling and clearing the container.

@@ -9,7 +9,7 @@ void InMemContainerTest::setUp(){
     srand(SEED);
 }
 
-void InMemContainerTest::addIterateTest(){
+void InMemContainerTest::addTest(){
     //Create containers
     list<shared_ptr<DataObject>> objList;
     InMemContainer container;
