@@ -190,12 +190,12 @@ class DataContainer{
         virtual void clear() = 0;
 
         /**
-         * Removes all DataObjects that contain the internal data as the given DataObject.
+         * Removes the first DataObject that contain the internal data as the given DataObject.
          * The internal data refers to the information that the DataObject represents.
          * @param val The given DataObject.
          * @return Returns true if object is successfully removed.
          */
-        virtual bool remove (const shared_ptr<DataObject>& val) = 0;
+        virtual bool remove(const shared_ptr<DataObject>& val) = 0;
 
         /**
          * Pushes a given DataObject into the container for storage.
