@@ -20,6 +20,8 @@
 #include <GenSync/Syncs/CuckooSync.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <GenSync/Syncs/MET_IBLTSync.h>
+#include <GenSync/Syncs/IBLTSync_Adaptive.h>
+#include <GenSync/Syncs/IBLTSync_Adaptive_PartialDecode.h>
 
 const char BenchParams::KEYVAL_SEP = ':';
 const string BenchParams::FILEPATH_SEP = "/"; // TODO: we currently don't compile for _WIN32!
@@ -182,7 +184,9 @@ inline shared_ptr<Params> decideBenchParams(GenSync::SyncProtocol syncProtocol, 
     } else if (syncProtocol == GenSync::SyncProtocol::IBLTSync
                || syncProtocol == GenSync::SyncProtocol::OneWayIBLTSync
                || syncProtocol == GenSync::SyncProtocol::IBLTSetOfSets
-               || syncProtocol == GenSync::SyncProtocol::IBLTSync_Multiset) {
+               || syncProtocol == GenSync::SyncProtocol::IBLTSync_Multiset
+               || syncProtocol == GenSync::SyncProtocol::IBLTSync_Adaptive
+               || syncProtocol == GenSync::SyncProtocol::IBLTSync_Adaptive_PartialDecode) {
         auto par = make_shared<IBLTParams>();
         is >> *par;
         return par;
@@ -374,6 +378,20 @@ BenchParams::BenchParams(SyncMethod& meth) :
     if (met_iblt) {
         syncProtocol = GenSync::SyncProtocol::MET_IBLTSync;
         syncParams = make_shared<MET_IBLTParams>(met_iblt->getElementSize());
+        return;
+    }
+
+    auto iblt_adaptive = dynamic_cast<IBLTSync_Adaptive*>(&meth);
+    if (iblt_adaptive) {
+        syncProtocol = GenSync::SyncProtocol::IBLTSync_Adaptive;
+        syncParams = make_shared<IBLTParams>(iblt_adaptive->getInitExpNumElems(), iblt_adaptive->getElementSize());
+        return;
+    }
+
+    auto iblt_adaptive_partialdecode = dynamic_cast<IBLTSync_Adaptive_PartialDecode*>(&meth);
+    if (iblt_adaptive_partialdecode) {
+        syncProtocol = GenSync::SyncProtocol::IBLTSync_Adaptive_PartialDecode;
+        syncParams = make_shared<IBLTParams>(iblt_adaptive_partialdecode->getInitExpNumElems(), iblt_adaptive_partialdecode->getElementSize());
         return;
     }
 

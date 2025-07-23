@@ -68,7 +68,7 @@ void MET_IBLTSyncTest::testAddElem(){
 	GenSync metSync = GenSync::Builder().
 			setProtocol(GenSync::SyncProtocol::MET_IBLTSync).
 			setComm(GenSync::SyncComm::socket).
-			setBits(4).
+			setBits(8).
 			build();
 	multiset<shared_ptr<DataObject>, cmp<shared_ptr<DataObject>>> elts;
 	
@@ -87,7 +87,7 @@ void MET_IBLTSyncTest::testGetStrings(){
 	GenSync metSync = GenSync::Builder().
 			setProtocol(GenSync::SyncProtocol::MET_IBLTSync).
 			setComm(GenSync::SyncComm::socket).
-			setBits(4).
+			setBits(8).
 			build();
 	
 	CPPUNIT_ASSERT(!metSync.getName().empty());

@@ -87,7 +87,6 @@ bool Communicant::establishIBLTRecv(const size_t size, const size_t eltSize, boo
     // receive other size and eltSize. both must be read, even if the first parameter is wrong
     long otherSize = commRecv_long();
     long otherEltSize = commRecv_long();
-
     if(otherSize == size && otherEltSize == eltSize) {
         if(!oneWay)
             commSend(SYNC_OK_FLAG);
@@ -344,6 +343,14 @@ void Communicant::commSend(const ZZ& num, Nullable<size_t> size) {
 
     commSend(ustring(toSend, num_size), num_size);
 
+}
+
+void Communicant::commSend(const std::vector<ZZ> &vec) {
+    long len = vec.size();
+    commSend(len);
+    for (const auto &zz : vec) {
+        commSend(zz);
+    }
 }
 
 void Communicant::commSendIBLTNHash(const IBLT &iblt, bool sync)
@@ -644,4 +651,14 @@ Cuckoo Communicant::commRecv_Cuckoo() {
         filter.push_back(commRecv_byte());
 
     return Cuckoo(fngprtS, bucketS, filterSize, kicks, filter, itemsC);
+}
+
+vector<NTL::ZZ> Communicant::commRecv_vector_ZZ() {
+    long len = commRecv_long();
+    vector<ZZ> result;
+    result.reserve(len);
+    for (long i = 0; i < len; ++i) {
+        result.push_back(commRecv_ZZ());
+    }
+    return result;
 }
