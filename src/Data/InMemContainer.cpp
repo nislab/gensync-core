@@ -30,10 +30,12 @@ void InMemContainer::clear(){
     myData.clear();
 }
 
-void InMemContainer::remove (const shared_ptr<DataObject>& val){
+bool InMemContainer::remove (const shared_ptr<DataObject>& val){
+    int before =myData.size();
     myData.remove(val);
+    return myData.size() < before;
 }
 
-void InMemContainer::push_back (const shared_ptr<DataObject>& val){
+void InMemContainer::add(const shared_ptr<DataObject>& val){
     myData.push_back(val);
 }

@@ -61,7 +61,7 @@ class DataContainer{
          */
         class DataIteratorWrapper {
             public:
-            //namespaces
+            //aliases
             using difference_type = ptrdiff_t;
             using value_type = shared_ptr<DataObject>;
             using pointer = shared_ptr<DataObject>*;
@@ -144,7 +144,7 @@ class DataContainer{
         };
 
     public:
-        //namespaces
+        //aliases
         using iterator = DataIteratorWrapper;
         using const_iterator = DataIteratorWrapper;
         using size_type = list<shared_ptr<DataObject>>::size_type;
@@ -193,13 +193,14 @@ class DataContainer{
          * Removes all DataObjects that contain the internal data as the given DataObject.
          * The internal data refers to the information that the DataObject represents.
          * @param val The given DataObject.
+         * @return Returns true if object is successfully removed.
          */
-        virtual void remove (const shared_ptr<DataObject>& val) = 0;
+        virtual bool remove (const shared_ptr<DataObject>& val) = 0;
 
         /**
          * Pushes a given DataObject into the container for storage.
          * @param val The given DataObject to store.
          */
-        virtual void push_back (const shared_ptr<DataObject>& val) = 0;
+        virtual void add(const shared_ptr<DataObject>& val) = 0;
 };
 #endif

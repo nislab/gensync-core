@@ -106,7 +106,7 @@ GenSync::~GenSync() {
 void GenSync::addElem(shared_ptr<DataObject> newDatum) {
     Logger::gLog(Logger::METHOD, "Entering GenSync::addElem");
     // store locally
-    myData->push_back(newDatum);
+    myData->add(newDatum);
 
     // update sync methods' metadata
     vector<shared_ptr<SyncMethod>>::iterator itAgt;

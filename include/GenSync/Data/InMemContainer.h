@@ -5,7 +5,7 @@
  
 /**
  * Implements an In-Memory Container that stores DataObject information
- * in the internal form of a list. 
+ * in physical memory.
  */
 class InMemContainer : public DataContainer{
     protected:
@@ -22,13 +22,13 @@ class InMemContainer : public DataContainer{
              * Constructs a iterator based off another iterator.
              * @param it The other iterator.
              */
-            explicit InMemIteratorBase(IterType it) : it_(it) {}
+            explicit InMemIteratorBase(IterType it) : _it(it) {}
 
             /**
              * @return The DataObject pointer the iterator is pointing at.
              */
             shared_ptr<DataObject> operator*() const override {
-                return *it_;
+                return *_it;
             }
             
             /**
@@ -37,7 +37,7 @@ class InMemContainer : public DataContainer{
              * @return The iterator after it has moved positions in the container.
              */
             DataIterator& operator++() override {
-                ++it_;
+                ++_it;
                 return *this;
             }
             
@@ -48,7 +48,7 @@ class InMemContainer : public DataContainer{
              */
             bool operator==(const DataIterator& other) const override {
                 auto otherPtr = dynamic_cast<const InMemIteratorBase<IterType>*>(&other);
-                return otherPtr && (it_ == otherPtr->it_);
+                return otherPtr && (_it == otherPtr->_it);
             }
             
             /**
@@ -66,14 +66,14 @@ class InMemContainer : public DataContainer{
              * @return A new iterator that is identical to this one.
              */
             unique_ptr<DataIterator> clone() const override {
-                return unique_ptr<DataIterator>(new InMemIteratorBase<IterType>(it_));
+                return unique_ptr<DataIterator>(new InMemIteratorBase<IterType>(_it));
             }
 
         private:
             /**
              * The implementation of the iterator.
              */
-            IterType it_;
+            IterType _it;
     };
 
     public:
@@ -130,14 +130,15 @@ class InMemContainer : public DataContainer{
      * Removes all DataObjects that contain the internal data as the given DataObject.
      * The internal data refers to the information that the DataObject represents.
      * @param val The given DataObject.
+     * @return Returns true if object is successfully removed.
      */
-    void remove (const shared_ptr<DataObject>& val) override;
+    bool remove (const shared_ptr<DataObject>& val) override;
 
      /**
      * Pushes a given DataObject into the container for storage.
      * @param val The given DataObject to store.
      */
-    void push_back (const shared_ptr<DataObject>& val) override;
+    void add(const shared_ptr<DataObject>& val) override;
 
     private:
     /** The container in which the data is stored in. */
