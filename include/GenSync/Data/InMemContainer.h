@@ -8,7 +8,7 @@
  * in the internal form of a list. 
  */
 class InMemContainer : public DataContainer{
-    private:
+    protected:
     /**
      * Generic Iterator for In-Memory Containers
      * This uses an existing in-memory container's iterator 

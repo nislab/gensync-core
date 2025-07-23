@@ -35,16 +35,16 @@ class DataContainer{
             virtual DataIterator& operator++() = 0;
 
             /**
-             * Compares two DataIteratorBases
+             * Compares two DataIterators
              * @param other The other iterator.
-             * @return Whether the two DataIteratorBases point to the same object in the DataContainer.
+             * @return Whether the two DataIterator point to the same object in the DataContainer.
              */
             virtual bool operator==(const DataIterator& other) const = 0;
 
             /**
-             * Compares two DataIteratorBases, returns true if they do not point to the same object in the DataContainer.
+             * Compares two DataIterator, returns true if they do not point to the same object in the DataContainer.
              * @param other The other iterator.
-             * @return Whether the two DataIteratorbases do not point to the same object in the DataContainer.
+             * @return Whether the two DataIterator do not point to the same object in the DataContainer.
              */
             virtual bool operator!=(const DataIterator& other) const = 0;
 
@@ -69,14 +69,14 @@ class DataContainer{
             using iterator_category = input_iterator_tag;
 
             /**
-             * Constructs a new DataIterator by moving the reference from the given pointer.
+             * Constructs a new DataIteratorWrapper by moving the reference from the given pointer.
              * @param impl The original pointer.
              */
             DataIteratorWrapper(unique_ptr<DataContainer::DataIterator> impl) : _impl(std::move(impl)) {}
 
             /**
-             * Constructs a new DataIterator by cloning another Dataiterator's pointer.
-             * @param other The DataIterator to copy.
+             * Constructs a new DataIteratorWrapper by cloning another Dataiterator's pointer.
+             * @param other The DataIteratorWrapper to copy.
              */
             DataIteratorWrapper(const DataIteratorWrapper& other) : _impl(other._impl ? other._impl->clone() : nullptr) {}
 
@@ -116,7 +116,7 @@ class DataContainer{
             DataIteratorWrapper& operator++() { ++(*_impl); return *this; }
 
             /**
-             * Compares two DataIterators. 
+             * Compares two DataIteratorWrappers. 
              * Returns true if they point to the same object.
              * If the iterators have different DataContainer types they refer to, 
              * returns false by default as they are not able to point towards the same object.
@@ -128,7 +128,7 @@ class DataContainer{
             }
 
             /**
-             *  Compares two DataIterators.
+             *  Compares two DataIteratorWrappers.
              *  Returns true if they do not point to the same object.
              *  If the iterators have different DataContainer types they refer to, 
              *  returns true by default as they are not able to point towards the same object.
