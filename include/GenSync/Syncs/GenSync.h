@@ -17,6 +17,10 @@
 #include <GenSync/Aux/Auxiliary.h>
 #include <GenSync/Aux/SyncMethod.h>
 
+#ifdef USE_SQLITE
+#include <GenSync/Data/SQLiteContainer.h>
+#endif
+
 // namespace info
 using std::string;
 using std::cout;
@@ -341,6 +345,11 @@ public:
         END     // one after the end of iterable options
     };
 
+    enum ContainerType {
+        UNDEFINED,
+        SQLite,
+    };
+
 
 
 private:
@@ -349,6 +358,44 @@ private:
      * No argument constructor ... should not be used
      */
     GenSync();
+
+    /**
+     * Private GenSync constructor, for setting myData to a database type and whether to clear it when the destructor is called.
+     * @param cVec      The vector of other GenSync's with whom this data structure might
+     *                      be synchronized.
+     * @param mVec      The vector of synchronization methods that this GenSync
+     *                      should be prepared to use.  The order of these methods
+     *                      is significant.
+     * @param dataCont  The type of container the GenSync object will use to hold information.
+     * @param cleanData  Signifies whether the GenSync object will clear the database when constructed.
+     * @param postProcessing  Cleanup functions to call after processing has been completed.  The default
+     *                      is to incorporate all items from the remote agent into my own data.
+     *                      The parameters of postProcessing are:
+     *                      0.  otherMinusSelf - what the remote host has that I do not
+     *                      1.  myData - all my data
+     *                      2.  add - a pointer to the add method of my GenSync object
+     *                      3.  del - a pointer to the dell method of my GenSync object
+     *                      4.  pGenSync - a pointer tox this GenSync object
+     * @param data       The initial data with which to populate the data structure.  The data is added element by element
+     *                      so that synchronization method metadata can be properly maintained.  Initilizes to the empty list
+     *                      if not specified.
+     * 
+     */
+    GenSync(
+            const vector<shared_ptr<Communicant>> &cVec,
+            const vector<shared_ptr<SyncMethod>> &mVec,
+            const shared_ptr<DataContainer> dataCont,
+            const bool cleanData = false,
+            void (*postProcessing)(
+                    list<shared_ptr<DataObject>>,
+                    const DataContainer&,
+                    void (GenSync::*add)(shared_ptr<DataObject>),
+                    bool (GenSync::*del)(shared_ptr<DataObject>),
+                    GenSync *pGenSync)
+            = SyncMethod::postProcessing_SET, 
+            const list<shared_ptr<DataObject>> &data = list<shared_ptr<DataObject>>()
+            
+    );
 
     /** A pointer to the postprocessing function **/
     void (*_PostProcessing)(list<shared_ptr<DataObject>>, const DataContainer&, void (GenSync::*add)(shared_ptr<DataObject>), bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync){};
@@ -414,6 +461,27 @@ public:
      */
     Builder& setProtocol(SyncProtocol theProto) {
         this->proto = theProto;
+        return *this;
+    }
+
+    /**
+     * Sets the container to a database type.
+     * @param theContainer The container type.
+     * @param dbRef A string reference to the database name.
+     * @param tableName A string reference to the table name.
+     * @param clearDBData Whether to clear the data when the destructor is called.
+     */
+    Builder& setContainer(ContainerType theContainer, const string& dbRef, const string& tableName = "defaultTable", bool clearDBData = false){
+        clearData = clearDBData;
+        switch(theContainer){
+            #ifdef USE_SQLITE
+            case ContainerType::SQLite:
+                this -> dataCont = Nullable<shared_ptr<DataContainer>>(make_shared<SQLiteContainer>(dbRef, tableName));
+                break;
+            #endif
+            default:
+                throw invalid_argument("Unknown Container Type");
+        }
         return *this;
     }
 
@@ -612,6 +680,8 @@ private:
     Nullable<vector<float>> probMatrix; /** Probability matrix for element types in MET */
     Nullable<std::function<int(size_t)>> cellTypeFunc; /** Function which outputs size of cell type given cell type index for MET */
     Nullable<std::function<vector<int>(size_t)>> degMatrixFunc; /** Function which outputs degrees of cell type given cell type index for MET */
+    Nullable<shared_ptr<DataContainer>> dataCont;
+    bool clearData;
 
 
     // ... bookkeeping variables

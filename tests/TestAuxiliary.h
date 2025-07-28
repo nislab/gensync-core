@@ -38,6 +38,12 @@ const int numParts = 3; // Partitions per level for divide-and-conquer syncs
 const int numExpElem = UCHAR_MAX*4; // Max elements in an IBLT for IBLT syncs
 const size_t largeNumExpElems = largeLimit * 3; // Maximum sum of CLIENT_MINUS_SERVER and SEVER_MINUS_CLIENT and SIMILAR
 
+//DataContainer Testing
+const int TEST_ITER = 50;  //Number of Test Iterations
+const int CONTAINERSIZE = 20; //Default Size of Container
+const int LOWER_BOUND_SIZE = 20; //Minimum Length of Data
+const int UPPER_BOUND_SIZE = 50;  //Maximum Length of Data
+
 // helpers
 
 /**
@@ -1294,6 +1300,135 @@ inline bool socketSendReceiveTest(){
 		waitpid(pID, &chld_state, 0);
 	}
 	//If this point is reached, none of the tests have failed
+	return true;
+}
+
+
+/**
+ * This function tests a DataContainer by adding elements, 
+ * then iterates through it to verify the elements have been properly added
+ * by comparing it with a list data structure.
+ * @return true iff all the test succeeds.
+ */
+inline bool dataContainerAddTest(DataContainer& container){
+	//Create container
+	list<shared_ptr<DataObject>> objList;
+	for(int ii = 0; ii < TEST_ITER; ii++){
+        //Fill containers
+        for(int jj = 0; jj < CONTAINERSIZE; jj++){
+            shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
+            container.add(obj);
+            objList.push_back(obj);
+        }
+        
+        auto listIt = objList.begin();
+        auto contIt = container.begin();
+        
+        //Iterates through both lists
+        //Ensures the InMemoryContainer has
+		int count = 0;
+        for(; contIt != container.end(); contIt++){
+            if(!(*(*contIt) == *(*listIt))) return false;
+            listIt++;
+        }
+    }
+	return true;
+}
+
+/**
+ * This function tests a DataContainer's clear function
+ * by adding elements and checking that it is empty after it is cleared.
+ * @return true iff all the test succeeds.
+ */
+inline bool dataContainerClearTest(DataContainer& container){
+	for(int ii = 0; ii < TEST_ITER; ii++){
+        //Fills container
+        shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
+        container.add(obj);
+        container.clear();
+        //Checks if container is empty after clear
+		if(!container.empty() || container.size() != 0) return false;
+    }
+	return true;
+}
+
+/**
+ * This function tests a DataContainer's empty function
+ * by checking if it is empty before and after elements are added.
+ * @return true iff all the test succeeds.
+ */
+inline bool dataContainerEmptyTest(DataContainer& container){
+	 for(int ii = 0; ii < TEST_ITER; ii++){
+        //Checks if container is empty when it is empty
+        if(!container.empty()) return false;
+        shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
+        container.add(obj);
+         //Checks if container is empty when it is not empty
+        if(container.empty()) return false;
+        container.clear();
+    }
+	return true;
+}
+
+/**
+ * This function tests a DataContainer's size function
+ * by adding a random amount of elements and verifies
+ * its sizes is equal to the expected amount.
+ * @return true iff all the test succeeds.
+ */
+inline bool dataContainerSizeTest(DataContainer& container){
+	for(int ii = 0; ii < TEST_ITER; ii++){
+        //Determines a random number between 0 to 99.
+        int randSize = rand() % 100;
+        //Fills the loop that amount of times
+        for(int jj = 0; jj < randSize; jj++){
+            shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
+            container.add(obj);
+        }
+        //Compares the two sizes to ensure they are the same.
+        if(static_cast<DataContainer::size_type>(randSize) != container.size()) return false;
+        container.clear();
+    }
+	return true;
+}
+
+/**
+ * This function tests a DataContainer's remove function
+ * by adding elements then removing half of them.
+ * Then it's elements are compared with a list whose elements have 
+ * not been removed.
+ * @return true iff all the test succeeds.
+ */
+inline bool dataContainerRemoveTest(DataContainer& container){
+	list<shared_ptr<DataObject>> objList;
+    
+    for(int ii = 0; ii < TEST_ITER; ii++){
+        //Fill containers
+        for(int jj = 0; jj < CONTAINERSIZE; jj++){
+            shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
+            container.add(obj);
+            objList.push_back(obj);
+        }
+
+        auto listIt = objList.begin();
+        auto contIt = container.begin();
+
+        //Remove half the list from the In Memory Container
+        for(int jj = 0; jj < CONTAINERSIZE/2; jj++){
+            container.remove(*listIt);
+            listIt++;
+        }
+
+        contIt = container.begin();
+
+        //Compares the resultant container against the list
+        for(; contIt != container.end(); contIt++){
+            if(!(*(*contIt) == *(*listIt))) return false;
+            listIt++;
+        }
+        container.clear();
+        objList.clear();
+    }
 	return true;
 }
 

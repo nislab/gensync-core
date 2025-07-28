@@ -1,4 +1,7 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
+// Created by GregoryFan on 7/10/2025
+//
+
 #ifndef INMEMCONTAINER_H
 #define INMEMCONTAINER_H
 #include <GenSync/Data/DataContainer.h>

@@ -18,6 +18,8 @@ endif()
 
 include(GNUInstallDirs)
 
+option(USE_SQLITE "Enable SQLite support" OFF)
+
 # Set project directory strucuture
 set(SRC_DIR src)
 set(INCLUDE_DIR include)
@@ -102,6 +104,7 @@ set(HEADERS
         ${DATA_DIR_INC}/DataPriorityObject.h
         ${DATA_DIR_INC}/DataContainer.h
         ${DATA_DIR_INC}/InMemContainer.h
+        ${DATA_DIR_INC}/DatabaseContainer.h
 
         ${COMM_DIR_INC}/CommSocket.h
         ${COMM_DIR_INC}/CommString.h
@@ -141,11 +144,25 @@ set(HEADERS
         ${SYNC_BENCH_INC}/FromFileGen.h
     )
 
-# Add gensync library
+if(USE_SQLITE STREQUAL "ON")
+    message(STATUS "SQLite support ENABLED")
+    list(APPEND SOURCE_FILES ${DATA_DIR}/SQLiteContainer.cpp)
+    list(APPEND HEADERS ${DATA_DIR_INC}/SQLiteContainer.h)
+    set(USE_SQLITE_DEFINE USE_SQLITE)
+else()
+    message(STATUS "SQLite support DISABLED")
+    set(USE_SQLITE_DEFINE "")
+endif()
+
+# Now create gensync library AFTER conditionals
 add_library(gensync STATIC ${SOURCE_FILES} ${HEADERS})
 target_include_directories(gensync PUBLIC ${INCLUDE_DIR})
 target_compile_definitions(gensync PUBLIC RECORD="${RECORD_DIR}")
 target_compile_definitions(gensync PUBLIC DEFAULT_LOGLEVEL=${DEFAULT_LOG_LEVEL})
+if(USE_SQLITE)
+    target_compile_definitions(gensync PUBLIC ${USE_SQLITE_DEFINE})
+    target_link_libraries(gensync PUBLIC sqlite3)
+endif()
 
 # include Apache Data Sketches as a header-only library
 target_link_libraries(gensync PUBLIC ntl pthread gmp)
@@ -182,19 +199,34 @@ target_link_libraries(EncodeJoin gensync)
 macro(add_group_test dir name)
     file(GLOB testPaths ${dir}/*Test.cpp ${dir}/*Tests.cpp)
 
-    # add one executable with all tests
-    add_executable(${name} ${TEST_RUNNER} ${testPaths})
+    set(filteredTestPaths "")
+
+    foreach(test ${testPaths})
+        get_filename_component(testFileName ${test} NAME)
+
+        # Skip SQLiteContainerTest if USE_SQLITE is OFF
+        if(testFileName MATCHES "SQLiteContainerTest.cpp")
+            if(USE_SQLITE)
+                list(APPEND filteredTestPaths ${test})
+            endif()
+        else()
+            list(APPEND filteredTestPaths ${test})
+        endif()
+    endforeach()
+
+    # Add one executable with all tests
+    add_executable(${name} ${TEST_RUNNER} ${filteredTestPaths})
     target_link_libraries(${name} gensync cppunit)
     target_include_directories(${name} PRIVATE tests)
 
-    # add an executable for each test file and register it
-    foreach(test ${testPaths})
+    # Add an executable for each test file and register it
+    foreach(test ${filteredTestPaths})
         get_filename_component(testName ${test} NAME_WE)
         add_executable(${testName} ${TEST_RUNNER} ${test})
         target_link_libraries(${testName} gensync cppunit)
         target_include_directories(${testName} PRIVATE tests)
         add_test(${testName} ${testName})
-    endforeach(test)
+    endforeach()
 endmacro()
 
 if(BUILD_TESTS)
