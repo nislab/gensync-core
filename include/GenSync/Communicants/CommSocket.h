@@ -48,6 +48,8 @@ public:
      */                         
     void commClose() override;
 
+    string commRecvNoBlock(unsigned long numBytes) override;
+
     /**
      * Send data over the socket.  This is the primitive send method for the class.
      * %R: Must have called either commListen or commConnect already.
@@ -87,5 +89,8 @@ private:
     const static int MAX_CONNECTS = 100; /** Maximum number of connection attempts before giving up. */
     const static int DFT_SOCKET_WAIT_MS = 100; /** Default amount of milliseconds to wait before retrying a socket connection. */
     const static int DEFAULT_PORT = 8079; /** The default port for communications, if none is specified. */
+
+    
+
 };
 #endif

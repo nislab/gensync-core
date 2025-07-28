@@ -40,35 +40,59 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
 
     mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-    // keep running until peeling succeed
-    while (true) {
-        mySyncStats.timerStart(SyncStats::COMP_TIME);
-        auto symbol = encoder.produceNextCell();
-        mySyncStats.timerEnd(SyncStats::COMP_TIME);
+    std::thread listenerThread(&RIBLTSync::listenForDone, this, commSync, std::ref(serverDone));
 
-        mySyncStats.timerStart(SyncStats::COMM_TIME);
-        commSync->commSend(symbol);
-        mySyncStats.timerEnd(SyncStats::COMM_TIME);
-
-        bool success = commSync->commRecv_int();
-
-        if (success) {
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
-            list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
-            list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
-
+    while (!serverDone) {
+        try {
             mySyncStats.timerStart(SyncStats::COMP_TIME);
-            otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
-            selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
+            auto symbol = encoder.produceNextCell();
             mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-            mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
-            mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
-            return true;
+            mySyncStats.timerStart(SyncStats::COMM_TIME);
+            commSync->commSend(symbol);
+            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+        }
+        catch (Communicant::ConnectionClosedException& e) {
+            // Handle reconnection or abort if needed
+            break;
+        }
+    }
+
+    // Wait for thread to join if not done already
+    if (listenerThread.joinable()) listenerThread.join();
+
+    mySyncStats.timerStart(SyncStats::COMM_TIME);
+    list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
+    list<shared_ptr<DataObject>> newSMO = commSync->commRecv_DataObject_List();
+    mySyncStats.timerEnd(SyncStats::COMM_TIME);
+
+    mySyncStats.timerStart(SyncStats::COMP_TIME);
+    otherMinusSelf.insert(otherMinusSelf.end(), newOMS.begin(), newOMS.end());
+    selfMinusOther.insert(selfMinusOther.end(), newSMO.begin(), newSMO.end());
+    mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
+    mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
+    mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
+
+    return true;
+}
+
+void RIBLTSync::listenForDone(const std::shared_ptr<Communicant>& commSync, std::atomic<bool>& doneFlag) {
+    while (!doneFlag) {
+        try {
+            auto msg = commSync->commRecv(1);
+            if (!msg.empty() && msg == "d"){
+                doneFlag = true;
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Avoid busy waiting
+        } catch (const Communicant::ConnectionClosedException& e) {
+            Logger::gLog(Logger::COMM_DETAILS, "Connection closed in background recv thread");
+            break;
         }
     }
 }
+
 
 bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
                            list<shared_ptr<DataObject>> &selfMinusOther,
@@ -106,11 +130,9 @@ bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
         decoder.addCodedSymbol(symbol);
         bool peelSuccess = decoder.tryDecode();
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
-
-        commSync->commSend(peelSuccess);
-
+        
         if (peelSuccess) {
-
+            commSync->commSend("d", 4);
             mySyncStats.timerStart(SyncStats::COMP_TIME);
             auto OMS = decoder.getOMS();
             auto SMO = decoder.getSMO();
@@ -132,8 +154,8 @@ bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
             mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
             mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
             return true;
-        } else {
-
+        } else 
+        {
         }
     }
 }

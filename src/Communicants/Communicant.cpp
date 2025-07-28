@@ -701,4 +701,6 @@ Cuckoo Communicant::commRecv_Cuckoo() {
         filter.push_back(commRecv_byte());
 
     return Cuckoo(fngprtS, bucketS, filterSize, kicks, filter, itemsC);
+
+    
 }

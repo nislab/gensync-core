@@ -9,6 +9,8 @@
 #include <GenSync/Aux/SyncMethod.h>
 #include <GenSync/Aux/Auxiliary.h>
 #include <GenSync/Syncs/RIBLT.h>
+#include <atomic>
+#include <thread>
 
 class RIBLTSync : public SyncMethod {
   public:
@@ -29,6 +31,10 @@ class RIBLTSync : public SyncMethod {
 
     /* Getters for the parameters set in the constructor */
     size_t getElementSize() const {return elementSize;}
+
+    std::atomic<bool> serverDone{false};
+
+    void listenForDone(const std::shared_ptr<Communicant>& commSync, std::atomic<bool>& doneFlag);
 
   protected:
 

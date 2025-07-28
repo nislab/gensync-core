@@ -103,9 +103,9 @@ int main() {
         //        cout << endl;
         cout << "[Client] Host1 element count after sync: " << host1.dumpElements().size() << endl;
         std::cout << "==== Client Statistics ====" << std::endl;
-        //        std::cout << "Communication Time: " << host1.getCommTime(0) << " s" << std::endl;
-        //        std::cout << "Idle Time: " << host1.getIdleTime(0) << " s" << std::endl;
-        //        std::cout << "Computation Time: " << host1.getCompTime(0) << " s" << std::endl;
+                std::cout << "Communication Time: " << host1.getCommTime(0) << " s" << std::endl;
+                std::cout << "Idle Time: " << host1.getIdleTime(0) << " s" << std::endl;
+                std::cout << "Computation Time: " << host1.getCompTime(0) << " s" << std::endl;
         std::cout << "Communication Cost (bytes): "
                   << host1.getXmitBytes(0) + host1.getRecvBytes(0) << std::endl;
     } else {
@@ -117,9 +117,9 @@ int main() {
         //        std::cout << std::endl;
         cout << "[Server] Host2 element count after sync: " << host2.dumpElements().size() << endl;
         std::cout << "==== Server Statistics ====" << std::endl;
-        //        std::cout << "Communication Time: " << host2.getCommTime(0) << " s" << std::endl;
-        //        std::cout << "Idle Time: " << host2.getIdleTime(0) << " s" << std::endl;
-        //        std::cout << "Computation Time: " << host2.getCompTime(0) << " s" << std::endl;
+                std::cout << "Communication Time: " << host2.getCommTime(0) << " s" << std::endl;
+                std::cout << "Idle Time: " << host2.getIdleTime(0) << " s" << std::endl;
+                std::cout << "Computation Time: " << host2.getCompTime(0) << " s" << std::endl;
         std::cout << "Communication Cost (bytes): "
                   << host2.getXmitBytes(0) + host2.getRecvBytes(0) << std::endl;
     }

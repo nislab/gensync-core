@@ -279,6 +279,8 @@ public:
      */
     virtual string commRecv(unsigned long numBytes) = 0;
 
+    virtual string commRecvNoBlock(unsigned long numBytes){return "";}
+
     /**
      * Receive data over an existing connection.  This is the primitive for receiving data.
      * @param numBytes The number of characters to receive.
@@ -409,6 +411,12 @@ public:
     virtual string getName() = 0;
 
 
+    class ConnectionClosedException : public std::runtime_error {
+    public:
+        explicit ConnectionClosedException(const std::string& message)
+            : std::runtime_error(message) {}
+    };
+    
 protected:
 
     // METHODS

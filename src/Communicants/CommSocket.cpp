@@ -62,8 +62,14 @@ void CommSocket::commListen() {
 
     // wait for connection, causes the process to block until a client connects to the server
     socklen_t sin_size = sizeof (struct sockaddr_in);
-    if ((my_fd = accept(sockDesc, (struct sockaddr *) &otherAddr, &sin_size)) == -1) {
+    my_fd = accept(sockDesc, (struct sockaddr *) &otherAddr, &sin_size);
+    if (my_fd == -1) {
         Logger::error_and_quit("Failed to accept a connection!");
+    }
+
+    // Close the listening socket immediately after accepting one connection
+    if (close(sockDesc) == -1) {
+        Logger::gLog(Logger::COMM_DETAILS, "Warning: failed to close listening socket after accept.");
     }
 
     // Initialization data
@@ -78,14 +84,14 @@ void CommSocket::commConnect() {
 
     // create a new socket
     int sockDesc = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockDesc == -1) {
-        Logger::error_and_quit("Cannot create a socket");
+   if (sockDesc == -1) {
+        Logger::error_and_quit("Could not open socket on port " + toStr(remotePort));
     }
 
     // set the socket option to allow socket reuse
     int yes = 1;
     if (setsockopt(sockDesc, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof (int)) == -1) {
-        Logger::error_and_quit("setsockopt problem");
+        Logger::error_and_quit("setsockopt failure");
     }
 
     // sockaddr_in contains internet address defined in netinet/in.h
@@ -174,12 +180,15 @@ void CommSocket::commSend(const char* toSend, size_t len) {
     bool doAgain;
     do {
         auto startTime = std::chrono::high_resolution_clock::now();
-        if ((numSent = send(my_fd, toSend, numBytes * sizeof (char), 0)) == -1) {
-            string numBytesString;
-            string stateString;
-
-            Logger::error_and_quit(toStr(state) + " encountered error in send"
-                    + " numBytes is: " + toStr(numBytes));
+        if ((numSent = send(my_fd, toSend, numBytes * sizeof(char), 0)) == -1) {
+            if (errno == EPIPE || errno == ECONNRESET) {
+                // Peer closed connection (EPIPE = broken pipe, ECONNRESET = connection reset)
+                throw Communicant::ConnectionClosedException("No Receiving Socket");
+            } else {
+                Logger::error_and_quit(toStr(state) + " encountered error in send: "
+                                    + strerror(errno) +
+                                    " | numBytes: " + toStr(numBytes));
+            }
         }
         if (numSent != numBytes) {
             Logger::gLog(Logger::COMM_DETAILS,
@@ -199,8 +208,8 @@ void CommSocket::commSend(const char* toSend, size_t len) {
 }
 
 string CommSocket::commRecv(unsigned long numBytes) {
-       if (my_fd == -1)
-        Logger::error_and_quit("Not connected to a socket!");
+    if (my_fd == -1)
+    Logger::error_and_quit("Not connected to a socket!");
 
     ssize_t numRecv;  // number of bytes received in this call
     auto tmpBuf = new char[numBytes];  // buffer into which received bytes are placed
@@ -208,8 +217,14 @@ string CommSocket::commRecv(unsigned long numBytes) {
     // wait until the buffer has been filled
     if ((numRecv = recv(my_fd, tmpBuf, numBytes * sizeof (char), MSG_WAITALL)) < 0)
         Logger::error_and_quit("Error receiving data on the socket!");
-    if (numRecv != numBytes)
-        Logger::error_and_quit("Received less or more than the prescribed number of characters in commRecv.");
+   
+    if (numRecv != numBytes){
+        if (numRecv == 0) {
+            delete[] tmpBuf;
+            throw Communicant::ConnectionClosedException("Connection closed by peer");
+        }
+        Logger::error_and_quit("Received less or more than the prescribed number of characters in commRecv. "  + to_string(numRecv) + to_string(numBytes));
+    }
 
     addRecvBytes(static_cast<unsigned long>(numRecv));  // update the received byte counter
 
@@ -221,4 +236,37 @@ string CommSocket::commRecv(unsigned long numBytes) {
 
     return result;
 }
+
+std::string CommSocket::commRecvNoBlock(size_t numBytes) {
+    if (my_fd == -1)
+        Logger::error_and_quit("Not connected to a socket!");
+
+    char* tmpBuf = new char[numBytes];
+    ssize_t numRecv = recv(my_fd, tmpBuf, numBytes, MSG_DONTWAIT);
+
+    if (numRecv < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // No data yet; return empty string
+            delete[] tmpBuf;
+            return "";
+        } else {
+            delete[] tmpBuf;
+            Logger::error_and_quit("Error receiving (non-blocking) data: " + std::string(strerror(errno)));
+        }
+    }
+
+    if (numRecv == 0) {
+        delete[] tmpBuf;
+        throw Communicant::ConnectionClosedException("Connection closed by peer");
+    }
+
+    addRecvBytes(static_cast<unsigned long>(numRecv));
+    Logger::gLog(Logger::COMM_DETAILS, "<RAW RECV NB> " + toStr(numRecv) +
+                 " bytes received (base64): " + base64_encode(tmpBuf, static_cast<size_t>(numRecv)));
+
+    std::string result(tmpBuf, static_cast<size_t>(numRecv));
+    delete[] tmpBuf;
+    return result;
+}
+
 
