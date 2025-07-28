@@ -8,7 +8,6 @@ int main() {
       GenSync host1 = GenSync::Builder().
       setProtocol(GenSync::SyncProtocol::CPISync). // CPISync protocol
       setComm(GenSync::SyncComm::socket).		 // communicate over network sockets
-      setContainer(GenSync::ContainerType::SQLite, "temp", "temp", true).
       setMbar(5).					 // required parameter for CPISync
       build();
 
@@ -29,7 +28,6 @@ int main() {
       GenSync host2 = GenSync::Builder().
       setProtocol(GenSync::SyncProtocol::CPISync).
       setComm(GenSync::SyncComm::socket).
-      setContainer(GenSync::ContainerType::SQLite, "temp2", "temp2", true).
       setMbar(5).
       build();
       
