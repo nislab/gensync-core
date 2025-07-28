@@ -132,7 +132,7 @@ bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
         
         if (peelSuccess) {
-            commSync->commSend("d", 4);
+            commSync->commSend("d", 1);
             mySyncStats.timerStart(SyncStats::COMP_TIME);
             auto OMS = decoder.getOMS();
             auto SMO = decoder.getSMO();
