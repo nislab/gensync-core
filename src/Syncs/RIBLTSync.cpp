@@ -80,12 +80,11 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
 void RIBLTSync::listenForDone(const std::shared_ptr<Communicant>& commSync, std::atomic<bool>& doneFlag) {
     while (!doneFlag) {
         try {
+            mySyncStats.timerStart(SyncStats::COMM_TIME);
             auto msg = commSync->commRecv(1);
-            if (!msg.empty() && msg == "d"){
-                doneFlag = true;
-                break;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Avoid busy waiting
+            doneFlag = true;
+            mySyncStats.timerEnd(SyncStats::COMM_TIME);
+            break;
         } catch (const Communicant::ConnectionClosedException& e) {
             Logger::gLog(Logger::COMM_DETAILS, "Connection closed in background recv thread");
             break;
