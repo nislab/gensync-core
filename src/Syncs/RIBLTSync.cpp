@@ -22,7 +22,6 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
 
     SyncMethod::SyncClient(commSync, selfMinusOther, otherMinusSelf);
 
-    // connect to server
     mySyncStats.timerStart(SyncStats::IDLE_TIME);
     commSync->commConnect();
     mySyncStats.timerEnd(SyncStats::IDLE_TIME);
@@ -37,21 +36,27 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
         auto sym = make_shared<DataObjectSymbolWrapper>(obj);
         encoder.addSymbol(sym);
     }
-
     mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-    // keep running until peeling succeed
+    const int BATCH_SIZE = 100;
+
     while (true) {
+        vector<CodedSymbol<Symbol>> batch;
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        auto symbol = encoder.produceNextCell();
+        for (int i = 0; i < BATCH_SIZE; ++i) {
+            batch.push_back(encoder.produceNextCell());
+        }
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
+        if (batch.empty()) {
+            break; // no more to send
+        }
+
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        commSync->commSend(symbol);
+        commSync->commSend(batch);
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         bool success = commSync->commRecv_int();
-
         if (success) {
             mySyncStats.timerStart(SyncStats::COMM_TIME);
             list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
@@ -68,6 +73,8 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
             return true;
         }
     }
+
+    return false;
 }
 
 bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
@@ -75,10 +82,8 @@ bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
                            list<shared_ptr<DataObject>> &otherMinusSelf) {
     Logger::gLog(Logger::METHOD, "Entering RIBLTSync::SyncServer");
 
-    // call parent method for bookkeeping
     SyncMethod::SyncServer(commSync, selfMinusOther, otherMinusSelf);
 
-    // listen for client
     mySyncStats.timerStart(SyncStats::IDLE_TIME);
     commSync->commListen();
     mySyncStats.timerEnd(SyncStats::IDLE_TIME);
@@ -95,33 +100,33 @@ bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
     }
     mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-    list<shared_ptr<DataObject>> OMS, SMO;
-
     while (true) {
         mySyncStats.timerStart(SyncStats::COMM_TIME);
-        auto symbol = commSync->commRecv_CodedSymbol();
+        vector<CodedSymbol<Symbol>> symbols = commSync->commRecv_CodedSymbolBatch();
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
+        bool peelSuccess = false;
+
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        decoder.addCodedSymbol(symbol);
-        bool peelSuccess = decoder.tryDecode();
+        for (const auto& symbol : symbols) {
+            decoder.addCodedSymbol(symbol);
+            peelSuccess = decoder.tryDecode();
+            if (peelSuccess) break;  // break early if decoding succeeded
+        }
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         commSync->commSend(peelSuccess);
 
         if (peelSuccess) {
-
             mySyncStats.timerStart(SyncStats::COMP_TIME);
             auto OMS = decoder.getOMS();
             auto SMO = decoder.getSMO();
-
             for (const ZZ& val : OMS) {
                 otherMinusSelf.push_back(make_shared<DataObject>(val));
             }
             for (const ZZ& val : SMO) {
                 selfMinusOther.push_back(make_shared<DataObject>(val));
             }
-
             mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
             mySyncStats.timerStart(SyncStats::COMM_TIME);
@@ -132,8 +137,6 @@ bool RIBLTSync::SyncServer(const shared_ptr<Communicant>& commSync,
             mySyncStats.increment(SyncStats::XMIT, commSync->getXmitBytes());
             mySyncStats.increment(SyncStats::RECV, commSync->getRecvBytes());
             return true;
-        } else {
-
         }
     }
 }

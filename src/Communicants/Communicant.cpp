@@ -268,6 +268,32 @@ void Communicant::commSend(const CodedSymbol<Symbol>& symbol) {
     commSend(ZZ(symbol.getCount()));
 }
 
+void Communicant::commSend(const vector<CodedSymbol<Symbol>>& symbols){
+    ostringstream oss;
+
+    for(const auto& symbol : symbols){
+        auto symbolPtr = symbol.getSymbol();
+        if (!symbolPtr) {
+            oss << "__EMPTY__";
+        } else {
+            auto wrapper = dynamic_pointer_cast<DataObjectSymbolWrapper>(symbolPtr);
+            if (!wrapper) {
+                Logger::error_and_quit("Symbol in CodedSymbol is not a DataObjectSymbolWrapper");
+            }
+
+            ZZ zzVal = wrapper->to_ZZ();
+            oss << toStr(zzVal);
+        }
+
+        oss << "|" << toStr(ZZ(symbol.getHash()))
+            << "|" << toStr(ZZ(symbol.getCount()))
+            << "\n";  // separate symbols
+    }
+
+    commSend(oss.str());  // Send all at once
+}
+
+
 CodedSymbol<Symbol> Communicant::commRecv_CodedSymbol() {
     string zzStr = commRecv_string();
 
@@ -280,12 +306,6 @@ CodedSymbol<Symbol> Communicant::commRecv_CodedSymbol() {
         auto dataObj = make_shared<DataObject>(zzVal);
         wrapper = make_shared<DataObjectSymbolWrapper>(dataObj);
     }
-
-//    ZZ zzHash = commRecv_ZZ();
-//    ZZ zzCount = commRecv_ZZ();
-//
-//    uint64_t hash = static_cast<uint64_t>(conv<unsigned long>(zzHash));
-//    int64_t count = static_cast<int64_t>(conv<unsigned long>(zzCount));
 
     string hashStr = commRecv_string();
     ZZ zzHash(INIT_VAL, hashStr.c_str());
@@ -303,6 +323,47 @@ CodedSymbol<Symbol> Communicant::commRecv_CodedSymbol() {
     }
 }
 
+vector<CodedSymbol<Symbol>> Communicant::commRecv_CodedSymbolBatch(){
+    string data = commRecv_string();
+    vector<CodedSymbol<Symbol>> result;
+    
+    std::istringstream stream(data);
+    string line;
+
+    while (std::getline(stream, line)) {
+        if (line.empty()) continue;
+
+        std::istringstream lineStream(line);
+        string zzStr, hashStr, countStr;
+
+        // Split on '|'
+        if (!std::getline(lineStream, zzStr, '|') ||
+            !std::getline(lineStream, hashStr, '|') ||
+            !std::getline(lineStream, countStr, '|')) {
+            throw std::runtime_error("Malformed line in CodedSymbol batch: " + line);
+        }
+
+        // Build wrapper
+        shared_ptr<DataObjectSymbolWrapper> wrapper;
+        if (zzStr != "__EMPTY__") {
+            ZZ zzVal(INIT_VAL, zzStr.c_str());
+            auto dataObj = make_shared<DataObject>(zzVal);
+            wrapper = make_shared<DataObjectSymbolWrapper>(dataObj);
+        }
+
+        // Build hash and count
+        ZZ zzHash(INIT_VAL, hashStr.c_str());
+        uint64_t hash = static_cast<uint64_t>(conv<unsigned long>(zzHash));
+
+        ZZ zzCount(INIT_VAL, countStr.c_str());
+        int64_t count = static_cast<int64_t>(conv<unsigned long>(zzCount));
+
+        HashedSymbol<Symbol> hs(wrapper, hash);
+        result.emplace_back(hs, count);
+    }
+
+    return result;
+}
 
 vec_ZZ_p Communicant::commRecv_vec_ZZ_p() {
     // unpack the received ZZ into a vec_ZZ_p

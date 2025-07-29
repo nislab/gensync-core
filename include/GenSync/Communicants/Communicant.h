@@ -270,6 +270,8 @@ public:
      */
     virtual void commSend(const CodedSymbol<Symbol>& symbol);
 
+    virtual void commSend(const vector<CodedSymbol<Symbol>>& symbols);
+
     /**
      * Receives up to MAX_BUF_SIZE characters from the socket.
      * This is the primitive receive method that all other methods call.
@@ -369,6 +371,7 @@ public:
      * Receives a Coded Symbol.
      */
     CodedSymbol<Symbol> commRecv_CodedSymbol() ;
+    vector<CodedSymbol<Symbol>> commRecv_CodedSymbolBatch();
 
     // Informational
 
