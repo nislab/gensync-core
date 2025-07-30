@@ -18,7 +18,7 @@ void InMemContainerTest::addIterateTest(){
         //Fill containers
         for(int jj = 0; jj < CONTAINERSIZE; jj++){
             shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
-            container.push_back(obj);
+            container.add(obj);
             objList.push_back(obj);
         }
         
@@ -40,7 +40,7 @@ void InMemContainerTest::clearTest(){
     for(int ii = 0; ii < TEST_ITER; ii++){
         //Fills container
         shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
-        container.push_back(obj);
+        container.add(obj);
         container.clear();
         //Checks if container is empty after clear
         CPPUNIT_ASSERT(container.empty() && container.size() == 0);
@@ -54,7 +54,7 @@ void InMemContainerTest::emptyTest(){
         //Checks if container is empty when it is empty
         CPPUNIT_ASSERT_EQUAL(true, container.empty());
         shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
-        container.push_back(obj);
+        container.add(obj);
          //Checks if container is empty when it is not empty
         CPPUNIT_ASSERT_EQUAL(false, container.empty());
         container.clear();
@@ -70,7 +70,7 @@ void InMemContainerTest::sizeTest(){
         //Fills the loop that amount of times
         for(int jj = 0; jj < randSize; jj++){
             shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
-            container.push_back(obj);
+            container.add(obj);
         }
         //Compares the two sizes to ensure they are the same.
         CPPUNIT_ASSERT_EQUAL(static_cast<DataContainer::size_type>(randSize),container.size());
@@ -88,7 +88,7 @@ void InMemContainerTest::removeTest(){
         //Fill containers
         for(int jj = 0; jj < CONTAINERSIZE; jj++){
             shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
-            container.push_back(obj);
+            container.add(obj);
             objList.push_back(obj);
         }
 

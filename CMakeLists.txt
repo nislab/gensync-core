@@ -59,6 +59,7 @@ set(SOURCE_FILES
         ${COMM_DIR}/CommString.cpp
         ${COMM_DIR}/Communicant.cpp
         ${COMM_DIR}/CommDummy.cpp
+        ${COMM_DIR}/CommSocketUDP.cpp
 
         ${SYNC_DIR}/CPISync.cpp
         ${SYNC_DIR}/GenSync.cpp
@@ -104,6 +105,7 @@ set(HEADERS
         ${DATA_DIR_INC}/InMemContainer.h
 
         ${COMM_DIR_INC}/CommSocket.h
+        ${COMM_DIR_INC}/CommSocketUDP.h
         ${COMM_DIR_INC}/CommString.h
         ${COMM_DIR_INC}/Communicant.h
         ${COMM_DIR_INC}/CommDummy.h

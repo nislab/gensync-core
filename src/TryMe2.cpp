@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
     GenSync genSync = GenSync::Builder().
 			setProtocol(prot).
-			setComm(GenSync::SyncComm::socket).
+			setComm(GenSync::SyncComm::socketudp).
 			setPort(PORT).
 			setErr(ERR).
 			setMbar(M_BAR).
