@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/IBLTSync_Adaptive_PartialDecode.h>
+#include <GenSync/Syncs/IBLTSync_Adaptive.h>
 
 using namespace std;
 
@@ -14,19 +15,19 @@ int main() {
     size_t eltSize = 8;
     size_t initialExpected = 5;
 
-    shared_ptr<SyncMethod> syncA = make_shared<IBLTSync_Adaptive_PartialDecode>(initialExpected, eltSize);
-    shared_ptr<SyncMethod> syncB = make_shared<IBLTSync_Adaptive_PartialDecode>(initialExpected, eltSize);
+    shared_ptr<SyncMethod> syncA = make_shared<IBLTSync_Adaptive>(initialExpected, eltSize);
+    shared_ptr<SyncMethod> syncB = make_shared<IBLTSync_Adaptive>(initialExpected, eltSize);
 
     GenSync host1 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
-            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive_PartialDecode)
+            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
             .setExpNumElems(2)
             .setBits(8)
             .build();
 
     GenSync host2 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
-            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive_PartialDecode)
+            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
             .setExpNumElems(2)
             .setBits(8)
             .build();

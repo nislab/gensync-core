@@ -140,14 +140,25 @@ public:
     IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize);
 
 
+    /**
+     * Produces a list of all the key-value pairs and corresponding keys in the IBLT.
+     * With a low, constant probability, only partial lists will be produced
+     * Listing is destructive, as the same peeling technique used in the get method is used.
+     * Will remove all key-value pairs from the IBLT that are listed.
+     * @param positive All the elements that could be inserted.
+     * @param negative All the elements that were removed without being inserted first.
+     * @param OMSKeys Keys of elements that could be inserted.
+     * @param SMOKeys Keys of elements that were removed without being inserted first.
+     * @return true iff the operation has successfully recovered the entire list
+     */
     bool listEntriesandKeys(vector<pair<ZZ, ZZ>> &positive,
                      vector<pair<ZZ, ZZ>> &negative,
-                     vector<ZZ> &OMSKeys,
-                     vector<ZZ> &SMOKeys);
+                     vec_ZZ &OMSKeys,
+                     vec_ZZ &SMOKeys);
 
-    bool partialPeelFromCells(
-            const std::vector<size_t>& cellIndices,
-            std::vector<std::pair<NTL::ZZ, NTL::ZZ>>& decodedEntries);
+//    bool partialPeelFromCells(
+//            const std::vector<size_t>& cellIndices,
+//            std::vector<std::pair<NTL::ZZ, NTL::ZZ>>& decodedEntries);
 
 };
 

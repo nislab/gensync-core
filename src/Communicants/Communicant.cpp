@@ -234,6 +234,19 @@ void Communicant::commSend(const ZZ_p& num) {
     commSend(ustring(toSend, MOD_SIZE), MOD_SIZE);
 }
 
+void Communicant::commSend(const vec_ZZ& vec) {
+    Logger::gLog(Logger::COMM, "... attempting to send: vec_ZZ " + toStr(vec));
+
+    const ZZ base = power_ZZ(2, 256) + 1;
+    ZZ result(0);
+
+    for (long i = vec.length() - 1; i >= 0; --i) {
+        result = result * base + vec[i] + 1;  // add 1 to avoid ambiguity with leading 0
+    }
+
+    commSend(result);
+}
+
 void Communicant::commSend(const vec_ZZ_p& vec) {
     Logger::gLog(Logger::COMM, "... attempting to send: vec_ZZ_p " + toStr(vec));
 
@@ -244,6 +257,30 @@ void Communicant::commSend(const vec_ZZ_p& vec) {
     for (long ii = vec.length() - 1; ii >= 0; ii--) // append in reverse order to make decoding easier
         result = (result * (ZZ_p::modulus()+1)) + rep(vec[ii])+1; // added 1 to avoid insignificant 0's in the lead of the vector
     commSend(result);
+}
+
+vec_ZZ Communicant::commRecv_vec_ZZ() {
+    const ZZ base = power_ZZ(2, 256) + 1;
+
+    ZZ received = commRecv_ZZ();
+    vec_ZZ result;
+
+    while (received != 0) {
+        ZZ remainder = received % base;
+        received /= base;
+
+        append(result, remainder - 1);  // undo the +1
+    }
+
+    // reverse to restore original order
+    vec_ZZ final;
+    final.SetLength(result.length());
+    for (long i = 0; i < result.length(); ++i) {
+        final[i] = result[result.length() - 1 - i];
+    }
+
+    Logger::gLog(Logger::COMM, "... received vec_ZZ " + toStr(final));
+    return final;
 }
 
 vec_ZZ_p Communicant::commRecv_vec_ZZ_p() {
@@ -653,7 +690,7 @@ Cuckoo Communicant::commRecv_Cuckoo() {
     return Cuckoo(fngprtS, bucketS, filterSize, kicks, filter, itemsC);
 }
 
-vector<NTL::ZZ> Communicant::commRecv_vector_ZZ() {
+vector<ZZ> Communicant::commRecv_vector_ZZ() {
     long len = commRecv_long();
     vector<ZZ> result;
     result.reserve(len);

@@ -4,12 +4,9 @@
 #include <GenSync/Syncs/Adaptive_IBLT.h>
 #include <GenSync/Aux/Logger.h>
 
-Adaptive_IBLT::Adaptive_IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t valueSize)
-        : IBLT(numHashes, numHashCheck, expectedNumEntries, valueSize) {}
-
-bool Adaptive_IBLT::listEntries(std::vector<std::pair<NTL::ZZ, NTL::ZZ>> &positive,
-                               std::vector<std::pair<NTL::ZZ, NTL::ZZ>> &negative,
-                               std::vector<size_t> &peeledIndicesOut) {
+bool Adaptive_IBLT::listEntries(vector<pair<ZZ, ZZ>> &positive,
+                               vector<pair<ZZ, ZZ>> &negative,
+                               vector<size_t> &peeledIndicesOut) {
     peeledIndices.clear();
     long nErased;
     do {
@@ -30,20 +27,9 @@ bool Adaptive_IBLT::listEntries(std::vector<std::pair<NTL::ZZ, NTL::ZZ>> &positi
     } while (nErased > 0);
     peeledIndicesOut = peeledIndices;
 
+    // If any buckets for one of the hash functions is not empty, then we didn't peel them all
     for (const auto& entry : hashTable) {
         if (!entry.empty()) return false;
     }
     return true;
-}
-
-std::unordered_set<NTL::ZZ> Adaptive_IBLT::extractElementsFromIndices(const std::vector<size_t>& indices) const {
-    std::unordered_set<NTL::ZZ> result;
-    for (size_t idx : indices) {
-        if (idx >= hashTable.size()) continue;
-        const auto& entry = hashTable[idx];
-        if (entry.isPure(numHashCheck)) {
-            result.insert(entry.keySum);
-        }
-    }
-    return result;
 }

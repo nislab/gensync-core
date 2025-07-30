@@ -28,7 +28,7 @@ public:
 
     /**
      * Test reconciliation: This test does have a very small probability of failure (If 0 elements are reconciled) as
-     * IBLT Sync is a probabilistic sync but with a sufficiently large numExpElems and the current seed this isn't an issue,
+     * IBLTSync_Adaptive is a probabilistic sync but with a sufficiently large numExpElems and the current seed this isn't an issue,
      * even for a large amount of tests
      */
     void IBLTSync_AdaptiveSetReconcileTest();

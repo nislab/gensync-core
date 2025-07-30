@@ -27,11 +27,12 @@ IBLT::IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t 
 }
 
 bool IBLT::listEntriesandKeys(vector<pair<ZZ, ZZ>> &positive,
-                       vector<pair<ZZ, ZZ>> &negative,
-                       vector<ZZ> &OMSKeys,
-                       vector<ZZ> &SMOKeys) {
-    OMSKeys.clear();
-    SMOKeys.clear();
+                              vector<pair<ZZ, ZZ>> &negative,
+                              vec_ZZ &OMSKeys,
+                              vec_ZZ &SMOKeys) {
+    OMSKeys.SetLength(0);
+    SMOKeys.SetLength(0);
+
     long nErased;
     do {
         nErased = 0;
@@ -40,66 +41,21 @@ bool IBLT::listEntriesandKeys(vector<pair<ZZ, ZZ>> &positive,
             if (entry.isPure(numHashCheck)) {
                 if (entry.count == 1) {
                     positive.emplace_back(entry.keySum, entry.valueSum);
-                    OMSKeys.push_back(entry.keySum);  // record key of positive
+                    append(OMSKeys, entry.keySum);  // record key of positive
                 } else {
                     negative.emplace_back(entry.keySum, entry.valueSum);
-                    SMOKeys.push_back(entry.keySum);  // record key of negative
+                    append(SMOKeys, entry.keySum);  // record key of negative
                 }
+                // Once processed the pure cell, remove it
                 this->_insert(-entry.count, entry.keySum, entry.valueSum);
                 ++nErased;
             }
         }
     } while (nErased > 0);
 
+    // If any buckets for one of the hash functions is not empty, then we didn't peel them all
     for (const auto& entry : hashTable) {
         if (!entry.empty()) return false;
     }
     return true;
 }
-
-
-bool IBLT::partialPeelFromCells(
-        const std::vector<size_t>& cellIndices,
-        std::vector<std::pair<NTL::ZZ, NTL::ZZ>>& decodedEntries)
-{
-    long nErased;
-    unordered_set<size_t> activeCells(cellIndices.begin(), cellIndices.end());
-    unordered_set<size_t> peeledSet;
-
-    do {
-        nErased = 0;
-        unordered_set<size_t> newActiveCells;
-
-        for (size_t i : activeCells) {
-            if (i >= hashTable.size() || peeledSet.count(i)) continue;
-            auto& entry = hashTable[i];
-
-            if (entry.isPure(numHashCheck)) {
-                decodedEntries.emplace_back(entry.keySum, entry.valueSum);
-                peeledSet.insert(i);
-
-                long numHashesToUse = (calcNumHashes != nullptr) ? calcNumHashes(entry.keySum) : numHashes;
-                long bucketsPerHash = hashTable.size() / numHashesToUse;
-
-                for (int h = 0; h < numHashesToUse; ++h) {
-                    hash_t hk = _hashK(entry.keySum, h);
-                    size_t target = h * bucketsPerHash + (hk % bucketsPerHash);
-                    if (target < hashTable.size())
-                        newActiveCells.insert(target);
-                }
-
-                this->_insert(-entry.count, entry.keySum, entry.valueSum);
-                ++nErased;
-            }
-        }
-
-        activeCells = std::move(newActiveCells);
-
-    } while (nErased > 0);
-
-    for (const auto& entry : hashTable) {
-        if (!entry.empty()) return false;
-    }
-    return true;
-}
-
