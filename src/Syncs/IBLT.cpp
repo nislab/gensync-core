@@ -8,6 +8,7 @@
 //
 
 #include <GenSync/Syncs/IBLT.h>
+#include <unordered_set>
 
 IBLT::IBLT() = default;
 IBLT::~IBLT() = default;
@@ -23,4 +24,38 @@ IBLT::IBLT(long numHashes, long numHashCheck, size_t expectedNumEntries, size_t 
 
     // resize cells to be divisible by number of hash
     hashTable.resize(nEntries + nEntries % numHashes);
+}
+
+bool IBLT::listEntriesandKeys(vector<pair<ZZ, ZZ>> &positive,
+                              vector<pair<ZZ, ZZ>> &negative,
+                              vec_ZZ &OMSKeys,
+                              vec_ZZ &SMOKeys) {
+    OMSKeys.SetLength(0);
+    SMOKeys.SetLength(0);
+
+    long nErased;
+    do {
+        nErased = 0;
+        for (size_t i = 0; i < hashTable.size(); ++i) {
+            auto& entry = hashTable[i];
+            if (entry.isPure(numHashCheck)) {
+                if (entry.count == 1) {
+                    positive.emplace_back(entry.keySum, entry.valueSum);
+                    append(OMSKeys, entry.keySum);  // record key of positive
+                } else {
+                    negative.emplace_back(entry.keySum, entry.valueSum);
+                    append(SMOKeys, entry.keySum);  // record key of negative
+                }
+                // Once processed the pure cell, remove it
+                this->_insert(-entry.count, entry.keySum, entry.valueSum);
+                ++nErased;
+            }
+        }
+    } while (nErased > 0);
+
+    // If any buckets for one of the hash functions is not empty, then we didn't peel them all
+    for (const auto& entry : hashTable) {
+        if (!entry.empty()) return false;
+    }
+    return true;
 }

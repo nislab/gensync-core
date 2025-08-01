@@ -60,5 +60,9 @@ static const int SYNC_SUCCESS = 0; /** Exit status when synchronization succeeds
 static const int SYNC_FAILURE = -1; /** Exit status when synchronization fails. */
 static const int GENERAL_ERROR = -2; /** Exit status for a general error. */
 
+// ... Constants for synchronization configuration
+const long DEFAULT_NUM_HASHES = 4;
+const long DEFAULT_NUM_HASH_CHECK = 11;
+
 #endif /* TYPES_H */
 

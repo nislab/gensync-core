@@ -19,6 +19,8 @@
 #include <GenSync/Syncs/CuckooSync.h>
 #include <GenSync/Syncs/BloomFilterSync.h>
 #include <GenSync/Syncs/MET_IBLTSync.h>
+#include <GenSync/Syncs/IBLTSync_Adaptive.h>
+#include <GenSync/Syncs/IBLTSync_Adaptive_PartialDecode.h>
 
 #if defined (RECORD)
 #include <GenSync/Benchmarks/BenchParams.h>
@@ -523,6 +525,12 @@ GenSync GenSync::Builder::build() {
             break;
         case SyncProtocol::MET_IBLTSync:
             myMeth = make_shared<MET_IBLTSync>(bits, probMatrix, cellTypeFunc, degMatrixFunc);
+            break;
+        case SyncProtocol::IBLTSync_Adaptive:
+            myMeth = make_shared<IBLTSync_Adaptive>(numExpElem, bits);
+            break;
+        case SyncProtocol::IBLTSync_Adaptive_PartialDecode:
+            myMeth = make_shared<IBLTSync_Adaptive_PartialDecode>(numExpElem, bits);
             break;
         default:
             throw invalid_argument("I don't know how to synchronize with this protocol.");
