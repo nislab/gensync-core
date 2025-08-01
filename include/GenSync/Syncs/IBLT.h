@@ -155,11 +155,6 @@ public:
                      vector<pair<ZZ, ZZ>> &negative,
                      vec_ZZ &OMSKeys,
                      vec_ZZ &SMOKeys);
-
-//    bool partialPeelFromCells(
-//            const std::vector<size_t>& cellIndices,
-//            std::vector<std::pair<NTL::ZZ, NTL::ZZ>>& decodedEntries);
-
 };
 
 #endif //GENSYNCLIB_IBLT_H

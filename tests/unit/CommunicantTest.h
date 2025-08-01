@@ -28,6 +28,7 @@ class CommunicantTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testCommByte);
     CPPUNIT_TEST(testCommInt);
     CPPUNIT_TEST(testCommVec_ZZ_p);
+    CPPUNIT_TEST(testCommVec_ZZ);
     CPPUNIT_TEST(testCommZZ);
     CPPUNIT_TEST(testCommZZNoArgs);
     
@@ -116,6 +117,11 @@ private:
  	* Tests commSend and Recv for vec_ZZ_p. Requires establishModSend and Recv
  	*/
     void testCommVec_ZZ_p();
+
+    /**
+ 	* Tests commSend and Recv for vec_ZZ. Requires establishModSend and Recv
+ 	*/
+    void testCommVec_ZZ();
 
 	/**
  	* Tests commSend and Recv for ZZ, passing the size of the ZZ as an argument

@@ -3,7 +3,6 @@
 //
 
 #include <GenSync/Syncs/IBLT.h>
-#include <GenSync/Syncs/Adaptive_IBLT.h>
 #include <GenSync/Syncs/IBLTSync_Adaptive_PartialDecode.h>
 #include <GenSync/Aux/Exceptions.h>
 #include <NTL/ZZ.h>
@@ -84,9 +83,10 @@ bool IBLTSync_Adaptive_PartialDecode::SyncClient(const shared_ptr<Communicant>& 
             for (long i = 0; i < newPeeledKeys.length(); ++i) {
                 peeledKeys.insert(newPeeledKeys[i]);
             }
-            mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
             currentExpected = (currentExpected - totalDecoded) * 2;
+            mySyncStats.timerEnd(SyncStats::COMP_TIME);
+
         } else {
             mySyncStats.timerStart(SyncStats::COMM_TIME);
             list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
@@ -94,7 +94,6 @@ bool IBLTSync_Adaptive_PartialDecode::SyncClient(const shared_ptr<Communicant>& 
             mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
             mySyncStats.timerStart(SyncStats::COMP_TIME);
-
             for (const auto& key : peeledKeys) {
                 auto dataPtr = make_shared<DataObject>(key);
                 newOMS.push_back(dataPtr);

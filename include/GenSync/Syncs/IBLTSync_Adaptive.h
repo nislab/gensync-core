@@ -24,7 +24,7 @@ class IBLTSync_Adaptive : public SyncMethod
 public:
     /**
      * Constructor.
-     * @param initExpected The initial guess of expected number of elements being stored
+     * @param initExpected The initial guess of set difference size between client and server
      * @param eltSize The size of elements being sent over between client and server
      */
     explicit IBLTSync_Adaptive(size_t initExpected, size_t eltSize);

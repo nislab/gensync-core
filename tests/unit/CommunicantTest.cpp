@@ -297,6 +297,29 @@ void CommunicantTest::testCommVec_ZZ_p() {
     }
 }
 
+void CommunicantTest::testCommVec_ZZ() {
+    queue<char> qq;
+    CommDummy cSend(&qq);
+    CommDummy cRecv(&qq);
+
+    for(int ii = 0; ii < TIMES; ii++) {
+        // Tests that establishMod works with oneWay set to true.
+        cSend.establishModSend(true);
+        cRecv.establishModRecv(true);
+
+        // pick a length in between lower and upper, inclusive
+        int length = randLenBetween(LOWER_BOUND, UPPER_BOUND);
+
+        vec_ZZ exp;
+        for(int jj = 0; jj < length; jj++)
+            exp.append(randZZ());
+
+        cSend.Communicant::commSend(exp);
+
+        CPPUNIT_ASSERT_EQUAL(exp, cRecv.commRecv_vec_ZZ());
+    }
+}
+
 void CommunicantTest::testCommZZ() {
     queue<char> qq;
     CommDummy cSend(&qq);

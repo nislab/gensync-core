@@ -237,13 +237,23 @@ void Communicant::commSend(const ZZ_p& num) {
 void Communicant::commSend(const vec_ZZ& vec) {
     Logger::gLog(Logger::COMM, "... attempting to send: vec_ZZ " + toStr(vec));
 
-    const ZZ base = power_ZZ(2, 256) + 1;
-    ZZ result(0);
+    ZZ max_elem = ZZ(0);
+    for (long i = 0; i < vec.length(); ++i) {
+        if (vec[i] > max_elem) max_elem = vec[i];
+    }
+    // plus 2 to avoid collision
+    ZZ base = max_elem + 2;
 
+    // send base first
+    commSend(base);
+
+    // pack vec_zz into a big zz
+    ZZ result = ZZ(0);
     for (long i = vec.length() - 1; i >= 0; --i) {
-        result = result * base + vec[i] + 1;  // add 1 to avoid ambiguity with leading 0
+        result = result * base + vec[i] + 1; // add 1 to avoid ambiguity with zero
     }
 
+    // Step 4: 发送 result
     commSend(result);
 }
 
@@ -260,27 +270,21 @@ void Communicant::commSend(const vec_ZZ_p& vec) {
 }
 
 vec_ZZ Communicant::commRecv_vec_ZZ() {
-    const ZZ base = power_ZZ(2, 256) + 1;
+    ZZ base = commRecv_ZZ();
 
     ZZ received = commRecv_ZZ();
+
     vec_ZZ result;
-
     while (received != 0) {
-        ZZ remainder = received % base;
-        received /= base;
+        ZZ divisor, remainder;
+        DivRem(divisor, remainder, received, base);
 
-        append(result, remainder - 1);  // undo the +1
+        append(result, to_ZZ(remainder-1)); // subtract back the 1 that was added when sent
+        received = divisor;
     }
 
-    // reverse to restore original order
-    vec_ZZ final;
-    final.SetLength(result.length());
-    for (long i = 0; i < result.length(); ++i) {
-        final[i] = result[result.length() - 1 - i];
-    }
-
-    Logger::gLog(Logger::COMM, "... received vec_ZZ " + toStr(final));
-    return final;
+    Logger::gLog(Logger::COMM, "... received vec_ZZ " + toStr(result));
+    return result;
 }
 
 vec_ZZ_p Communicant::commRecv_vec_ZZ_p() {

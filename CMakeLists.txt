@@ -142,13 +142,22 @@ set(HEADERS
         ${SYNC_BENCH_INC}/FromFileGen.h
     )
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    if(NOT DEFINED includedir)
+if(NOT DEFINED includedir)
+    find_path(NTL_INCLUDE_PATH NTL
+            PATHS
+            /usr/include
+            /usr/local/include
+            /opt/local/include
+            /opt/homebrew/include
+            )
+    if(NTL_INCLUDE_PATH MATCHES "/usr/local/include")
         set(includedir "/usr/local")
-    endif()
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    if(NOT DEFINED includedir)
+    elseif(NTL_INCLUDE_PATH MATCHES "/opt/local/include")
         set(includedir "/opt/local")
+    elseif(NTL_INCLUDE_PATH MATCHES "/opt/homebrew/include")
+        set(includedir "/opt/homebrew")
+    else()
+        set(includedir "/usr/local")
     endif()
 endif()
 

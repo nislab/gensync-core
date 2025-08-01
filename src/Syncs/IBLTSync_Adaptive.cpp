@@ -94,12 +94,14 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         // construct new IBLT with updated size
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
         IBLT myIBLT = IBLT::Builder()
                 .setNumHashes(DEFAULT_NUM_HASHES)
                 .setNumHashCheck(DEFAULT_NUM_HASH_CHECK)
                 .setExpectedNumEntries(currentExpected)
                 .setValueSize(elementSize)
                 .build();
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         IBLT clientIBLT = commSync->commRecv_IBLT(myIBLT.size(), myIBLT.eltSize());
