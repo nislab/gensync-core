@@ -27,7 +27,7 @@ class DatabaseContainer : public DataContainer {
     virtual iterator begin() override = 0;
 
     /**
-     * @return An iterator that points past the final item of the container.
+     * @return An iterator that points to the end of the container.
      */
     virtual iterator end() override = 0;
 
@@ -37,7 +37,7 @@ class DatabaseContainer : public DataContainer {
     virtual const_iterator begin() const override = 0;
 
     /**
-     * @return A const iterator that points to the final item of the container.
+     * @return A const iterator that points to the end of the container.
      */
     virtual const_iterator end() const override = 0;
 

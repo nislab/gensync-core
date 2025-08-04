@@ -345,8 +345,11 @@ public:
         END     // one after the end of iterable options
     };
 
+    /**
+     * Container types that are used for database storage.
+     * This does not check for whether the database library is enabled.
+     */
     enum ContainerType {
-        UNDEFINED,
         SQLite,
     };
 

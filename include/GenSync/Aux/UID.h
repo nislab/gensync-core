@@ -31,6 +31,9 @@ public:
         return myID;
     }
 
+    /**
+     * @return Sets the ID of this object.
+     */
     void setObjectID(int newID){
         myID = newID;
     }
