@@ -115,6 +115,19 @@ struct CuckooParams : Params {
     void apply(GenSync::Builder& gsb) const;
 };
 
+struct RIBLTParams : Params {
+    size_t eltSize;
+
+    RIBLTParams() : eltSize (0){}
+    RIBLTParams(size_t eltSize) :
+                                     eltSize (eltSize){}
+
+    ostream& serialize(ostream& os) const;
+    istream& unserialize(istream& is);
+
+    void apply(GenSync::Builder& gsb) const;
+};
+
 /**
  * Class that holds the parameters and the data sets for the syncs.
  */

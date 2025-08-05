@@ -18,6 +18,7 @@
 #include <GenSync/Syncs/IBLT.h>
 #include <GenSync/Syncs/IBLTMultiset.h>
 #include <GenSync/Syncs/Cuckoo.h>
+#include <GenSync/Syncs/RIBLT.h>
 
 // namespace imports
 using namespace NTL;
@@ -264,6 +265,12 @@ public:
     void commSend(const Cuckoo &cf);
 
     /**
+     * Sends Coded Symbol for Rateless-IBLT.
+     * @param The Coded Symbol to send.
+     */
+    virtual void commSend(const CodedSymbol<Symbol>& symbol);
+
+    /**
      * Receives up to MAX_BUF_SIZE characters from the socket.
      * This is the primitive receive method that all other methods call.
      * @require: Must have called either commListen or commConnect already.
@@ -357,6 +364,11 @@ public:
      * If parameters aren't set, the IBLT will be received successfully iff commSend(IBLTMultiset, false) was used to send the IBLT
      */
     IBLTMultiset commRecv_IBLTMultiset(Nullable<size_t> size, Nullable<size_t> eltSize);
+
+    /**
+     * Receives a Coded Symbol.
+     */
+    CodedSymbol<Symbol> commRecv_CodedSymbol() ;
 
     // Informational
 

@@ -247,6 +247,63 @@ void Communicant::commSend(const vec_ZZ_p& vec) {
     commSend(result);
 }
 
+void Communicant::commSend(const CodedSymbol<Symbol>& symbol) {
+    auto symbolPtr = symbol.getSymbol();
+    if (!symbolPtr) {
+        commSend(string("__EMPTY__"));
+    } else {
+        auto wrapper = dynamic_pointer_cast<DataObjectSymbolWrapper>(symbolPtr);
+        if (!wrapper) {
+            Logger::error_and_quit("Symbol in CodedSymbol is not a DataObjectSymbolWrapper");
+        }
+
+        ZZ zzVal = wrapper->to_ZZ();
+        string zzStr = toStr(zzVal);
+        commSend(zzStr);
+    }
+
+//    commSend(ZZ(symbol.getHash()));
+    string hashStr = toStr(ZZ(symbol.getHash()));
+    commSend(hashStr);
+    commSend(ZZ(symbol.getCount()));
+}
+
+CodedSymbol<Symbol> Communicant::commRecv_CodedSymbol() {
+    string zzStr = commRecv_string();
+
+    shared_ptr<DataObjectSymbolWrapper> wrapper;
+
+    if (zzStr == "__EMPTY__") {
+        wrapper = nullptr;
+    } else {
+        ZZ zzVal(INIT_VAL, zzStr.c_str());
+        auto dataObj = make_shared<DataObject>(zzVal);
+        wrapper = make_shared<DataObjectSymbolWrapper>(dataObj);
+    }
+
+//    ZZ zzHash = commRecv_ZZ();
+//    ZZ zzCount = commRecv_ZZ();
+//
+//    uint64_t hash = static_cast<uint64_t>(conv<unsigned long>(zzHash));
+//    int64_t count = static_cast<int64_t>(conv<unsigned long>(zzCount));
+
+    string hashStr = commRecv_string();
+    ZZ zzHash(INIT_VAL, hashStr.c_str());
+    uint64_t hash = static_cast<uint64_t>(conv<unsigned long>(zzHash));
+
+    ZZ zzCount = commRecv_ZZ();
+    int64_t count = static_cast<int64_t>(conv<unsigned long>(zzCount));
+
+    if (!wrapper) {
+        HashedSymbol<Symbol> hs(nullptr, hash);
+        return CodedSymbol<Symbol>(hs, count);
+    } else {
+        HashedSymbol<Symbol> hs(wrapper, hash);
+        return CodedSymbol<Symbol>(hs, count);
+    }
+}
+
+
 vec_ZZ_p Communicant::commRecv_vec_ZZ_p() {
     // unpack the received ZZ into a vec_ZZ_p
     ZZ received = commRecv_ZZ();
