@@ -151,7 +151,6 @@ class DataContainer{
         using iterator = DataIteratorWrapper;
         using const_iterator = DataIteratorWrapper;
         using size_type = list<shared_ptr<DataObject>>::size_type;
-
         /**
          * Default destructor, meant to be overriden by subclasses.
          */

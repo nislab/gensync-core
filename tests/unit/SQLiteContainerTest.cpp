@@ -11,12 +11,12 @@ CPPUNIT_TEST_SUITE_REGISTRATION(SQLiteContainerTest);
 //Sets the random seed
 void SQLiteContainerTest::setUp(){
     srand(SEED);
-    container = unique_ptr<SQLiteContainer>(new SQLiteContainer("testDB", "testTable"));
+    container = unique_ptr<SQLiteContainer>(new SQLiteContainer("testDB2", "testTable2"));
 }
 
 void SQLiteContainerTest::tearDown(){
     container->clear();
-    remove("testDB");
+    remove("testDB2");
 }
 
 

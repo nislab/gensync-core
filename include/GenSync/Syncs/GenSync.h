@@ -473,13 +473,14 @@ public:
      * @param dbRef A string reference to the database name.
      * @param tableName A string reference to the table name.
      * @param clearDBData Whether to clear the data when the destructor is called.
+     * @param batchSize The size of how many commands the database holds before executing it to the disk.
      */
-    Builder& setContainer(ContainerType theContainer, const string& dbRef, const string& tableName = "defaultTable", bool clearDBData = false){
+    Builder& setContainer(ContainerType theContainer, const string& dbRef, const string& tableName = "defaultTable", bool clearDBData = false, int batchSize = 100){
         clearData = clearDBData;
         switch(theContainer){
             #ifdef USE_SQLITE
             case ContainerType::SQLite:
-                this -> dataCont = Nullable<shared_ptr<DataContainer>>(make_shared<SQLiteContainer>(dbRef, tableName));
+                this -> dataCont = Nullable<shared_ptr<DataContainer>>(make_shared<SQLiteContainer>(dbRef, tableName, batchSize));
                 break;
             #endif
             default:

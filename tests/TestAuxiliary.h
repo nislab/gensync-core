@@ -1319,6 +1319,7 @@ inline bool dataContainerAddTest(DataContainer& container){
             shared_ptr<DataObject> obj = make_shared<DataObject>(randString(LOWER_BOUND_SIZE, UPPER_BOUND_SIZE));
             container.add(obj);
             objList.push_back(obj);
+			
         }
         
         auto listIt = objList.begin();

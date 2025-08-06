@@ -2,13 +2,17 @@
 // Created by GregoryFan on 7/10/2025
 //
 
-#ifdef USE_SQLITE
+//#ifdef USE_SQLITE
 #ifndef SQLITE_CONTAINER_H
 #define SQLITE_CONTAINER_H
 
 #include <GenSync/Data/DatabaseContainer.h>
 #include <sqlite3.h>
 
+/**
+ * Implements a Data Container that uses SQLite to store data.
+ * This container is not thread safe.
+ */
 class SQLiteContainer : public DatabaseContainer {
     protected:
     /**
@@ -107,13 +111,15 @@ class SQLiteContainer : public DatabaseContainer {
     /**
      * Constructs a SQLiteContainer with a given database reference and table name.
      * The database and table are created if they do not exist.
+     * Also allows for a custom buffer size for when commands are executed to the disk.
      * @param ref The reference to the database by name.
      * @param tableName The name of the table.
+     * @param batchSize The size of the buffer before operations are committed to disk.
      */
-    SQLiteContainer(const string& ref, const string& tableName = "defaultTable");
+    SQLiteContainer(const string& ref, const string& tableName = "defaultTable", int batchSize = 100);
 
     /**
-     * Default Constructor. Closes the database if it exists.
+     * Default Constructor. Commits all commands and closes database if possible.
      */
     ~SQLiteContainer();
 
@@ -150,7 +156,8 @@ class SQLiteContainer : public DatabaseContainer {
     bool empty() const override;
 
     /**
-     * Removes all items from the table.
+     * Removes all items from the table. 
+     * Doing this commits all commands in the buffer.
      */
     void clear() override;
 
@@ -169,12 +176,42 @@ class SQLiteContainer : public DatabaseContainer {
      */
     void add(const shared_ptr<DataObject>& val) override;
 
+    /**
+     * Sets the number of operations to buffer before automatically committing them to disk.
+     */
+    void setBatchSize(int newSize);
+
     private:
     /** The table name of the SQLite table the container will read and write to.*/
     string tableName;
 
     /** The pointer to the SQLite database.*/
     sqlite3* db;
+
+    /**
+     * Whether or not a buffer is active.
+     */
+    bool transactionInProgress = false;
+
+    /**
+     * The number of operations that has been put in the buffer.
+     */
+    int operationCount = 0;
+
+    /**
+     * The maximum number of operations before they are executed to the disk.
+     */
+    int BATCH_SIZE = 100;
+
+    /**
+     * Begins a buffer that stores given commands to the disk.
+     */
+    void beginTransaction();
+
+    /**
+     * Executs all commands within the buffer to the disk.
+     */
+    void commitTransaction();
 };
 #endif //SQLITE_CONTAINER_H
-#endif
+//#endif
