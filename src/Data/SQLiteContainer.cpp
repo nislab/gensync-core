@@ -85,13 +85,13 @@ void SQLiteContainer::SQLiteIterator::step(){
 
 //SQLiteContainer Functions
 
-SQLiteContainer::SQLiteContainer(const string& ref, const string& table) : tableName(table) {
+SQLiteContainer::SQLiteContainer(const string& ref, const string& table, int batchSize) : tableName(table) {
     //Opens the database if possible.
     if (sqlite3_open(ref.c_str(), &db) != SQLITE_OK) {
         std::cerr << "Failed to open database: " << sqlite3_errmsg(db) << std::endl;
         db = nullptr;
         return;
-    }
+    } 
 
     //Creates a table if needed.
     string statement = 
@@ -106,12 +106,19 @@ SQLiteContainer::SQLiteContainer(const string& ref, const string& table) : table
         sqlite3_close(db);
         db = nullptr;
     }
+
+    BATCH_SIZE = batchSize;
 }
 
 SQLiteContainer::~SQLiteContainer(){
+    //Commits everything not yet saved.
+    if(transactionInProgress){
+        commitTransaction();
+    }
     if (db) {
         sqlite3_close(db);
-    }
+        db = nullptr;
+    } 
 }
 
 //Methods
@@ -173,6 +180,10 @@ bool SQLiteContainer::empty() const{
 }
 
 void SQLiteContainer::clear(){
+    if (transactionInProgress) {
+        commitTransaction();
+    }
+
     sqlite3_stmt* stmt;
     string sql = "DELETE FROM " + tableName + ";";
 
@@ -189,8 +200,11 @@ void SQLiteContainer::clear(){
 }
 
 bool SQLiteContainer::remove(const shared_ptr<DataObject>& val){
+     if (!transactionInProgress) {
+        beginTransaction();
+    }
+
     sqlite3_stmt* stmt;
-    int sizeBefore = size();
     string data = val->to_string();
     string statement = "DELETE FROM " + tableName + " WHERE data=? LIMIT 1";
     
@@ -210,10 +224,18 @@ bool SQLiteContainer::remove(const shared_ptr<DataObject>& val){
 
     sqlite3_finalize(stmt);
 
-    return sizeBefore < size();
+    if (++operationCount >= BATCH_SIZE) {
+        commitTransaction();
+    }
+
+    return true;
 }
 
 void SQLiteContainer::add(const shared_ptr<DataObject>& val){
+     if (!transactionInProgress) {
+        beginTransaction();
+    }
+
     sqlite3_stmt* stmt;
     string statement = "INSERT INTO " + tableName + " (data) VALUES (?);";
 
@@ -225,7 +247,6 @@ void SQLiteContainer::add(const shared_ptr<DataObject>& val){
         sqlite3_finalize(stmt);
         throw std::runtime_error("Failed to bind data");
     }
-
     // Execute the statement
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         string err = sqlite3_errmsg(db);
@@ -236,8 +257,36 @@ void SQLiteContainer::add(const shared_ptr<DataObject>& val){
     // Get the auto-generated ID
     int inserted_id = static_cast<int>(sqlite3_last_insert_rowid(db));
     val->setObjectID(inserted_id);
-
     // Finalize to free the statement object
     sqlite3_finalize(stmt);
+
+    if (++operationCount >= BATCH_SIZE) {
+        commitTransaction();
+    }
+}
+
+void SQLiteContainer::beginTransaction() {
+    char* errMsg = nullptr;
+    if (sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        std::cerr << "Failed to begin transaction: " << errMsg << std::endl;
+        sqlite3_free(errMsg); 
+    }else{
+        operationCount = 0;
+        transactionInProgress = true;
+    }
+}
+
+void SQLiteContainer::commitTransaction() {
+    char* errMsg = nullptr;
+    if (sqlite3_exec(db, "COMMIT;", nullptr, nullptr, &errMsg) != SQLITE_OK) {
+        std::cerr << "Failed to commit transaction: " << errMsg << std::endl;
+        sqlite3_free(errMsg);
+    }
+    operationCount = 0;
+    transactionInProgress = false;
+}
+
+void SQLiteContainer::setBatchSize(int newSize){
+    BATCH_SIZE = newSize;
 }
 #endif
