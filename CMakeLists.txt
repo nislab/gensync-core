@@ -80,8 +80,6 @@ set(SOURCE_FILES
 	    ${SYNC_DIR}/BloomFilter.cpp
         ${SYNC_DIR}/MET_IBLTSync.cpp
         ${SYNC_DIR}/MET_IBLT.cpp
-        ${SYNC_DIR}/RIBLTSync.cpp
-        ${SYNC_DIR}/RIBLT.cpp
 
         ${BENCH_DIR}/BenchParams.cpp
         ${BENCH_DIR}/FromFileGen.cpp
@@ -137,8 +135,6 @@ set(HEADERS
 	    ${SYNC_DIR_INC}/BloomFilter.h
         ${SYNC_DIR_INC}/MET_IBLTSync.h
         ${SYNC_DIR_INC}/MET_IBLT.h
-        ${SYNC_DIR_INC}/RIBLTSync.h
-        ${SYNC_DIR_INC}/RIBLT.h
 
         ${SYNC_BENCH_INC}/BenchObserv.h
         ${SYNC_BENCH_INC}/BenchParams.h
@@ -146,24 +142,6 @@ set(HEADERS
         ${SYNC_BENCH_INC}/RandGen.h
         ${SYNC_BENCH_INC}/FromFileGen.h
     )
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    if(NOT DEFINED includedir)
-        set(includedir "/usr/local")
-    endif()
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    if(NOT DEFINED includedir)
-        set(includedir "/opt/local")
-    endif()
-endif()
-
-include_directories(${includedir}/include)
-link_directories(${includedir}/lib)
-link_directories(${includedir}/lib64)
-
-
-include_directories(${CMAKE_INSTALL_INCLUDEDIR})
-link_directories(${CMAKE_INSTALL_LIBDIR})
 
 # Add gensync library
 add_library(gensync STATIC ${SOURCE_FILES} ${HEADERS})
@@ -191,12 +169,6 @@ target_link_libraries(TryMe gensync)
 
 add_executable(TryMe2 ${SRC_DIR}/TryMe2.cpp)
 target_link_libraries(TryMe2 gensync)
-
-# For Rateless-IBLT test purpose
-add_executable(test_riblt ${SRC_DIR}/test_riblt.cpp)
-target_link_libraries(test_riblt gensync)
-add_executable(riblt_unittest ${SRC_DIR}/riblt_unittest.cpp)
-target_link_libraries(riblt_unittest gensync)
 
 # Benchmarks
 add_executable(Benchmarks ${BENCH_DIR}/Runner.cpp)
