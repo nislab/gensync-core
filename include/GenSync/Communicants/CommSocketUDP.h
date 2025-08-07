@@ -2,7 +2,10 @@
 
 // CommSocketUDP.h
 
-
+/**
+ * A socket-based Communicant implementation.  Messages are sent to and received
+ * from the Communicant using a (network) socket.
+ */
 #ifndef COMM_SOCKETUDP_H
 #define COMM_SOCKETUDP_H
 
@@ -15,11 +18,6 @@
 
 #include <GenSync/Communicants/Communicant.h>
 
-/**
- * A socket-based Communicant implementation.  Messages are sent to and received
- * from the Communicant using a (network) socket. 
- * This implementation uses a UDP protocol for communication.
- */
 class CommSocketUDP : public Communicant {
 public:
 
@@ -31,13 +29,12 @@ public:
      */
     explicit CommSocketUDP(int port, string host = "");
 
-    /**
-     * Default Destructor
-     */
+    // Destructor
     ~CommSocketUDP() override;
 
     /**
      * Await a connection on the designated port.
+     * *Note*:  Blocks until a client connects.
      */
     void commListen() override;
 
@@ -67,19 +64,12 @@ public:
      */
     string commRecv(unsigned long numBytes) override;
 
-    /**
-     * Returns the port number
-     */
+    // INFORMATIONAL
     int getPort() { return remotePort; }
-
-    /**
-     * Returns the Socket Type Name
-     */
     string getName() override { return "CommSocketUDP"; }
 
 private:
-    /** The name of the host represented by this Communicant. */
-    string remoteHost; 
+    string remoteHost; /** The name of the host represented by this Communicant. */
     int remotePort=DEFAULT_PORT; /** The port on which communicants are being enacted with this Communicant. */
 
     enum CommState { /** Possible states for a communication object. */
