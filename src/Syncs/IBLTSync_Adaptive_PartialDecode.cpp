@@ -162,6 +162,7 @@ bool IBLTSync_Adaptive_PartialDecode::SyncServer(const shared_ptr<Communicant>& 
             myIBLT.insert(key, key);
         }
 
+        // try to peel the IBLT, and record peeled elements
         vector<pair<ZZ, ZZ>> positive, negative;
         vec_ZZ SMOKeys;
         clientIBLT -= myIBLT;
