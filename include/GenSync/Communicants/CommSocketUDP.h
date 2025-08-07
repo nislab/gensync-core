@@ -2,10 +2,6 @@
 
 // CommSocketUDP.h
 
-/**
- * A socket-based Communicant implementation.  Messages are sent to and received
- * from the Communicant using a (network) socket.
- */
 #ifndef COMM_SOCKETUDP_H
 #define COMM_SOCKETUDP_H
 
@@ -18,6 +14,11 @@
 
 #include <GenSync/Communicants/Communicant.h>
 
+/**
+ * A socket-based Communicant implementation.  Messages are sent to and received
+ * from the Communicant using a (network) socket. 
+ * This implementation uses a UDP protocol for communication.
+ */
 class CommSocketUDP : public Communicant {
 public:
 
@@ -29,12 +30,13 @@ public:
      */
     explicit CommSocketUDP(int port, string host = "");
 
-    // Destructor
+    /**
+     * Default Destructor
+     */
     ~CommSocketUDP() override;
 
     /**
      * Await a connection on the designated port.
-     * *Note*:  Blocks until a client connects.
      */
     void commListen() override;
 
@@ -64,12 +66,19 @@ public:
      */
     string commRecv(unsigned long numBytes) override;
 
-    // INFORMATIONAL
+    /**
+     * Returns the port number
+     */
     int getPort() { return remotePort; }
+
+    /**
+     * Returns the Socket Type Name
+     */
     string getName() override { return "CommSocketUDP"; }
 
 private:
-    string remoteHost; /** The name of the host represented by this Communicant. */
+    /** The name of the host represented by this Communicant. */
+    string remoteHost;
     int remotePort=DEFAULT_PORT; /** The port on which communicants are being enacted with this Communicant. */
 
     enum CommState { /** Possible states for a communication object. */
@@ -79,7 +88,14 @@ private:
     CommState state = Idle; /** The state of the Communicant. */
     int my_fd = -1;  /** The file descriptor of the socket being used.  By default, -1 - no socket. */
 
+    /**
+     * The address of the other Communicant
+     */
     struct sockaddr_in remoteAddr{};
+
+    /**
+     * The address of this Communicant
+     */
     struct sockaddr_in localAddr{};
 
     // METHODS
