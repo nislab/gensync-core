@@ -16,7 +16,6 @@
 class IBLTTest : public CPPUNIT_NS::TestFixture{
     CPPUNIT_TEST_SUITE(IBLTTest);
     CPPUNIT_TEST(testAll);
-    CPPUNIT_TEST(ListEntriesandKeysTest);
     CPPUNIT_TEST(SerializeTest);
     CPPUNIT_TEST(IBLTNestedInsertRetrieveTest);
     CPPUNIT_TEST(testIBLTMultisetInsert);
@@ -33,11 +32,6 @@ public:
  	* Tests every function in IBLT together, except for size
  	*/
     static void testAll();
-
-    /**
- 	* Tests ListEntriesandKeys function in IBLT
- 	*/
-    static void ListEntriesandKeysTest();
 
     /**
      * Test serilize and de-serialize

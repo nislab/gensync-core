@@ -157,18 +157,18 @@ bool IBLTSync_Adaptive_PartialDecode::SyncServer(const shared_ptr<Communicant>& 
             ZZ key = (**iter).to_ZZ();
 
             if (peeledKeys.find(key) != peeledKeys.end()) {
-                std::cout << "[Server] Skip inserting already peeled key: " << key << std::endl;
                 continue;
             }
             myIBLT.insert(key, key);
         }
 
         vector<pair<ZZ, ZZ>> positive, negative;
-        vec_ZZ OMSKeys, SMOKeys;
+        vec_ZZ SMOKeys;
         clientIBLT -= myIBLT;
-        bool peelSuccess = clientIBLT.listEntriesandKeys(positive, negative, OMSKeys, SMOKeys);
-        for (long i = 0; i < SMOKeys.length(); ++i) {
-            peeledKeys.insert(SMOKeys[i]);
+        bool peelSuccess = clientIBLT.listEntries(positive, negative);
+        for (const auto& negEntry : negative) {
+            append(SMOKeys, negEntry.first);
+            peeledKeys.insert(negEntry.first);
         }
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 

@@ -15,19 +15,19 @@ int main() {
     size_t eltSize = 8;
     size_t initialExpected = 5;
 
-    shared_ptr<SyncMethod> syncA = make_shared<IBLTSync_Adaptive>(initialExpected, eltSize);
-    shared_ptr<SyncMethod> syncB = make_shared<IBLTSync_Adaptive>(initialExpected, eltSize);
+    shared_ptr<SyncMethod> syncA = make_shared<IBLTSync_Adaptive_PartialDecode>(initialExpected, eltSize);
+    shared_ptr<SyncMethod> syncB = make_shared<IBLTSync_Adaptive_PartialDecode>(initialExpected, eltSize);
 
     GenSync host1 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
-            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
+            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive_PartialDecode)
             .setExpNumElems(2)
             .setBits(8)
             .build();
 
     GenSync host2 = GenSync::Builder()
             .setComm(GenSync::SyncComm::socket)
-            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive)
+            .setProtocol(GenSync::SyncProtocol::IBLTSync_Adaptive_PartialDecode)
             .setExpNumElems(2)
             .setBits(8)
             .build();
