@@ -44,6 +44,8 @@ class RIBLTSync : public SyncMethod {
      * Size of elements as set in the constructor
      */
     size_t elementSize;
+
+    double listenDuration = 0.0;
 };
 
 #endif // GENSYNC_RIBLTSYNC_H

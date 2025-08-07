@@ -53,13 +53,14 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
             mySyncStats.timerEnd(SyncStats::COMM_TIME);
         }
         catch (Communicant::ConnectionClosedException& e) {
-            // Handle reconnection or abort if needed
             break;
         }
     }
-
     // Wait for thread to join if not done already
     if (listenerThread.joinable()) listenerThread.join();
+    mySyncStats.increment(SyncStats::COMM_TIME, listenDuration);
+
+    cout << mySyncStats.getStat(SyncStats::COMM_TIME) << endl;;
 
     mySyncStats.timerStart(SyncStats::COMM_TIME);
     list<shared_ptr<DataObject>> newOMS = commSync->commRecv_DataObject_List();
@@ -80,10 +81,11 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
 void RIBLTSync::listenForDone(const std::shared_ptr<Communicant>& commSync, std::atomic<bool>& doneFlag) {
     while (!doneFlag) {
         try {
-            mySyncStats.timerStart(SyncStats::COMM_TIME);
+            auto start = std::chrono::high_resolution_clock::now();
             auto msg = commSync->commRecv(1);
+            auto end = std::chrono::high_resolution_clock::now();
+            listenDuration = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
             doneFlag = true;
-            mySyncStats.timerEnd(SyncStats::COMM_TIME);
             break;
         } catch (const Communicant::ConnectionClosedException& e) {
             Logger::gLog(Logger::COMM_DETAILS, "Connection closed in background recv thread");
