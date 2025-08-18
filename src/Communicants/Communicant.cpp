@@ -87,7 +87,6 @@ bool Communicant::establishIBLTRecv(const size_t size, const size_t eltSize, boo
     // receive other size and eltSize. both must be read, even if the first parameter is wrong
     long otherSize = commRecv_long();
     long otherEltSize = commRecv_long();
-
     if(otherSize == size && otherEltSize == eltSize) {
         if(!oneWay)
             commSend(SYNC_OK_FLAG);
@@ -235,6 +234,40 @@ void Communicant::commSend(const ZZ_p& num) {
     commSend(ustring(toSend, MOD_SIZE), MOD_SIZE);
 }
 
+void Communicant::commSend(const vec_ZZ& vec) {
+    Logger::gLog(Logger::COMM, "... attempting to send: vec_ZZ " + toStr(vec));
+
+    if (vec.length() == 0) {
+        commSend(ZZ(0));        // send dummy base
+        commSend(ZZ(0));        // send dummy min_elem
+        commSend(ZZ(0));        // send empty packed result
+        return;
+    }
+
+    // Find min and max
+    ZZ min_elem = vec.length() > 0 ? vec[0] : ZZ(0);
+    ZZ max_elem = vec[0];
+    for (long i = 0; i < vec.length(); ++i) {
+        if (vec[i] < min_elem) min_elem = vec[i];
+        if (vec[i] > max_elem) max_elem = vec[i];
+    }
+
+    ZZ base = max_elem - min_elem + 2;  // add 2 for safety (shift +1)
+
+    // Send base and min_elem for decoding
+    commSend(base);
+    commSend(min_elem);
+
+    // Pack into single ZZ
+    ZZ result = ZZ(0);
+    for (long i = vec.length() - 1; i >= 0; --i) {
+        ZZ shifted = vec[i] - min_elem + 1;  // shift into non-negative range, then +1
+        result = result * base + shifted;
+    }
+
+    commSend(result);
+}
+
 void Communicant::commSend(const vec_ZZ_p& vec) {
     Logger::gLog(Logger::COMM, "... attempting to send: vec_ZZ_p " + toStr(vec));
 
@@ -245,6 +278,29 @@ void Communicant::commSend(const vec_ZZ_p& vec) {
     for (long ii = vec.length() - 1; ii >= 0; ii--) // append in reverse order to make decoding easier
         result = (result * (ZZ_p::modulus()+1)) + rep(vec[ii])+1; // added 1 to avoid insignificant 0's in the lead of the vector
     commSend(result);
+}
+
+vec_ZZ Communicant::commRecv_vec_ZZ() {
+    ZZ base = commRecv_ZZ();
+    ZZ min_elem = commRecv_ZZ();  // recover the original base point
+
+    ZZ received = commRecv_ZZ();
+
+    if (received == 0) {
+        return vec_ZZ(); // return empty vector
+    }
+
+    vec_ZZ result;
+    while (received != 0) {
+        ZZ divisor, remainder;
+        DivRem(divisor, remainder, received, base);
+
+        result.append(min_elem + remainder - 1);  // shift back
+        received = divisor;
+    }
+
+    Logger::gLog(Logger::COMM, "... received vec_ZZ " + toStr(result));
+    return result;
 }
 
 vec_ZZ_p Communicant::commRecv_vec_ZZ_p() {
@@ -344,6 +400,14 @@ void Communicant::commSend(const ZZ& num, Nullable<size_t> size) {
 
     commSend(ustring(toSend, num_size), num_size);
 
+}
+
+void Communicant::commSend(const std::vector<ZZ> &vec) {
+    long len = vec.size();
+    commSend(len);
+    for (const auto &zz : vec) {
+        commSend(zz);
+    }
 }
 
 void Communicant::commSendIBLTNHash(const IBLT &iblt, bool sync)
@@ -644,4 +708,14 @@ Cuckoo Communicant::commRecv_Cuckoo() {
         filter.push_back(commRecv_byte());
 
     return Cuckoo(fngprtS, bucketS, filterSize, kicks, filter, itemsC);
+}
+
+vector<ZZ> Communicant::commRecv_vector_ZZ() {
+    long len = commRecv_long();
+    vector<ZZ> result;
+    result.reserve(len);
+    for (long i = 0; i < len; ++i) {
+        result.push_back(commRecv_ZZ());
+    }
+    return result;
 }

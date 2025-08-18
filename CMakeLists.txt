@@ -70,6 +70,8 @@ set(SOURCE_FILES
         ${SYNC_DIR}/IBLTMultiset.cpp
         ${SYNC_DIR}/IBLTSync.cpp
         ${SYNC_DIR}/IBLTSync_Multiset.cpp
+        ${SYNC_DIR}/IBLTSync_Adaptive.cpp
+        ${SYNC_DIR}/IBLTSync_Adaptive_PartialDecode.cpp
         ${SYNC_DIR}/IBLTSetOfSets.cpp
         ${SYNC_DIR}/Compact2DBitArray.cpp
         ${SYNC_DIR}/Cuckoo.cpp
@@ -123,6 +125,8 @@ set(HEADERS
         ${SYNC_DIR_INC}/IBLTSetOfSets.h
         ${SYNC_DIR_INC}/IBLTSync_HalfRound.h
         ${SYNC_DIR_INC}/IBLTSync_Multiset.h
+        ${SYNC_DIR_INC}/IBLTSync_Adaptive.h
+        ${SYNC_DIR_INC}/IBLTSync_Adaptive_PartialDecode.h
         ${SYNC_DIR_INC}/Compact2DBitArray.h
         ${SYNC_DIR_INC}/Cuckoo.h
         ${SYNC_DIR_INC}/CuckooSync.h
@@ -140,6 +144,30 @@ set(HEADERS
         ${SYNC_BENCH_INC}/RandGen.h
         ${SYNC_BENCH_INC}/FromFileGen.h
     )
+
+if(NOT DEFINED includedir)
+    find_path(NTL_INCLUDE_PATH NTL
+            PATHS
+            /usr/include
+            /usr/local/include
+            /opt/local/include
+            /opt/homebrew/include
+            )
+    if(NTL_INCLUDE_PATH)
+        get_filename_component(includedir "${NTL_INCLUDE_PATH}" DIRECTORY)
+    else()
+        set(includedir "/usr/local")
+    endif()
+endif()
+
+# Users may need to update these paths
+include_directories(${includedir}/include)
+link_directories(${includedir}/lib)
+link_directories(${includedir}/lib64)
+
+
+include_directories(${CMAKE_INSTALL_INCLUDEDIR})
+link_directories(${CMAKE_INSTALL_LIBDIR})
 
 # Add gensync library
 add_library(gensync STATIC ${SOURCE_FILES} ${HEADERS})

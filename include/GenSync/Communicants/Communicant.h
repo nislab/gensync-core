@@ -217,6 +217,14 @@ public:
      */
     void commSend(const ZZ &num, Nullable<size_t> size = NOT_SET<size_t>());
 
+    /**
+     * Sends a vec_ZZ.
+     * @require must have called EstablishModSend/EstablishModRecv before any of these functions will work.
+     * @param vec A vector of ZZ's
+     * @see commSend(const char *str) for more details.
+     *         */
+    void commSend(const vec_ZZ &vec);
+
     // Specialized send functions for specific data types
     /**
      * Sends a *positive* ZZ_p over the line
@@ -262,6 +270,14 @@ public:
      * @param The Cuckoo filter to send.
      */
     void commSend(const Cuckoo &cf);
+
+    /**
+     * Sends a vector of ZZ.
+     * @require must have called EstablishModSend/EstablishModRecv before any of these functions will work.
+     * @param vec A vector of ZZ
+     * @see commSend(const char *str) for more details.
+    */
+    void commSend(const vector<ZZ> &vec);
 
     /**
      * Receives up to MAX_BUF_SIZE characters from the socket.
@@ -324,8 +340,18 @@ public:
       */
     ZZ_p commRecv_ZZ_p();
 
-    vec_ZZ_p
-    commRecv_vec_ZZ_p(); /** @require must have called EstablishModSend/EstablishModRecv before any of these functions will work. */
+    /**
+     * Specialized receive functions for specific data types.
+     * @require must have called EstablishMod before any of these functions will work.
+      */
+    vec_ZZ commRecv_vec_ZZ();
+
+    /**
+     * Specialized receive functions for specific data types.
+     * @require must have called EstablishMod before any of these functions will work.
+      */
+    vec_ZZ_p commRecv_vec_ZZ_p();
+
     long commRecv_long();
 
     int commRecv_int();
@@ -333,6 +359,8 @@ public:
     double commRecv_double();
 
     byte commRecv_byte();
+
+    vector<ZZ> commRecv_vector_ZZ();
 
     /**
      * Receives a GenIBLT.

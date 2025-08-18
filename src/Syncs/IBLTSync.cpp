@@ -104,7 +104,6 @@ bool IBLTSync::SyncServer(const shared_ptr<Communicant>& commSync, list<shared_p
             return false;
         }
 
-        // verified that our size and eltSize == theirs
         IBLT theirs = commSync->commRecv_IBLT(myIBLT.size(), myIBLT.eltSize());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 

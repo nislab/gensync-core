@@ -8,6 +8,7 @@
 //
 
 #include <GenSync/Syncs/IBLT.h>
+#include <unordered_set>
 
 IBLT::IBLT() = default;
 IBLT::~IBLT() = default;
