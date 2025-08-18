@@ -26,17 +26,19 @@ void CommSocketUDP::commListen() {
     if (my_fd == -1) {
         Logger::error_and_quit("UDP socket creation failed");
     }
-
+    
+    //Sets up local address
     memset(&localAddr, 0, sizeof(localAddr));
     localAddr.sin_family = AF_INET;
     localAddr.sin_port = htons(remotePort);
     localAddr.sin_addr.s_addr = INADDR_ANY;
 
+    //Binds to an address
     if (::bind(my_fd, (struct sockaddr*)&localAddr, sizeof(localAddr)) < 0) {
         Logger::error_and_quit("Could not bind UDP socket");
     }
 
-    resetCommCounters();
+    resetCommCounters(); //reset transmission counters
     Logger::gLog(Logger::METHOD, "Listening for UDP on port " + toStr(remotePort));
 }
 
@@ -48,6 +50,7 @@ void CommSocketUDP::commConnect() {
         Logger::error_and_quit("UDP socket creation failed");
     }
 
+    //Sets up remote port
     memset(&remoteAddr, 0, sizeof(remoteAddr));
     remoteAddr.sin_family = AF_INET;
     remoteAddr.sin_port = htons(remotePort);

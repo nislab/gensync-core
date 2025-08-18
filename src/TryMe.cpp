@@ -5,14 +5,14 @@ int main() {
   // BUILD the first host
   GenSync host1 = GenSync::Builder().
     setProtocol(GenSync::SyncProtocol::CPISync). // CPISync protocol
-    setComm(GenSync::SyncComm::socketudp).		 // communicate over network sockets
+    setComm(GenSync::SyncComm::socket).		 // communicate over network sockets
     setMbar(5).					 // required parameter for CPISync
     build();
 
   // BUILD the second host
   GenSync host2 = GenSync::Builder().
     setProtocol(GenSync::SyncProtocol::CPISync).
-    setComm(GenSync::SyncComm::socketudp).
+    setComm(GenSync::SyncComm::socket).
     setMbar(5).
     build();
 
