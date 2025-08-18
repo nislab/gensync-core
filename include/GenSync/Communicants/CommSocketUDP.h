@@ -18,6 +18,9 @@
  * A socket-based Communicant implementation.  Messages are sent to and received
  * from the Communicant using a (network) socket. 
  * This implementation uses a UDP protocol for communication.
+ * 
+ * Note that the current implementation of the protocol does NOT ensure
+ * that the packets are reliable or ordered.
  */
 class CommSocketUDP : public Communicant {
 public:
