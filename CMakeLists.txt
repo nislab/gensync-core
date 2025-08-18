@@ -150,12 +150,8 @@ if(NOT DEFINED includedir)
             /opt/local/include
             /opt/homebrew/include
             )
-    if(NTL_INCLUDE_PATH MATCHES "/usr/local/include")
-        set(includedir "/usr/local")
-    elseif(NTL_INCLUDE_PATH MATCHES "/opt/local/include")
-        set(includedir "/opt/local")
-    elseif(NTL_INCLUDE_PATH MATCHES "/opt/homebrew/include")
-        set(includedir "/opt/homebrew")
+    if(NTL_INCLUDE_PATH)
+        get_filename_component(includedir "${NTL_INCLUDE_PATH}" DIRECTORY)
     else()
         set(includedir "/usr/local")
     endif()
@@ -196,10 +192,6 @@ target_link_libraries(TryMe gensync)
 
 add_executable(TryMe2 ${SRC_DIR}/TryMe2.cpp)
 target_link_libraries(TryMe2 gensync)
-
-# for adaptive-iblt testing
-add_executable(test_adaptive ${SRC_DIR}/test_adaptive.cpp)
-target_link_libraries(test_adaptive gensync)
 
 # Benchmarks
 add_executable(Benchmarks ${BENCH_DIR}/Runner.cpp)

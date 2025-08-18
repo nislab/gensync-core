@@ -27,24 +27,15 @@ bool IBLTSync_Adaptive::SyncClient(const shared_ptr<Communicant>& commSync,
     commSync->commConnect();
     mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
-    // keep running until peeling succeed
-    while (true) {
+    // keep running until peeling succeed or expected set difference size is larger than twice of whole set size
+    while (currentExpected <= elementCount * 4) {
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(static_cast<int>(currentExpected));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         // construct new IBLT with updated size
-        IBLT myIBLT = IBLT::Builder()
-                .setNumHashes(DEFAULT_NUM_HASHES)
-                .setNumHashCheck(DEFAULT_NUM_HASH_CHECK)
-                .setExpectedNumEntries(currentExpected)
-                .setValueSize(elementSize)
-                .build();
-
-        for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
-            myIBLT.insert((**iter).to_ZZ(), (**iter).to_ZZ());
-        }
+        IBLT myIBLT = buildIBLT(currentExpected, elementSize);
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
@@ -87,20 +78,15 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
     commSync->commListen();
     mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
-    // keep generating new IBLT until peeling succeed
-    while (true) {
+    // keep running until peeling succeed or expected set difference size is larger than twice of whole set size
+    while (currentExpected <= elementCount * 4) {
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         currentExpected = static_cast<size_t>(commSync->commRecv_int());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         // construct new IBLT with updated size
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        IBLT myIBLT = IBLT::Builder()
-                .setNumHashes(DEFAULT_NUM_HASHES)
-                .setNumHashCheck(DEFAULT_NUM_HASH_CHECK)
-                .setExpectedNumEntries(currentExpected)
-                .setValueSize(elementSize)
-                .build();
+        IBLT myIBLT = buildIBLT(currentExpected, elementSize);
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         mySyncStats.timerStart(SyncStats::COMM_TIME);
@@ -108,10 +94,6 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
-            myIBLT.insert((**iter).to_ZZ(), (**iter).to_ZZ());
-        }
-
         // Attempt to peel the elements
         vector<pair<ZZ, ZZ>> positive, negative;
         bool peelSuccess = (clientIBLT -= myIBLT).listEntries(positive, negative);
@@ -152,13 +134,30 @@ bool IBLTSync_Adaptive::SyncServer(const shared_ptr<Communicant>& commSync,
     }
 }
 
+IBLT IBLTSync_Adaptive::buildIBLT(size_t currentExpected, size_t elementSize) {
+    IBLT iblt = IBLT::Builder()
+            .setNumHashes(DEFAULT_NUM_HASHES)
+            .setNumHashCheck(DEFAULT_NUM_HASH_CHECK)
+            .setExpectedNumEntries(currentExpected)
+            .setValueSize(elementSize)
+            .build();
+
+    for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); ++iter) {
+        iblt.insert((**iter).to_ZZ(), ZZ(0));
+    }
+    return iblt;
+}
+
+
 bool IBLTSync_Adaptive::addElem(shared_ptr<DataObject> datum) {
     SyncMethod::addElem(datum);
+    ++elementCount;
     return true;
 }
 
 bool IBLTSync_Adaptive::delElem(shared_ptr<DataObject> datum) {
     SyncMethod::delElem(datum);
+    --elementCount;
     return true;
 }
 

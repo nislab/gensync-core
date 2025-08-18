@@ -7,7 +7,6 @@
 #include <GenSync/Aux/Exceptions.h>
 #include <NTL/ZZ.h>
 #include <functional>
-#include <unordered_set>
 
 IBLTSync_Adaptive_PartialDecode::IBLTSync_Adaptive_PartialDecode(size_t initExpected, size_t eltSize) {
     initExpNumElems = initExpected;
@@ -32,28 +31,15 @@ bool IBLTSync_Adaptive_PartialDecode::SyncClient(const shared_ptr<Communicant>& 
     commSync->commConnect();
     mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
-    // keep running until peeling succeed
-    while (true) {
+    // keep running until peeling succeed or expected set difference size is larger than twice of whole set size
+    while (currentExpected <= elementCount * 4) {
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         commSync->commSend(static_cast<int>(currentExpected));
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
         // construct new IBLT with updated size
-        IBLT myIBLT = IBLT::Builder()
-                .setNumHashes(DEFAULT_NUM_HASHES)
-                .setNumHashCheck(DEFAULT_NUM_HASH_CHECK)
-                .setExpectedNumEntries(currentExpected)
-                .setValueSize(elementSize)
-                .build();
-
-        for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
-            ZZ key = (**iter).to_ZZ();
-            if (peeledKeys.find(key) != peeledKeys.end()) {
-                continue;
-            }
-            myIBLT.insert(key, key);
-        }
+        IBLT myIBLT = buildIBLTwithUnpeeledElements(currentExpected, elementSize, peeledKeys);
         mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
         // ensure that the IBLT size and eltSize equal those of the server otherwise fail and don't continue
@@ -125,20 +111,17 @@ bool IBLTSync_Adaptive_PartialDecode::SyncServer(const shared_ptr<Communicant>& 
     commSync->commListen();
     mySyncStats.timerEnd(SyncStats::IDLE_TIME);
 
-    while (true) {
+    // keep running until peeling succeed or expected set difference size is larger than twice of whole set size
+    while (currentExpected <= elementCount * 4) {
         mySyncStats.timerStart(SyncStats::COMM_TIME);
         currentExpected = static_cast<size_t>(commSync->commRecv_int());
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
-        mySyncStats.timerStart(SyncStats::COMM_TIME);
-        // construct new IBLT with updated size
-        IBLT myIBLT = IBLT::Builder()
-                .setNumHashes(DEFAULT_NUM_HASHES)
-                .setNumHashCheck(DEFAULT_NUM_HASH_CHECK)
-                .setExpectedNumEntries(currentExpected)
-                .setValueSize(elementSize)
-                .build();
+        mySyncStats.timerStart(SyncStats::COMP_TIME);
+        IBLT myIBLT = buildIBLTwithUnpeeledElements(currentExpected, elementSize, peeledKeys);
+        mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
+        mySyncStats.timerStart(SyncStats::COMM_TIME);
         // ensure that the IBLT size and eltSize equal those of the client otherwise fail and don't continue
         if (!commSync->establishIBLTRecv(myIBLT.size(), myIBLT.eltSize(), false)) {
             Logger::error_and_quit("IBLT parameter mismatch during SyncServer.");
@@ -153,15 +136,6 @@ bool IBLTSync_Adaptive_PartialDecode::SyncServer(const shared_ptr<Communicant>& 
         mySyncStats.timerEnd(SyncStats::COMM_TIME);
 
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
-            ZZ key = (**iter).to_ZZ();
-
-            if (peeledKeys.find(key) != peeledKeys.end()) {
-                continue;
-            }
-            myIBLT.insert(key, key);
-        }
-
         // try to peel the IBLT, and record peeled elements
         vector<pair<ZZ, ZZ>> positive, negative;
         vec_ZZ SMOKeys;
@@ -217,13 +191,33 @@ bool IBLTSync_Adaptive_PartialDecode::SyncServer(const shared_ptr<Communicant>& 
     }
 }
 
+IBLT IBLTSync_Adaptive_PartialDecode::buildIBLTwithUnpeeledElements(size_t currentExpected, size_t elementSize, unordered_set<ZZ, HashZZ> peeledKeys) {
+    IBLT iblt = IBLT::Builder()
+            .setNumHashes(DEFAULT_NUM_HASHES)
+            .setNumHashCheck(DEFAULT_NUM_HASH_CHECK)
+            .setExpectedNumEntries(currentExpected)
+            .setValueSize(elementSize)
+            .build();
+
+    for (auto iter = SyncMethod::beginElements(); iter != SyncMethod::endElements(); iter++) {
+        ZZ key = (**iter).to_ZZ();
+        if (peeledKeys.find(key) != peeledKeys.end()) {
+            continue;
+        }
+        iblt.insert(key, ZZ(0));
+    }
+    return iblt;
+}
+
 bool IBLTSync_Adaptive_PartialDecode::addElem(shared_ptr<DataObject> datum) {
     SyncMethod::addElem(datum);
+    ++elementCount;
     return true;
 }
 
 bool IBLTSync_Adaptive_PartialDecode::delElem(shared_ptr<DataObject> datum) {
     SyncMethod::delElem(datum);
+    --elementCount;
     return true;
 }
 

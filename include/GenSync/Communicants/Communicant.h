@@ -272,9 +272,11 @@ public:
     void commSend(const Cuckoo &cf);
 
     /**
-     * Sends a list of ZZ over the line.
-     * @param The list of ZZ to send.
-     */
+     * Sends a vector of ZZ.
+     * @require must have called EstablishModSend/EstablishModRecv before any of these functions will work.
+     * @param vec A vector of ZZ
+     * @see commSend(const char *str) for more details.
+    */
     void commSend(const vector<ZZ> &vec);
 
     /**

@@ -15,6 +15,7 @@
 
 #include <GenSync/Aux/SyncMethod.h>
 #include <GenSync/Syncs/IBLT.h>
+#include <unordered_set>
 
 /**
  * IBLTSync_Adaptive_PartialDecode class dynamically grows the IBLT if reconciliation fails, it records the indices of peeled elements
@@ -22,10 +23,27 @@
  */
 class IBLTSync_Adaptive_PartialDecode : public SyncMethod
 {
+private:
+    // Initial value of estimated number of difference
+    size_t initExpNumElems;
+
+    // Size of elements
+    size_t elementSize;
+
+    // Number of elements
+    size_t elementCount = 0;
+
+    // Provides a hash function for NTL::ZZ by converting the value to a string and hashing that.
+    struct HashZZ {
+        size_t operator()(const ZZ& z) const {
+            return hash<string>()(zzToString(z));
+        }
+    };
+
 public:
     /**
      * Constructor.
-     * @param initExpected The initial guess of expected number of elements being stored
+     * @param initExpected The initial guess of set difference size between client and server
      * @param eltSize The size of elements being sent over between client and server
      */
     explicit IBLTSync_Adaptive_PartialDecode(size_t initExpected, size_t eltSize);
@@ -41,6 +59,14 @@ public:
                     list<shared_ptr<DataObject>> &selfMinusOther,
                     list<shared_ptr<DataObject>> &otherMinusSelf) override;
 
+    /**
+    * Helper Function for constructing IBLT and inserting elements that have not been peeled.
+    * @param currentExpected The current guess of set difference size between client and server
+    * @param elementSize The size of elements being sent over between client and server
+    * @param peeledKeys The set of keys
+    */
+    IBLT buildIBLTwithUnpeeledElements(size_t currentExpected, size_t elementSize, unordered_set<ZZ, HashZZ> peeledKeys);
+
     bool addElem(shared_ptr<DataObject> datum) override;
     bool delElem(shared_ptr<DataObject> datum) override;
 
@@ -49,19 +75,6 @@ public:
     /* Getters for the parameters set in the constructor */
     size_t getInitExpNumElems() const {return initExpNumElems;}
     size_t getElementSize() const {return elementSize;}
-private:
-    // Initial value of estimated number of difference
-    size_t initExpNumElems;
-
-    // Size of elements
-    size_t elementSize;
-
-    // Provides a hash function for NTL::ZZ by converting the value to a string and hashing that.
-    struct HashZZ {
-        size_t operator()(const ZZ& z) const {
-            return hash<string>()(zzToString(z));
-        }
-    };
 };
 
 #endif //GENSYNC_IBLTSYNC_ADAPTIVE_PARTIALDECODE_H

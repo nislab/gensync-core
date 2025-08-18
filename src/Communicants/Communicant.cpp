@@ -237,23 +237,34 @@ void Communicant::commSend(const ZZ_p& num) {
 void Communicant::commSend(const vec_ZZ& vec) {
     Logger::gLog(Logger::COMM, "... attempting to send: vec_ZZ " + toStr(vec));
 
-    ZZ max_elem = ZZ(0);
+    if (vec.length() == 0) {
+        commSend(ZZ(0));        // send dummy base
+        commSend(ZZ(0));        // send dummy min_elem
+        commSend(ZZ(0));        // send empty packed result
+        return;
+    }
+
+    // Find min and max
+    ZZ min_elem = vec.length() > 0 ? vec[0] : ZZ(0);
+    ZZ max_elem = vec[0];
     for (long i = 0; i < vec.length(); ++i) {
+        if (vec[i] < min_elem) min_elem = vec[i];
         if (vec[i] > max_elem) max_elem = vec[i];
     }
-    // plus 2 to avoid collision
-    ZZ base = max_elem + 2;
 
-    // send base first
+    ZZ base = max_elem - min_elem + 2;  // add 2 for safety (shift +1)
+
+    // Send base and min_elem for decoding
     commSend(base);
+    commSend(min_elem);
 
-    // pack vec_zz into a big zz
+    // Pack into single ZZ
     ZZ result = ZZ(0);
     for (long i = vec.length() - 1; i >= 0; --i) {
-        result = result * base + vec[i] + 1; // add 1 to avoid ambiguity with zero
+        ZZ shifted = vec[i] - min_elem + 1;  // shift into non-negative range, then +1
+        result = result * base + shifted;
     }
 
-    // Step 4: 发送 result
     commSend(result);
 }
 
@@ -271,15 +282,20 @@ void Communicant::commSend(const vec_ZZ_p& vec) {
 
 vec_ZZ Communicant::commRecv_vec_ZZ() {
     ZZ base = commRecv_ZZ();
+    ZZ min_elem = commRecv_ZZ();  // recover the original base point
 
     ZZ received = commRecv_ZZ();
+
+    if (received == 0) {
+        return vec_ZZ(); // return empty vector
+    }
 
     vec_ZZ result;
     while (received != 0) {
         ZZ divisor, remainder;
         DivRem(divisor, remainder, received, base);
 
-        append(result, to_ZZ(remainder-1)); // subtract back the 1 that was added when sent
+        result.append(min_elem + remainder - 1);  // shift back
         received = divisor;
     }
 

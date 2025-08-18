@@ -4,7 +4,8 @@
  * The {@link IBLTSync_Adaptive} method syncs with another {@link IBLTSync_Adaptive} method by sending an IBLT containing
  * its set. Upon receiving this IBLT, the server performs a subtract operation on both IBLTs
  * and uses the resulting IBLT to calculate the symmetric set difference. These differences
- * are then sent back to the client. If the decoding process failed, we construct an IBLT with doubled size and re-run the synchronization
+ * are then sent back to the client. If the decoding process failed, we construct an IBLT with doubled size
+ * (which is the optimal strategy with respect to overhead over the "clairvoyant" IBLT) and re-run the synchronization.
  * There is an adjustable probability that the sync will fail to recover all differences.
  *
  * Created by Xingyu Chen on 4/27/25.
@@ -40,6 +41,13 @@ public:
                     list<shared_ptr<DataObject>> &selfMinusOther,
                     list<shared_ptr<DataObject>> &otherMinusSelf) override;
 
+     /**
+     * Helper Function for constructing IBLT and inserting elements.
+     * @param currentExpected The current guess of set difference size between client and server
+     * @param elementSize The size of elements being sent over between client and server
+     */
+    IBLT buildIBLT(size_t currentExpected, size_t elementSize);
+
     bool addElem(shared_ptr<DataObject> datum) override;
     bool delElem(shared_ptr<DataObject> datum) override;
 
@@ -54,6 +62,9 @@ private:
 
     // Size of elements
     size_t elementSize;
+
+    // Number of elements
+    size_t elementCount = 0;
 };
 
 #endif //GENSYNC_IBLTSYNC_ADAPTIVE_H
