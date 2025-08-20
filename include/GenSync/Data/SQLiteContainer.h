@@ -2,7 +2,7 @@
 // Created by GregoryFan on 7/10/2025
 //
 
-//#ifdef USE_SQLITE
+#ifdef USE_SQLITE
 #ifndef SQLITE_CONTAINER_H
 #define SQLITE_CONTAINER_H
 
@@ -206,12 +206,12 @@ class SQLiteContainer : public DatabaseContainer {
     /**
      * Begins a buffer that stores given commands to the disk.
      */
-    void beginTransaction();
+    void beginTransaction() override;
 
     /**
      * Executs all commands within the buffer to the disk.
      */
-    void commitTransaction();
+    void commitTransaction() override;
 };
 #endif //SQLITE_CONTAINER_H
-//#endif
+#endif

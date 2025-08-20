@@ -68,7 +68,21 @@ class DatabaseContainer : public DataContainer {
      * Pushes a given DataObject into the container for storage.
      * @param val The given DataObject to store.
      */
-    virtual void add (const shared_ptr<DataObject>& val) override = 0;
+    virtual void add(const shared_ptr<DataObject>& val) override = 0;
+
+    protected:
+
+    /**
+     * Begins a buffer for committing actions onto the database.
+     * Not all databases support transactions.
+     */
+    virtual void beginTransaction(){};
+
+    /**
+     * Sends a buffer to be comitted onto the database.
+     * Not all databases support transactions.
+     */
+    virtual void commitTransaction(){};
 
 };
 #endif
