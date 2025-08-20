@@ -1,12 +1,16 @@
-#ifndef INMEMCONTAINER_TEST_H
-#define INMEMCONTAINER_TEST_H
+/* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
+// Created by GregoryFan on 7/10/2025
+//
 
+#ifdef USE_SQLITE
+#ifndef SQLITE_CONTAINER_TEST_H
+#define SQLITE_CONTAINER_TEST_H
 #include <cppunit/extensions/HelperMacros.h>
-#include <GenSync/Data/InMemContainer.h>
+#include <GenSync/Data/SQLiteContainer.h>
 #include "../TestAuxiliary.h"
 
-class InMemContainerTest : public CppUnit::TestFixture {
-    CPPUNIT_TEST_SUITE(InMemContainerTest);
+class SQLiteContainerTest : public CppUnit::TestFixture {
+    CPPUNIT_TEST_SUITE(SQLiteContainerTest);
     CPPUNIT_TEST(addTest);
     CPPUNIT_TEST(clearTest);
     CPPUNIT_TEST(emptyTest);
@@ -18,15 +22,12 @@ class InMemContainerTest : public CppUnit::TestFixture {
     /**
      * The static seed the tests are set to.
      */
-    const int SEED = 1029;
-
-    /**
-     * Sets up the random seed.
-     */
+    const int SEED = 1920;
     void setUp() override;
+    void tearDown() override;
 
     private:
-
+    unique_ptr<SQLiteContainer> container;
     /**
      * Adds elements to a container and iterates through them using a list
      * as comparison to ensure values have been successfully inserted.
@@ -52,6 +53,7 @@ class InMemContainerTest : public CppUnit::TestFixture {
      * First fills a container, then removes half the elements and compares the other half to a list.
      */
     void removeTest();
-};
 
+};  
+#endif //SQLITE_CONTAINER_TEST_H
 #endif

@@ -31,6 +31,14 @@ public:
         return myID;
     }
 
+    /**
+     * @return Sets the ID of this object.
+     */
+    void setObjectID(int newID){
+        myID = newID;
+    }
+
+
 private:
     int myID; /** the ID of this object */
     static int ID_count; /** Maintains a count of the number of UIDs created in the program thus far. */

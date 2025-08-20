@@ -77,6 +77,29 @@ GenSync::GenSync(const vector<shared_ptr<Communicant>> &cVec, const vector<share
 
 }
 
+GenSync::GenSync (
+                 const vector<shared_ptr<Communicant>> &cVec,
+                 const vector<shared_ptr<SyncMethod>> &mVec,
+                 const shared_ptr<DataContainer> dataCont,
+                 const bool cleanData,
+                 void (*postProcessing)(list<shared_ptr<DataObject>>, const DataContainer& ,void (GenSync::*add)(shared_ptr<DataObject>),bool (GenSync::*del)(shared_ptr<DataObject>), GenSync *pGenSync),
+                 const list<shared_ptr<DataObject>> &data
+                 )
+{
+    myData = dataCont;
+    myCommVec = cVec;
+    mySyncVec = mVec;
+    outFile = nullptr; // no output file is being used
+    _PostProcessing = postProcessing;
+    if(cleanData){
+        myData -> clear();
+    }
+    // add each datum one by one
+    auto itData = data.begin();
+    for (; itData != data.end(); itData++)
+        addElem(*itData);
+}
+
 // destruct a gensync object
 
 GenSync::~GenSync() {
@@ -529,10 +552,18 @@ GenSync GenSync::Builder::build() {
     }
     theMeths.push_back(myMeth);
 
-    if (fileName.isNullQ()) // is data to be drawn from a file?
-        return GenSync(theComms, theMeths, _postProcess);
+    GenSync g;
+
+     if (this->dataCont.isNullQ()){
+        this -> dataCont = Nullable<shared_ptr<DataContainer>>(make_shared<InMemContainer>());
+    }
+
+    if (fileName.isNullQ())
+        g = GenSync(theComms, theMeths, *this->dataCont, clearData, _postProcess);
     else
-        return GenSync(theComms, theMeths, fileName);
+        g = GenSync(theComms, theMeths, fileName);
+    
+    return g;
 }
 
 // static consts

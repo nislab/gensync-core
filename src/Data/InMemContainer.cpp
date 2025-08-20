@@ -1,3 +1,6 @@
+//
+// Created by GregoryFan on 7/10/2025
+//
 #include <GenSync/Data/InMemContainer.h>
 
 InMemContainer::~InMemContainer(){clear();}
@@ -31,8 +34,11 @@ void InMemContainer::clear(){
 }
 
 bool InMemContainer::remove (const shared_ptr<DataObject>& val){
-    int before =myData.size();
-    myData.remove(val);
+    int before = myData.size();
+    auto it = find(myData.begin(), myData.end(), val);
+    if(it != myData.end()){
+        myData.erase(it);
+    }
     return myData.size() < before;
 }
 

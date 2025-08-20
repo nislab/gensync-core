@@ -1,4 +1,7 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
+// Created by GregoryFan on 7/10/2025
+//
+
 #ifndef DATACONTAINER_H
 #define DATACONTAINER_H
 #include <GenSync/Data/DataObject.h>
@@ -148,7 +151,6 @@ class DataContainer{
         using iterator = DataIteratorWrapper;
         using const_iterator = DataIteratorWrapper;
         using size_type = list<shared_ptr<DataObject>>::size_type;
-
         /**
          * Default destructor, meant to be overriden by subclasses.
          */
@@ -170,7 +172,7 @@ class DataContainer{
         virtual const_iterator begin() const = 0;
 
         /**
-         * @return A const iterator that points to the beginning of the container.
+         * @return A const iterator that points to the final item of the container.
          */
         virtual const_iterator end() const = 0;
 
@@ -190,12 +192,12 @@ class DataContainer{
         virtual void clear() = 0;
 
         /**
-         * Removes all DataObjects that contain the internal data as the given DataObject.
+         * Removes the first DataObject that contain the internal data as the given DataObject.
          * The internal data refers to the information that the DataObject represents.
          * @param val The given DataObject.
          * @return Returns true if object is successfully removed.
          */
-        virtual bool remove (const shared_ptr<DataObject>& val) = 0;
+        virtual bool remove(const shared_ptr<DataObject>& val) = 0;
 
         /**
          * Pushes a given DataObject into the container for storage.

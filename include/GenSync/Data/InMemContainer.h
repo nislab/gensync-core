@@ -1,4 +1,7 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
+// Created by GregoryFan on 7/10/2025
+//
+
 #ifndef INMEMCONTAINER_H
 #define INMEMCONTAINER_H
 #include <GenSync/Data/DataContainer.h>
@@ -127,7 +130,7 @@ class InMemContainer : public DataContainer{
     void clear() override;
 
     /**
-     * Removes all DataObjects that contain the internal data as the given DataObject.
+     * Removes the first DataObject that contain the internal data as the given DataObject.
      * The internal data refers to the information that the DataObject represents.
      * @param val The given DataObject.
      * @return Returns true if object is successfully removed.
