@@ -63,6 +63,11 @@ public:
     /**
      * Receives numBytes characters from the socket.
      * This is the primitive receive method that all other methods call.
+     * 
+     * This method blocks the process, but will time itself out after
+     * a specified amount of time.
+     * The default timeout duration is two seconds.
+     * 
      * %R: Must have called either commListen or commConnect already.
      * @return The string of characters received.
      * @see Communicant.h for more explanations, please.
@@ -79,10 +84,21 @@ public:
      */
     string getName() override { return "CommSocketUDP"; }
 
+    /**
+     * Sets the amount of time the socket attempts to receive data 
+     * before timing itself out and continues with the process.
+     */
+    void setRecvTimeout(int seconds);
+
 private:
     /** The name of the host represented by this Communicant. */
     string remoteHost;
     int remotePort=DEFAULT_PORT; /** The port on which communicants are being enacted with this Communicant. */
+
+    /**
+     * The amount of time before a receiving socket times itself out and stops trying to receive data.
+     */
+    int recvTimeoutSec = 2;
 
     enum CommState { /** Possible states for a communication object. */
         Idle, Listening, Connecting

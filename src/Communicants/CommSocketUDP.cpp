@@ -26,6 +26,10 @@ void CommSocketUDP::commListen() {
     if (my_fd == -1) {
         Logger::error_and_quit("UDP socket creation failed");
     }
+
+    if (recvTimeoutSec > 0) {
+        setRecvTimeout(recvTimeoutSec);
+    }
     
     //Sets up local address
     memset(&localAddr, 0, sizeof(localAddr));
@@ -49,7 +53,9 @@ void CommSocketUDP::commConnect() {
     if (my_fd == -1) {
         Logger::error_and_quit("UDP socket creation failed");
     }
-
+    if (recvTimeoutSec > 0) { 
+        setRecvTimeout(recvTimeoutSec);
+    }
     //Sets up remote port
     memset(&remoteAddr, 0, sizeof(remoteAddr));
     remoteAddr.sin_family = AF_INET;
@@ -107,6 +113,12 @@ std::string CommSocketUDP::commRecv(unsigned long numBytes) {
                                 (struct sockaddr*)&senderAddr, &senderLen);
 
     if (recvLen < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // timeout occurred
+            Logger::gLog(Logger::COMM_DETAILS, "UDP recvfrom timed out after " + toStr(recvTimeoutSec) + "s");
+            delete[] buffer;
+            return "";
+        }
         delete[] buffer;
         Logger::error_and_quit("UDP recvfrom failed");
     }
@@ -127,5 +139,20 @@ std::string CommSocketUDP::commRecv(unsigned long numBytes) {
     std::string result(buffer, recvLen);
     delete[] buffer;
     return result;
+}
+
+void CommSocketUDP::setRecvTimeout(int seconds) {
+    //Sets the variable to the correct amount.
+    recvTimeoutSec = seconds;
+
+    //If the socket exists, update the socket to the timeout timer.
+    if (my_fd != -1) {
+        struct timeval tv{};
+        tv.tv_sec = seconds;
+        tv.tv_usec = 0;
+        if (setsockopt(my_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+            Logger::error_and_quit("setsockopt(SO_RCVTIMEO) failed");
+        }
+    }
 }
 
