@@ -116,11 +116,11 @@ struct CuckooParams : Params {
 };
 
 struct RIBLTParams : Params {
-    size_t eltSize;
+    size_t eltSize, batchSize;
 
-    RIBLTParams() : eltSize (0){}
-    RIBLTParams(size_t eltSize) :
-                                     eltSize (eltSize){}
+    RIBLTParams() : eltSize (0), batchSize (0){}
+    RIBLTParams(size_t eltSize, size_t batchSize) :
+                                     eltSize (eltSize), batchSize(batchSize) {}
 
     ostream& serialize(ostream& os) const;
     istream& unserialize(istream& is);

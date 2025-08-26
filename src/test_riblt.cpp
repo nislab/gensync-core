@@ -63,6 +63,7 @@ using namespace NTL;
 int main() {
     size_t eltSize = 8;
     size_t initialExpected = 5;
+    size_t batchSize = 10;
 
 //    shared_ptr<SyncMethod> syncA = make_shared<R>(initialExpected, eltSize);
 //    shared_ptr<SyncMethod> syncB = make_shared<RIBLT>(initialExpected, eltSize);
@@ -71,12 +72,14 @@ int main() {
                         .setComm(GenSync::SyncComm::socket)
                         .setProtocol(GenSync::SyncProtocol::RIBLTSync)
                         .setBits(8)
+                        .setBatchSize(batchSize)
                         .build();
 
     GenSync host2 = GenSync::Builder()
                         .setComm(GenSync::SyncComm::socket)
                         .setProtocol(GenSync::SyncProtocol::RIBLTSync)
                         .setBits(8)
+                        .setBatchSize(batchSize)
                         .build();
 
     for (int i = 1; i < 1000; ++i) {

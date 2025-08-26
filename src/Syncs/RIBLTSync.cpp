@@ -9,8 +9,9 @@
 
 using namespace std;
 
-RIBLTSync::RIBLTSync(size_t eltSize) {
+RIBLTSync::RIBLTSync(size_t eltSize, size_t symbolNum) {
     elementSize = eltSize;
+    batchSize = symbolNum;
 }
 
 RIBLTSync::~RIBLTSync() = default;
@@ -38,12 +39,10 @@ bool RIBLTSync::SyncClient(const shared_ptr<Communicant>& commSync,
     }
     mySyncStats.timerEnd(SyncStats::COMP_TIME);
 
-    const int BATCH_SIZE = 100;
-
     while (true) {
         vector<CodedSymbol<Symbol>> batch;
         mySyncStats.timerStart(SyncStats::COMP_TIME);
-        for (int i = 0; i < BATCH_SIZE; ++i) {
+        for (int i = 0; i < batchSize; ++i) {
             batch.push_back(encoder.produceNextCell());
         }
         mySyncStats.timerEnd(SyncStats::COMP_TIME);

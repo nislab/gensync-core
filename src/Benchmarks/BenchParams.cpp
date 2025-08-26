@@ -168,19 +168,22 @@ void CuckooParams::apply(GenSync::Builder& gsb) const {
 }
 
 ostream& RIBLTParams::serialize(ostream& os) const {
-    os << "eltSize: " << eltSize;
+    os << "eltSize: " << eltSize << "\n"
+       << "batchSize: " << batchSize;
 
     return os;
 }
 
 istream& RIBLTParams::unserialize(istream& is) {
     getVal<decltype(eltSize)>(is, eltSize);
+    getVal<decltype(batchSize)>(is, batchSize);
 
     return is;
 }
 
 void RIBLTParams::apply(GenSync::Builder& gsb) const {
     gsb.setBits(eltSize);
+    gsb.setBatchSize(batchSize);
 }
 
 /**
@@ -401,7 +404,7 @@ BenchParams::BenchParams(SyncMethod& meth) :
     auto riblt = dynamic_cast<RIBLTSync*>(&meth);
     if (riblt) {
         syncProtocol = GenSync::SyncProtocol::RIBLTSync;
-        syncParams = make_shared<RIBLTParams>(riblt->getElementSize());
+        syncParams = make_shared<RIBLTParams>(riblt->getElementSize(), riblt->getbatchSize());
         return;
     }
 

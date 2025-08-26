@@ -398,7 +398,8 @@ public:
     bits(DFT_BITS),
     numParts(DFT_PARTS),
     hashes(HASHES),
-    numExpElem(DFT_EXPELEMS){
+    numExpElem(DFT_EXPELEMS),
+    batchSize(BATCH_SIZE){
         myComm = nullptr;
         myMeth = nullptr;
     }
@@ -578,6 +579,15 @@ public:
         return *this;
     }
 
+    /**
+     * Rateless-IBLT synchronization specific setter.
+     * Sets functional for batch size in Rateless-IBLT Synchronization.
+     * @param degMatrixFunc The function which outputs degrees of cell type given cell type index for MET IBLT.
+     */
+    Builder& setBatchSize(size_t batchSize) {
+        this->batchSize = batchSize;
+        return *this;
+    }
 
     /**
      * Destructor - clear up any possibly allocated internal variables
@@ -612,6 +622,7 @@ private:
     Nullable<vector<float>> probMatrix; /** Probability matrix for element types in MET */
     Nullable<std::function<int(size_t)>> cellTypeFunc; /** Function which outputs size of cell type given cell type index for MET */
     Nullable<std::function<vector<int>(size_t)>> degMatrixFunc; /** Function which outputs degrees of cell type given cell type index for MET */
+    Nullable<size_t> batchSize; /** Size of batch sent for each round in Rateless-IBLT*/
 
 
     // ... bookkeeping variables
@@ -632,6 +643,7 @@ private:
     static const string DFT_HOST;
     static const string DFT_IO;
     static const int DFT_ERROR;
+    static const int BATCH_SIZE = 1;
 };
 
 #endif

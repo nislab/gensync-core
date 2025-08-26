@@ -15,8 +15,9 @@ class RIBLTSync : public SyncMethod {
     /**
      * Constructor.
      * @param eltSize The size of elements being stored
+     * @param symbolNum The number of coded symbols being sent in each commucaiton rounc
      */
-    RIBLTSync(size_t eltSize);
+    RIBLTSync(size_t eltSize, size_t symbolNum);
     ~RIBLTSync() override;
 
     // Implemented parent class methods
@@ -30,6 +31,8 @@ class RIBLTSync : public SyncMethod {
     /* Getters for the parameters set in the constructor */
     size_t getElementSize() const {return elementSize;}
 
+    /* Getters for the parameters set in the constructor */
+    size_t getbatchSize() const {return batchSize;}
   protected:
 
   private:
@@ -38,6 +41,11 @@ class RIBLTSync : public SyncMethod {
      * Size of elements as set in the constructor
      */
     size_t elementSize;
+
+    /**
+     * Number of coded symbols in batch being sent for each communication round
+     */
+    size_t batchSize;
 };
 
 #endif // GENSYNC_RIBLTSYNC_H

@@ -529,7 +529,7 @@ GenSync GenSync::Builder::build() {
             myMeth = make_shared<MET_IBLTSync>(bits, probMatrix, cellTypeFunc, degMatrixFunc);
             break;
         case SyncProtocol::RIBLTSync:
-            myMeth = make_shared<RIBLTSync>(bits);
+            myMeth = make_shared<RIBLTSync>(bits, batchSize);
             break;
         default:
             throw invalid_argument("I don't know how to synchronize with this protocol.");
