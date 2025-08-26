@@ -8,6 +8,7 @@
 #include <GenSync/Syncs/CPISync.h>
 #include <GenSync/Communicants/CommSocket.h>
 #include <GenSync/Communicants/CommString.h>
+#include <GenSync/Communicants/CommSocketUDP.h>
 #include <GenSync/Syncs/ProbCPISync.h>
 #include <GenSync/Syncs/InterCPISync.h>
 #include <GenSync/Syncs/FullSync.h>
@@ -461,6 +462,10 @@ GenSync GenSync::Builder::build() {
     switch (comm) {
         case SyncComm::socket:
             myComm = make_shared<CommSocket>(port, host);
+            Logger::gLog(Logger::METHOD, "Connecting to host " + host + " on port " + toStr(port));
+            break;
+        case SyncComm::socketudp:
+            myComm = make_shared<CommSocketUDP>(port, host);
             Logger::gLog(Logger::METHOD, "Connecting to host " + host + " on port " + toStr(port));
             break;
         case SyncComm::string:

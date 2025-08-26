@@ -337,6 +337,7 @@ public:
         UNDEFINED, // not yet defined
         BEGIN, // beginning of iterable option
         socket= static_cast<int>(BEGIN), //socket-based communication
+        socketudp, //socket-based comunication using UDP protocol
         string, // communication recorded in a string
         END     // one after the end of iterable options
     };
