@@ -10,6 +10,7 @@
 #include <GenSync/Syncs/InterCPISync.h>
 #include <GenSync/Communicants/CommString.h>
 #include <GenSync/Communicants/CommSocket.h>
+#include <GenSync/Communicants/CommSocketUDP.h>
 #include <GenSync/Aux/Auxiliary.h>
 #include <GenSync/Syncs/GenSync.h>
 #include <GenSync/Syncs/FullSync.h>
@@ -1284,6 +1285,60 @@ inline bool socketSendReceiveTest(){
 	} else {
 		Logger::gLog(Logger::COMM,"created a client socket process");
 		CommSocket clientSocket(port,host);
+		clientSocket.commConnect();
+
+		//Send each string from sampleData through the socket
+		for(unsigned int ii = 0; ii < TIMES; ii++)
+			clientSocket.commSend(sampleData.at(ii).c_str(),sampleData.at(ii).length());
+
+		clientSocket.commClose();
+		waitpid(pID, &chld_state, 0);
+	}
+	//If this point is reached, none of the tests have failed
+	return true;
+}
+
+/**
+ * This function handles the server client fork in CommSocketTest and is wrapped in a timer in the actual test
+ * @port The port that the commSockets will make a connection on (8001)
+ * @host The host that the commSockets will use (localhost)
+ */
+inline bool socketUDPSendReceiveTest(){
+	const int LENGTH_LOW = 1; //Lower limit of string length for testing
+	const int LENGTH_HIGH = 100; //Upper limit of string length for testing
+	const int TIMES = 100; //Times to run commSocketTest
+
+	vector<string> sampleData;
+
+	for(int ii = 0; ii < TIMES; ii++){
+		sampleData.push_back(randString(LENGTH_LOW,LENGTH_HIGH));
+	}
+
+	int chld_state;
+	pid_t pID = fork();
+	if (pID == 0) {
+		signal(SIGCHLD, SIG_IGN);
+		Logger::gLog(Logger::COMM,"created a server socket process");
+		CommSocketUDP serverSocket(port,host);
+		serverSocket.commListen();
+
+		//If any of the tests fail return false
+		for(unsigned int ii = 0; ii < TIMES; ii++) {
+			if (!(serverSocket.commRecv(sampleData.at(ii).length()) == sampleData.at(ii))) {
+				serverSocket.commClose();
+				Logger::error_and_quit("Received message does not match sent message");
+				return false;
+			}
+		}
+
+		serverSocket.commClose();
+		exit(0);
+	} else if (pID < 0) {
+		Logger::error("Error forking in CommSocketTest"); 
+		return false;
+	} else {
+		Logger::gLog(Logger::COMM,"created a client socket process");
+		CommSocketUDP clientSocket(port,host);
 		clientSocket.commConnect();
 
 		//Send each string from sampleData through the socket

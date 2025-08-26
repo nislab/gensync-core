@@ -1,7 +1,5 @@
 /* This code is part of the GenSync project developed at Boston University.  Please see the README for use and references. */
 
-// CommSocketUDP.h
-
 #ifndef COMM_SOCKETUDP_H
 #define COMM_SOCKETUDP_H
 
